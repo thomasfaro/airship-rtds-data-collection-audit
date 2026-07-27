@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "My Project PROD": {
+      "token": "Bearer eyJhbGciOi…",
+      "region": "eu"
+    },
+    "Another Project US": {
+      "token": "eyJhbGciOi…",
+      "region": "us"
+    }
+  }
+}
