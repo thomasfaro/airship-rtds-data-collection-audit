@@ -19,7 +19,11 @@ const REPORT = {
             { deviceType: "ANDROID", count: 20 },
           ],
           propertyValueStats: [{ property: "sku" }, { property: "value" }],
-          versionScope: { firstSeenVersion: "3.0.0", lastSeenVersion: "3.2.0" },
+          versionScope: {
+            maxAppVersion: "3.2.0",
+            sourceScope: "sdk",
+            label: "SDK · latest app 3.2.0",
+          },
         },
       ],
     },
@@ -81,6 +85,16 @@ test("platformsForRow merges device types into canonical platforms, busiest firs
   ]);
 });
 
+test("platformsForRow drops platforms the item was never seen on", () => {
+  const platforms = platformsForRow({
+    byDeviceBreakdown: [
+      { deviceType: "IOS", count: 3 },
+      { deviceType: "ANDROID", count: 0 },
+    ],
+  });
+  assert.deepEqual(platforms, [{ platform: "iOS", count: 3 }]);
+});
+
 test("platformsForRow returns an empty list when the row has no breakdown", () => {
   assert.deepEqual(platformsForRow({}), []);
   assert.deepEqual(platformsForRow(null), []);
@@ -109,7 +123,25 @@ test("custom events carry their source, platforms and property names", () => {
     { platform: "Android", count: 20 },
   ]);
   assert.deepEqual(purchase.properties, ["sku", "value"]);
-  assert.equal(purchase.versionScope, "3.0.0 → 3.2.0");
+  assert.equal(purchase.versionScope, "latest app 3.2.0");
+});
+
+test("a version-agnostic API item has no version scope to show", () => {
+  const [crmSync] = buildCoverageSummary({
+    customEvents: {
+      api: {
+        top: [
+          {
+            name: "crm_sync",
+            count: 1,
+            source: "API",
+            versionScope: { maxAppVersion: null, sourceScope: "api", label: "API — version-agnostic" },
+          },
+        ],
+      },
+    },
+  }).categories[0].items;
+  assert.equal(crmSync.versionScope, null);
 });
 
 test("attributes surface every source and their platform gaps", () => {

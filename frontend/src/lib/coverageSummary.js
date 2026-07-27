@@ -13,7 +13,11 @@ export function normalizeSource(source) {
   return SOURCE_LABELS[value] ?? (value ? value : "Unknown");
 }
 
-/** Ordered, deduplicated platform labels for one report row. */
+/**
+ * Ordered, deduplicated platform labels for one report row. The engine keeps a
+ * zero-count entry for platforms an item was *not* seen on — those belong to
+ * `missingPlatforms`, not to the pills.
+ */
 export function platformsForRow(row) {
   const counts = new Map();
   for (const entry of row?.byDeviceBreakdown ?? []) {
@@ -21,6 +25,7 @@ export function platformsForRow(row) {
     counts.set(label, (counts.get(label) ?? 0) + (entry.count ?? 0));
   }
   return [...counts.entries()]
+    .filter(([, count]) => count > 0)
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(([platform, count]) => ({ platform, count }));
 }
@@ -33,15 +38,13 @@ function sourcesFromMap(map) {
     .map(([source]) => normalizeSource(source));
 }
 
+/**
+ * The engine's version scope label repeats the source ("SDK · latest app 3.2.0"),
+ * which the row already shows as a badge — keep only the app version.
+ */
 function versionScopeLabel(versionScope) {
-  if (!versionScope) return null;
-  const { firstSeenVersion, lastSeenVersion } = versionScope;
-  if (firstSeenVersion && lastSeenVersion) {
-    return firstSeenVersion === lastSeenVersion
-      ? firstSeenVersion
-      : `${firstSeenVersion} → ${lastSeenVersion}`;
-  }
-  return firstSeenVersion ?? lastSeenVersion ?? null;
+  const maxAppVersion = versionScope?.maxAppVersion;
+  return maxAppVersion ? `latest app ${maxAppVersion}` : null;
 }
 
 function baseItem(row, { name, count, sources }) {

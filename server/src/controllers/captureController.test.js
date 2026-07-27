@@ -25,7 +25,12 @@ function trackingEvent(overrides = {}) {
     type: overrides.type ?? "CUSTOM",
     occurred: overrides.occurred ?? "2026-07-27T10:00:00.000Z",
     processed: overrides.processed ?? "2026-07-27T10:00:01.000Z",
-    device: { platform: "IOS", ios_channel: "chan-1", app_version: "3.2.0", ...overrides.device },
+    device: {
+      device_type: "IOS",
+      channel: "chan-1",
+      attributes: { app_version: "3.2.0" },
+      ...overrides.device,
+    },
     body: overrides.body ?? { name: "purchase", properties: { sku: "A1" } },
   });
 }
@@ -125,6 +130,58 @@ test("captures tracking events and completes with a tagging plan report", async 
       "SUBSCRIPTION_LIST",
       "TAG_CHANGE",
     ]);
+  } finally {
+    restore();
+  }
+});
+
+test("report rows expose the fields the summary screen and the exporter read", async () => {
+  const restore = stubRtds([
+    trackingEvent({ id: "a", offset: "1" }),
+    trackingEvent({
+      id: "b",
+      offset: "2",
+      device: { device_type: "ANDROID", channel: "chan-2", attributes: { app_version: "3.2.0" } },
+    }),
+    trackingEvent({
+      id: "c",
+      offset: "3",
+      type: "ATTRIBUTE_OPERATION",
+      body: { attributes: [{ action: "set", key: "city", value: "Paris" }] },
+    }),
+    trackingEvent({
+      id: "d",
+      offset: "4",
+      type: "SUBSCRIPTION_LIST",
+      body: { subscription_lists: [{ action: "subscribe", list_id: "news" }] },
+    }),
+  ]);
+  try {
+    const messages = await collect({ profile: "Demo", timezone: "UTC" }, { stopAfterEvents: 4 });
+    const { report } = messages.find((m) => m.kind === "complete");
+
+    const [purchase] = report.customEvents.sdk.top;
+    assert.equal(purchase.name, "purchase");
+    assert.equal(purchase.source, "SDK");
+    assert.deepEqual(
+      purchase.byDeviceBreakdown.map((entry) => entry.deviceType).sort(),
+      ["ANDROID", "IOS"],
+      "platform pills are built from byDeviceBreakdown",
+    );
+    assert.equal(purchase.versionScope.maxAppVersion, "3.2.0");
+    assert.deepEqual(
+      purchase.propertyValueStats.map((stat) => stat.property),
+      ["sku"],
+    );
+
+    const [city] = report.attributes.topKeys;
+    assert.equal(city.key, "city");
+    assert.equal(city.sources.SDK, 1, "attribute sources are a per-source count map");
+    assert.ok(Array.isArray(city.byDeviceBreakdown));
+
+    const [news] = report.subscriptionLists.byList;
+    assert.equal(news.listId, "news");
+    assert.equal(news.subscribe, 1);
   } finally {
     restore();
   }
