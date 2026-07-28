@@ -8,7 +8,6 @@ export function buildCaptureStreamParams({
   stopMode = "manual",
   startPosition = "earliest",
   windowHours = null,
-  realtimePreset = "thorough",
   excludedDeviceTypes = [],
 } = {}) {
   const params = new URLSearchParams();
@@ -19,9 +18,6 @@ export function buildCaptureStreamParams({
   // A latency window only bounds the EARLIEST backlog; LATEST has none.
   if (startPosition === "earliest" && windowHours != null && windowHours !== "") {
     params.set("window_hours", String(windowHours));
-  }
-  if (stopMode === "realtime") {
-    params.set("rt_preset", realtimePreset);
   }
   if (Array.isArray(excludedDeviceTypes) && excludedDeviceTypes.length > 0) {
     params.set("excludedDeviceTypes", encodeURIComponent(JSON.stringify(excludedDeviceTypes)));

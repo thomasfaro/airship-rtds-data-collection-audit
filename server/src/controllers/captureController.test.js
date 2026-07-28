@@ -17,6 +17,7 @@ process.env.RTDS_DCA_STORAGE_DIR = path.join(dataDir, "analyses");
 process.env.RTDS_PROFILES_PATH = path.join(dataDir, "config", "rtds-profiles.json");
 
 const { runDataCollectionCapture } = await import("./captureController.js");
+const { REALTIME_THRESHOLDS } = await import("../capture/captureOptions.js");
 
 function trackingEvent(overrides = {}) {
   return JSON.stringify({
@@ -210,20 +211,20 @@ test("real-time mode exposes progress toward each auto-stop condition", async ()
   const restore = stubRtds([trackingEvent({ id: "a" }), trackingEvent({ id: "b" })]);
   try {
     const messages = await collect(
-      { profile: "Demo", timezone: "UTC", stop_mode: "realtime", rt_preset: "fast" },
+      { profile: "Demo", timezone: "UTC", stop_mode: "realtime" },
       { stopAfterEvents: 2 },
     );
     const last = messages.filter((m) => m.kind === "progress" && m.coverage?.autoStop).at(-1);
     assert.ok(last, "expected auto-stop progress in real-time mode");
     const { autoStop } = last.coverage;
-    assert.equal(autoStop.events.target, 100_000);
-    assert.equal(autoStop.processedSpanMs.target, 30 * 60 * 1000);
-    assert.equal(autoStop.eventsSinceLastNewKey.target, 25_000);
-    assert.equal(autoStop.spanSinceLastNewKeyMs.target, 10 * 60 * 1000);
+    assert.equal(autoStop.events.target, REALTIME_THRESHOLDS.minEvents);
+    assert.equal(autoStop.processedSpanMs.target, REALTIME_THRESHOLDS.minProcessedSpanMs);
+    assert.equal(autoStop.eventsSinceLastNewKey.target, REALTIME_THRESHOLDS.plateauMargin);
+    assert.equal(autoStop.spanSinceLastNewKeyMs.target, REALTIME_THRESHOLDS.plateauSpanMs);
 
     const complete = messages.find((m) => m.kind === "complete");
     assert.equal(complete.report.meta.realTime, true);
-    assert.equal(complete.report.meta.realtimeThresholds.preset, "fast");
+    assert.deepEqual(complete.report.meta.realtimeThresholds, { ...REALTIME_THRESHOLDS });
   } finally {
     restore();
   }

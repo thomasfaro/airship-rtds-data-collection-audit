@@ -45,8 +45,8 @@ Logs land in `/tmp/rtds-dca-server.log` and `/tmp/rtds-dca-frontend.log` in dev,
 **Capture** — pick a project and the report timezone, then choose how the capture should end:
 
 - **Real-time auto-stop** (default) — stops on its own once no new tracking key has appeared for a
-  while. Two sensitivity presets: *Thorough* (1M events / 1h of processed time / 250k events and
-  30min without a new key) and *Fast* (100k / 30min / 25k / 10min) for low-traffic projects. It
+  while. One fixed set of guardrails, and deliberately a strict one: 1M events and 1h of processed
+  time before completeness is even considered, then 250k events and 30min without a new key. It
   assumes the project streams in real time: when the client feeds Airship through the API in batches,
   the capture can end between two batches and the tagging plan will miss whatever they carried.
 - **Manual stop** — runs until you click Stop. The right choice for batch-fed projects, kept running
@@ -91,7 +91,7 @@ Optional environment variables (`server/.env`, copied from `server/.env.example`
 frontend/   React 18 + Vite + Tailwind — 3 routes, capture/summary components
 server/     Express API: profiles, capture (SSE), values, history
   src/audit/    the analysis engine (ported from airship-rtds-qa)
-  src/capture/  capture option resolution (stop mode, presets, start position)
+  src/capture/  capture option resolution (stop mode, thresholds, start position)
 config/     local RTDS profiles (gitignored)
 docs/       INSTALL.md — the no-terminal install path
 scripts/    dev-local.sh (dev stack), start.sh + start.ps1 (launchers),

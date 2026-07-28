@@ -42,7 +42,7 @@ server/src/
   index.js            slim entry: /api/bootstrap, /api/health, then the routers
   routes/             profiles, capture, values, history
   controllers/        captureController (SSE), valuesController, historyController
-  capture/            captureOptions.js — stop mode, presets, start position, window
+  capture/            captureOptions.js — stop mode, thresholds, start position, window
   audit/              the analysis engine, ported from airship-rtds-qa
   rtds/, security/, utils/, storage/, middleware/
 frontend/src/
@@ -68,6 +68,9 @@ frontend/src/
   its value fetchers by injection; wire them to `/api/values/*`, don't fork the module.
 - **Auto-stop lives server-side** in `audit/coveragePlateau.js`. The UI only renders the progress the
   SSE reports (`coverage.autoStop`).
+- **One set of auto-stop guardrails, on purpose.** A looser "fast" preset was offered and removed:
+  it stopped captures early enough to miss rare keys. `REALTIME_THRESHOLDS` is the only set, and the
+  `rt_*` query overrides exist for tuning a single run, not for the UI to expose again.
 
 ## Conventions
 

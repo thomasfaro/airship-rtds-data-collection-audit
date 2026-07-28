@@ -16,21 +16,11 @@ test("a manual capture sends the project, timezone, stop mode and start position
   assert.equal(params.get("rt_preset"), null);
 });
 
-test("the real-time preset is only sent in real-time mode", () => {
-  const realtime = buildCaptureStreamParams({
-    profile: "p",
-    stopMode: "realtime",
-    realtimePreset: "fast",
-  });
+test("real-time mode sends no sensitivity setting: the guardrails are fixed", () => {
+  const realtime = buildCaptureStreamParams({ profile: "p", stopMode: "realtime" });
   assert.equal(realtime.get("stop_mode"), "realtime");
-  assert.equal(realtime.get("rt_preset"), "fast");
-
-  const manual = buildCaptureStreamParams({
-    profile: "p",
-    stopMode: "manual",
-    realtimePreset: "fast",
-  });
-  assert.equal(manual.get("rt_preset"), null);
+  assert.equal(realtime.get("rt_preset"), null);
+  assert.equal(realtime.get("rt_min_events"), null);
 });
 
 test("a backlog limit only applies when starting from the earliest event", () => {

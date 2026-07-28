@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { runDataCollectionCapture } from "../controllers/captureController.js";
 import { stopAuditDownload, unregisterAuditSession } from "../audit/sessionRegistry.js";
-import { resolveCaptureOptions, REALTIME_PRESETS } from "../capture/captureOptions.js";
+import { resolveCaptureOptions, REALTIME_THRESHOLDS } from "../capture/captureOptions.js";
 import { AUDIT_WINDOW_HOURS } from "../audit/auditWindow.js";
 import { TAGGING_PLAN_RTDS_TYPES } from "../audit/registry.js";
 import { endSseError, pipeSseGenerator } from "../utils/sse.js";
@@ -37,7 +37,7 @@ router.get("/options", (_req, res) => {
         description: "Starts at the live edge of the stream and ignores the backlog.",
       },
     ],
-    realtimePresets: Object.values(REALTIME_PRESETS),
+    realtimeThresholds: REALTIME_THRESHOLDS,
     windowHours: AUDIT_WINDOW_HOURS,
     trackedEventTypes: TAGGING_PLAN_RTDS_TYPES,
   });

@@ -3,12 +3,6 @@ import { Link } from "react-router-dom";
 import TimezoneSelect from "../TimezoneSelect.jsx";
 import StopModeCard from "./StopModeCard.jsx";
 
-const SENSITIVITY_HINTS = {
-  thorough:
-    "Waits for 1M events and one hour of processed time before it will consider coverage complete. Safest choice.",
-  fast: "Stops after 100k events and 30 minutes of processed time. Good for low-traffic projects, may miss rare events.",
-};
-
 const START_HINTS = {
   earliest: "Replays the RTDS backlog first, so coverage builds up much faster.",
   latest: "Starts at the live edge of the stream and ignores the backlog.",
@@ -92,24 +86,11 @@ export default function CaptureForm({
               the tagging plan. Use Manual stop for those projects, and keep the capture running long
               enough to span at least one full batch cycle.
             </p>
-            <div className="flex flex-wrap items-center gap-2">
-              {["thorough", "fast"].map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => set("realtimePreset")(preset)}
-                  className={
-                    settings.realtimePreset === preset
-                      ? "rounded-pill bg-airship-blue px-3 py-1.5 text-xs font-semibold text-white"
-                      : "rounded-pill border border-airship-border-strong px-3 py-1.5 text-xs font-semibold text-airship-navy hover:border-airship-blue"
-                  }
-                >
-                  {preset === "thorough" ? "Thorough" : "Fast"}
-                </button>
-              ))}
-            </div>
             <p className="text-xs text-airship-muted">
-              {SENSITIVITY_HINTS[settings.realtimePreset] ?? SENSITIVITY_HINTS.thorough}
+              It waits for 1M events and one hour of processed time before it will even consider
+              coverage complete, then for 250k more events and 30 minutes without a single new key.
+              On a low-traffic project reaching that takes a while — you can always stop the capture
+              by hand once you judge the coverage good enough.
             </p>
           </div>
         </StopModeCard>

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  REALTIME_PRESETS,
+  REALTIME_THRESHOLDS,
   resolveCaptureOptions,
   resolveCaptureWindow,
   resolveRealtimeThresholds,
@@ -20,43 +20,33 @@ test("defaults to a manual stop from the earliest available event", () => {
   assert.equal(options.timezone, "Europe/Paris");
 });
 
-test("real-time stop mode carries the resolved plateau thresholds", () => {
+test("real-time stop mode carries the one set of plateau thresholds", () => {
   const options = resolveCaptureOptions({ profile: "Demo", stop_mode: "realtime" });
   assert.equal(options.realTime, true);
-  assert.deepEqual(options.realtimeThresholds, {
-    preset: "thorough",
-    minEvents: REALTIME_PRESETS.thorough.minEvents,
-    minProcessedSpanMs: REALTIME_PRESETS.thorough.minProcessedSpanMs,
-    plateauMargin: REALTIME_PRESETS.thorough.plateauMargin,
-    plateauSpanMs: REALTIME_PRESETS.thorough.plateauSpanMs,
-  });
+  assert.deepEqual(options.realtimeThresholds, { ...REALTIME_THRESHOLDS });
 });
 
-test("the fast preset lowers every threshold", () => {
-  const fast = resolveRealtimeThresholds({ rt_preset: "fast" });
-  assert.equal(fast.preset, "fast");
-  assert.ok(fast.minEvents < REALTIME_PRESETS.thorough.minEvents);
-  assert.ok(fast.minProcessedSpanMs < REALTIME_PRESETS.thorough.minProcessedSpanMs);
-  assert.ok(fast.plateauMargin < REALTIME_PRESETS.thorough.plateauMargin);
-  assert.ok(fast.plateauSpanMs < REALTIME_PRESETS.thorough.plateauSpanMs);
+test("no sensitivity preset can loosen the guardrails", () => {
+  // `fast` was a selectable preset once; an old client or bookmark must not revive it.
+  assert.deepEqual(resolveRealtimeThresholds({ rt_preset: "fast" }), { ...REALTIME_THRESHOLDS });
+  assert.deepEqual(resolveRealtimeThresholds({ rt_preset: "turbo" }), { ...REALTIME_THRESHOLDS });
 });
 
-test("explicit threshold overrides win over the preset", () => {
-  const thresholds = resolveRealtimeThresholds({ rt_preset: "fast", rt_min_events: "4242" });
+test("explicit threshold overrides are honoured one field at a time", () => {
+  const thresholds = resolveRealtimeThresholds({ rt_min_events: "4242" });
   assert.equal(thresholds.minEvents, 4242);
-  assert.equal(thresholds.plateauMargin, REALTIME_PRESETS.fast.plateauMargin);
+  assert.equal(thresholds.plateauMargin, REALTIME_THRESHOLDS.plateauMargin);
 });
 
-test("invalid threshold overrides fall back to the preset value", () => {
+test("invalid threshold overrides fall back to the default value", () => {
   const thresholds = resolveRealtimeThresholds({ rt_min_events: "-1", rt_margin: "abc" });
-  assert.equal(thresholds.minEvents, REALTIME_PRESETS.thorough.minEvents);
-  assert.equal(thresholds.plateauMargin, REALTIME_PRESETS.thorough.plateauMargin);
+  assert.equal(thresholds.minEvents, REALTIME_THRESHOLDS.minEvents);
+  assert.equal(thresholds.plateauMargin, REALTIME_THRESHOLDS.plateauMargin);
 });
 
-test("rejects unknown stop modes, start positions and presets", () => {
+test("rejects unknown stop modes and start positions", () => {
   assert.throws(() => resolveStopMode({ stop_mode: "eventually" }), /stop_mode must be one of/);
   assert.throws(() => resolveStartPosition({ start: "yesterday" }), /start must be one of/);
-  assert.throws(() => resolveRealtimeThresholds({ rt_preset: "turbo" }), /rt_preset must be one of/);
 });
 
 test("start position maps to the matching RTDS stream mode", () => {

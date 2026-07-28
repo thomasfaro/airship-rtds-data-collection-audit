@@ -10,7 +10,6 @@ const DEFAULT_SETTINGS = {
   profile: "",
   timezone: "Europe/Paris",
   stopMode: "realtime",
-  realtimePreset: "thorough",
   startPosition: "earliest",
   windowHours: null,
 };

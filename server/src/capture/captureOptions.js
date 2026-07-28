@@ -27,30 +27,17 @@ export const CAPTURE_START_POSITIONS = {
 };
 
 /**
- * Real-time sensitivity presets. `thorough` keeps the conservative engine
- * defaults; `fast` trades some exhaustiveness for a much shorter capture on
- * low-traffic projects, where 1M events would take hours to reach.
+ * The auto-stop guardrails, deliberately the only set on offer: the conservative
+ * engine defaults. A looser variant used to be selectable and was removed — it
+ * ended captures early enough to miss rare keys, which is the one thing a tagging
+ * plan cannot afford.
  */
-export const REALTIME_PRESETS = {
-  thorough: {
-    id: "thorough",
-    label: "Thorough",
-    minEvents: DEFAULT_MIN_EVENTS,
-    minProcessedSpanMs: DEFAULT_MIN_PROCESSED_SPAN_MS,
-    plateauMargin: DEFAULT_PLATEAU_MARGIN,
-    plateauSpanMs: DEFAULT_PLATEAU_SPAN_MS,
-  },
-  fast: {
-    id: "fast",
-    label: "Fast",
-    minEvents: 100_000,
-    minProcessedSpanMs: 30 * 60 * 1_000,
-    plateauMargin: 25_000,
-    plateauSpanMs: 10 * 60 * 1_000,
-  },
+export const REALTIME_THRESHOLDS = {
+  minEvents: DEFAULT_MIN_EVENTS,
+  minProcessedSpanMs: DEFAULT_MIN_PROCESSED_SPAN_MS,
+  plateauMargin: DEFAULT_PLATEAU_MARGIN,
+  plateauSpanMs: DEFAULT_PLATEAU_SPAN_MS,
 };
-
-export const DEFAULT_REALTIME_PRESET = "thorough";
 
 function parsePositiveInt(raw) {
   if (raw == null || String(raw).trim() === "") return undefined;
@@ -93,19 +80,15 @@ export function resolveCaptureWindow(query, startPosition) {
   return resolveAuditWindow({ window_hours: query.window_hours ?? query.windowHours });
 }
 
+/** The UI never sends overrides; they exist so a single run can be tuned or tested. */
 export function resolveRealtimeThresholds(query) {
-  const presetId = String(query?.rt_preset ?? DEFAULT_REALTIME_PRESET).trim().toLowerCase();
-  const preset = REALTIME_PRESETS[presetId];
-  if (!preset) {
-    throw new Error(`rt_preset must be one of: ${Object.keys(REALTIME_PRESETS).join(", ")}`);
-  }
-  // Explicit overrides win over the preset so a run can be tuned without a new preset.
   return {
-    preset: preset.id,
-    minEvents: parsePositiveInt(query?.rt_min_events) ?? preset.minEvents,
-    minProcessedSpanMs: parsePositiveInt(query?.rt_min_span_ms) ?? preset.minProcessedSpanMs,
-    plateauMargin: parsePositiveInt(query?.rt_margin) ?? preset.plateauMargin,
-    plateauSpanMs: parsePositiveInt(query?.rt_plateau_span_ms) ?? preset.plateauSpanMs,
+    minEvents: parsePositiveInt(query?.rt_min_events) ?? REALTIME_THRESHOLDS.minEvents,
+    minProcessedSpanMs:
+      parsePositiveInt(query?.rt_min_span_ms) ?? REALTIME_THRESHOLDS.minProcessedSpanMs,
+    plateauMargin: parsePositiveInt(query?.rt_margin) ?? REALTIME_THRESHOLDS.plateauMargin,
+    plateauSpanMs:
+      parsePositiveInt(query?.rt_plateau_span_ms) ?? REALTIME_THRESHOLDS.plateauSpanMs,
   };
 }
 
