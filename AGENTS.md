@@ -23,6 +23,18 @@ npm test              # server + frontend (node --test)
 Ports differ from `airship-rtds-qa` (3001 / 5173) so both can run side by side. Logs:
 `/tmp/rtds-dca-server.log`, `/tmp/rtds-dca-frontend.log`.
 
+## Shipping it to non-developers
+
+`scripts/start.sh` (macOS/Linux) and `scripts/start.ps1` (Windows) are the double-click path: install
+what is missing, build the UI, then serve UI + API from the single API port — `server/src/index.js`
+serves `frontend/dist` when that build exists. `scripts/ensure-node.sh` and `Ensure-Node.ps1` install a
+private Node in `.node/` when the machine has none, checksum-verified, without admin rights.
+
+- The launchers at the repo root must keep git mode `100755`, or a double-click on macOS does nothing.
+- Assume whoever runs them has no terminal skills: every failure path says what to do next and keeps
+  the window open long enough to read it.
+- See `docs/INSTALL.md` — keep it in sync when the startup flow changes.
+
 ## Architecture
 
 ```

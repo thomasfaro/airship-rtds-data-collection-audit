@@ -1,7 +1,9 @@
+import fs from "node:fs";
+import path from "node:path";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { ensureDataDirs } from "./appPaths.js";
+import { ensureDataDirs, repoRoot } from "./appPaths.js";
 import { migrateProfilesEncryption } from "./config.js";
 import { requireLocalClient } from "./middleware/requireLocalClient.js";
 import apiRoutes from "./routes/api.js";
@@ -42,6 +44,23 @@ app.get("/api/bootstrap", (req, res) => {
 app.use("/api", requireLocalClient);
 app.use("/api", apiRoutes);
 
+/**
+ * Serve the production build when it exists, so `npm run build && npm start`
+ * gives the whole app on one port. In dev the UI is served by Vite instead.
+ */
+const uiDir = process.env.RTDS_DCA_UI_DIR
+  ? path.resolve(process.env.RTDS_DCA_UI_DIR)
+  : path.join(repoRoot, "frontend", "dist");
+const uiBuilt = fs.existsSync(path.join(uiDir, "index.html"));
+
+if (uiBuilt) {
+  app.use(express.static(uiDir));
+  // The UI routes on the hash, so every non-API path resolves to index.html.
+  app.get(/^(?!\/api\/).*/, (_req, res) => {
+    res.sendFile(path.join(uiDir, "index.html"));
+  });
+}
+
 app.use((error, _req, res, _next) => {
   console.error("[server] unhandled error:", error);
   if (!res.headersSent) {
@@ -51,8 +70,13 @@ app.use((error, _req, res, _next) => {
 
 const server = app.listen(port, host, () => {
   console.log("=".repeat(56));
-  console.log("  Airship RTDS Data Collection Audit — API");
-  console.log(`  http://${host}:${port}`);
+  console.log("  Airship RTDS Data Collection Audit");
+  if (uiBuilt) {
+    console.log(`  App + API: http://${host}:${port}`);
+  } else {
+    console.log(`  API only:  http://${host}:${port}`);
+    console.log("  No UI build found — run `npm run build`, or `npm run dev` for Vite.");
+  }
   console.log("  Profiles: GET  /api/profiles");
   console.log("  Capture:  GET  /api/capture/stream?profile=...");
   console.log("  Stop:     POST /api/capture/stop");

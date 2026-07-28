@@ -12,30 +12,43 @@ written to disk (events are analyzed as they stream in).
 
 ## Requirements
 
-- Node.js 20+ (see `.nvmrc`)
+- Node.js 20+ (see `.nvmrc`). If it is missing, the launcher offers to install a private copy in
+  `.node/` inside the app folder — no admin rights, nothing installed system-wide.
 - An RTDS bearer token for each project you want to audit
 
 ## Install and run
 
+Not a developer? Read **[docs/INSTALL.md](docs/INSTALL.md)**: install Node.js, then double-click the
+launcher — `Start RTDS Data Collection Audit.command` on macOS, the `.bat` on Windows. It installs
+what is missing, builds the interface, serves app + API on http://127.0.0.1:3011 and opens the
+browser.
+
+For development:
+
 ```bash
 npm run setup:local   # install both workspaces, create the local config files
-npm run dev           # API on :3011, UI on http://127.0.0.1:5183
+npm run dev           # API on :3011, UI on http://127.0.0.1:5183 (Vite, hot reload)
 ```
 
 Then open http://127.0.0.1:5183, go to **Projects** and add an RTDS token.
 
-Logs land in `/tmp/rtds-dca-server.log` and `/tmp/rtds-dca-frontend.log`.
+`npm start` runs the launcher described above; `npm run serve` builds and serves everything on the
+single port without opening a browser.
+
+Logs land in `/tmp/rtds-dca-server.log` and `/tmp/rtds-dca-frontend.log` in dev, and
+`/tmp/rtds-dca.log` when started from the launcher.
 
 ## The three screens
 
 **Capture** — pick a project and the report timezone, then choose how the capture should end:
 
-- **Manual stop** (default) — runs until you click Stop. Works for every project.
-- **Real-time auto-stop** — stops on its own once no new tracking key has appeared for a while.
-  Never use it on projects that push data in daily API batches: the capture can end before a batch
-  arrives, and the tagging plan will be incomplete. Two sensitivity presets: *Thorough* (1M events /
-  1h of processed time / 250k events and 30min without a new key) and *Fast* (100k / 30min / 25k /
-  10min) for low-traffic projects.
+- **Real-time auto-stop** (default) — stops on its own once no new tracking key has appeared for a
+  while. Two sensitivity presets: *Thorough* (1M events / 1h of processed time / 250k events and
+  30min without a new key) and *Fast* (100k / 30min / 25k / 10min) for low-traffic projects. It
+  assumes the project streams in real time: when the client feeds Airship through the API in batches,
+  the capture can end between two batches and the tagging plan will miss whatever they carried.
+- **Manual stop** — runs until you click Stop. The right choice for batch-fed projects, kept running
+  across at least one full batch cycle.
 
 Under **Advanced options**: the start position (earliest available event, or new events only) and a
 backlog limit that caps how far back RTDS replays.
@@ -78,7 +91,9 @@ server/     Express API: profiles, capture (SSE), values, history
   src/audit/    the analysis engine (ported from airship-rtds-qa)
   src/capture/  capture option resolution (stop mode, presets, start position)
 config/     local RTDS profiles (gitignored)
-scripts/    dev-local.sh
+docs/       INSTALL.md — the no-terminal install path
+scripts/    dev-local.sh (dev stack), start.sh + start.ps1 (launchers),
+            ensure-node.sh + Ensure-Node.ps1 (private Node install when missing)
 ```
 
 ## Tests
