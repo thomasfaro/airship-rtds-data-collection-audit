@@ -23,15 +23,34 @@ If you prefer to install Node.js yourself — or your company blocks downloads f
 unzip it. Put the folder somewhere you will keep it, such as `Documents` — your projects and saved
 audits live inside it.
 
-If you already use `git`, `git clone` works too and skips the macOS security prompt in step 3.
+On macOS this route costs you one security prompt the first time you start the app: anything a browser
+downloads is flagged, and step 3 explains how to clear it in two clicks.
+
+**To skip that prompt entirely**, get the folder with [GitHub Desktop](https://desktop.github.com)
+(**File → Clone repository**) or with `git clone` if you know it. Files that arrive that way are not
+flagged, and both make updating later a one-click affair.
 
 ## 3. Start the app
 
 **macOS** — double-click **`Start RTDS Data Collection Audit.command`**.
 
-> The first time, macOS may say the file *"cannot be opened because it is from an unidentified
-> developer"*. This is expected for any downloaded script. **Right-click** (or Control-click) the
-> file → **Open** → **Open**. You only do this once; afterwards a plain double-click works.
+> **If macOS refuses to open it**, the dialog reads *"Apple could not verify that … is free of malware"*
+> — or, on older versions, *"… cannot be opened because it is from an unidentified developer"*. Every
+> script downloaded by a browser gets this treatment; it says nothing about what this file contains.
+>
+> **Do not click "Move to Trash".** Click **Done**, then:
+>
+> 1. Open **System Settings → Privacy & Security**.
+> 2. Scroll to the **Security** section at the bottom. A line names the blocked file and offers
+>    **Open Anyway** — click it and confirm with Touch ID or your password.
+> 3. Double-click the launcher again, then click **Open**.
+>
+> That line only shows up shortly after a blocked attempt: if you do not see it, double-click the
+> launcher once more and go straight back to Privacy & Security.
+>
+> You do this once, for one file. Every later start is a plain double-click, and the scripts the
+> launcher calls are never questioned. On older macOS versions the shorter route still works:
+> **right-click** the file → **Open** → **Open**.
 
 **Windows** — double-click **`Start RTDS Data Collection Audit.bat`**.
 
@@ -83,7 +102,9 @@ the old one to keep your projects. Your tokens keep working as long as it is the
 
 | Symptom | What to do |
 |---|---|
-| Double-click does nothing (macOS) | Right-click the launcher → **Open** → **Open** (see step 3) |
+| macOS says it "could not verify" the launcher | **System Settings → Privacy & Security → Open Anyway** (step 3). Never "Move to Trash" |
+| No **Open Anyway** appears, or macOS keeps blocking it | Open **Terminal**, type `xattr -dr com.apple.quarantine ` (with the trailing space), drag the app folder into the window, press Return. Then double-click the launcher again |
+| Double-click does nothing at all, no dialog | The file lost its executable flag. In **Terminal**, type `bash `, drag `scripts/start.sh` from the folder into the window, press Return |
 | It asks to install Node.js | Press **Return** to accept — a private copy lands in the app folder (step 1) |
 | The Node.js download fails | A proxy or firewall is blocking nodejs.org. Install the LTS from [nodejs.org](https://nodejs.org) yourself, then start the launcher again |
 | "Checksum mismatch" | The download was corrupted and nothing was installed. Start the launcher again |

@@ -18,10 +18,12 @@ written to disk (events are analyzed as they stream in).
 
 ## Install and run
 
-Not a developer? Read **[docs/INSTALL.md](docs/INSTALL.md)**: install Node.js, then double-click the
-launcher — `Start RTDS Data Collection Audit.command` on macOS, the `.bat` on Windows. It installs
-what is missing, builds the interface, serves app + API on http://127.0.0.1:3011 and opens the
-browser.
+Not a developer? Read **[docs/INSTALL.md](docs/INSTALL.md)** and double-click the launcher —
+`Start RTDS Data Collection Audit.command` on macOS, the `.bat` on Windows. It installs what is
+missing (Node.js included, as a private copy in `.node/`), builds the interface, serves app + API on
+http://127.0.0.1:3011 and opens the browser. On macOS, a folder that came from a browser download
+needs one trip through **System Settings → Privacy & Security → Open Anyway** the first time; cloning
+with GitHub Desktop avoids it.
 
 For development:
 
