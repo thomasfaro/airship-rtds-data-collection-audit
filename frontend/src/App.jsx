@@ -1,5 +1,6 @@
 import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import AppNav from "./components/AppNav.jsx";
+import DocumentStatus from "./components/DocumentStatus.jsx";
 import { CaptureSessionProvider } from "./contexts/CaptureSessionContext.jsx";
 import { ProfilesProvider } from "./contexts/ProfilesContext.jsx";
 import CapturePage from "./pages/CapturePage.jsx";
@@ -11,6 +12,7 @@ export default function App() {
     <HashRouter>
       <ProfilesProvider>
         <CaptureSessionProvider>
+          <DocumentStatus />
           <div className="app-shell">
             <AppNav />
             <main className="page-container max-w-5xl">

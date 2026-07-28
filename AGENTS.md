@@ -47,10 +47,11 @@ server/src/
   rtds/, security/, utils/, storage/, middleware/
 frontend/src/
   pages/              CapturePage, HistoryPage, SettingsPage
+  components/         AppNav, DocumentStatus (tab title + favicon), ProfileForm, ConfirmDialog
   components/capture/ CaptureForm, StopModeCard, CaptureProgressPanel
   components/summary/ CoverageSummary, CoverageCategoryCard, WarningsList, TaggingPlanDownloads
   contexts/           ProfilesContext, CaptureSessionContext
-  lib/                coverageSummary.js, captureParams.js, audit/ (ported helpers)
+  lib/                coverageSummary.js, captureParams.js, tabStatus.js, audit/ (ported helpers)
   services/           apiClient + one module per API area
 ```
 
@@ -68,6 +69,10 @@ frontend/src/
   its value fetchers by injection; wire them to `/api/values/*`, don't fork the module.
 - **Auto-stop lives server-side** in `audit/coveragePlateau.js`. The UI only renders the progress the
   SSE reports (`coverage.autoStop`).
+- **The browser tab is a status surface.** A real-time capture runs for hours in a tab nobody looks
+  at, so `components/DocumentStatus.jsx` mirrors the session into the title and swaps the favicon
+  (`frontend/public/favicon*.svg`, one per state). The whole mapping is the pure `lib/tabStatus.js` —
+  add states there, keep the component down to two effects.
 - **One set of auto-stop guardrails, on purpose.** A looser "fast" preset was offered and removed:
   it stopped captures early enough to miss rare keys. `REALTIME_THRESHOLDS` is the only set, and the
   `rt_*` query overrides exist for tuning a single run, not for the UI to expose again.

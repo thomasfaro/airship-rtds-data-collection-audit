@@ -57,7 +57,10 @@ backlog limit that caps how far back RTDS replays.
 
 **Live progress** — events captured, elapsed time, processed-time span covered, and a live count of
 the distinct keys found per category. In real-time mode it also shows how close each of the four
-auto-stop conditions is, so the wait is legible.
+auto-stop conditions is, so the wait is legible. The browser tab reports the same thing without
+being opened: the title counts the events (`● 1.2M events · RTDS Data Collection Audit`) and then
+announces the end (`✅ Audit complete`), while the favicon carries a blue dot during the capture, a
+green one once the plan is ready and a pink one if the capture failed.
 
 **Coverage summary** — one card per category (custom events, attributes, tags, screens, subscription
 lists). Each row shows the item, its event count, a **data source** badge (SDK / API / Unknown),
