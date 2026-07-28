@@ -68,7 +68,9 @@ lists). Each row shows the item, its event count, a **data source** badge (SDK /
 cards, the grouped warnings list, and above them the two downloads:
 
 - **Download .xlsx** — the tagging plan workbook, one sheet per category plus value histograms.
-- **Download .json** — the same model as structured JSON, for downstream analysis.
+- **Download .json** — the same model as structured JSON, for downstream analysis. It is also the
+  file the `airship-engagement-review` skill ingests to add its data-foundation section to a client
+  engagement review.
 
 Every capture is saved locally and reopenable from **History**, where the exports can be
 regenerated.
