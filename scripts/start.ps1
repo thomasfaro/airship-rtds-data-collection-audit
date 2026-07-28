@@ -52,14 +52,18 @@ if (-not (Test-Path "server/.env") -and (Test-Path "server/.env.example")) {
   Copy-Item "server/.env.example" "server/.env"
 }
 
+# Quiet by design: npm's deprecation notices and vite's chunk advice read like
+# something is broken to whoever double-clicked this. Errors still come through.
+$NpmQuiet = @("--no-audit", "--no-fund", "--loglevel=error")
+
 if (-not (Test-Path "server/node_modules")) {
   Write-Host "Installing server components (first run only, this takes a minute)..."
-  npm install --prefix server --no-audit --no-fund
+  npm install --prefix server @NpmQuiet
 }
 
 if (-not (Test-Path "frontend/node_modules")) {
   Write-Host "Installing interface components (first run only, this takes a minute)..."
-  npm install --prefix frontend --no-audit --no-fund
+  npm install --prefix frontend @NpmQuiet
 }
 
 # Rebuild only when the build is missing or older than the sources it came from.
@@ -78,7 +82,7 @@ if (Test-Path $buildMarker) {
 
 if ($needsBuild) {
   Write-Host "Preparing the interface..."
-  npm run build --prefix frontend
+  npm run build --prefix frontend --silent -- --logLevel error
 }
 
 Write-Host "Starting on port $Port..."

@@ -10,7 +10,8 @@ cd "$ROOT"
 PORT="${PORT:-3011}"
 APP_URL="http://127.0.0.1:${PORT}"
 HEALTH_URL="${APP_URL}/api/health"
-LOG_FILE="${TMPDIR:-/tmp}/rtds-dca.log"
+LOG_DIR="${TMPDIR:-/tmp}"
+LOG_FILE="${LOG_DIR%/}/rtds-dca.log"
 READY=0
 
 bold() { printf '\033[1m%s\033[0m\n' "$*"; }
@@ -82,14 +83,18 @@ if [[ ! -f server/.env ]] && [[ -f server/.env.example ]]; then
   cp server/.env.example server/.env
 fi
 
+# Quiet by design: npm's deprecation notices and vite's chunk advice read like
+# something is broken to whoever double-clicked this. Errors still come through.
+NPM_QUIET=(--no-audit --no-fund --loglevel=error)
+
 if [[ ! -d server/node_modules ]]; then
   echo "Installing server components (first run only, this takes a minute)…"
-  npm install --prefix server --no-audit --no-fund
+  npm install --prefix server "${NPM_QUIET[@]}"
 fi
 
 if [[ ! -d frontend/node_modules ]]; then
   echo "Installing interface components (first run only, this takes a minute)…"
-  npm install --prefix frontend --no-audit --no-fund
+  npm install --prefix frontend "${NPM_QUIET[@]}"
 fi
 
 # Rebuild only when the build is missing or older than the sources it came from.
@@ -108,7 +113,7 @@ needs_build() {
 
 if needs_build; then
   echo "Preparing the interface…"
-  npm run build --prefix frontend
+  npm run build --prefix frontend --silent -- --logLevel error
 fi
 
 echo "Starting on port ${PORT}…"
