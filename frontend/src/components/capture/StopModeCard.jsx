@@ -2,6 +2,7 @@
 export default function StopModeCard({
   id,
   label,
+  badge,
   description,
   selected,
   disabled = false,
@@ -29,7 +30,10 @@ export default function StopModeCard({
           onChange={() => onSelect(id)}
         />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-airship-navy">{label}</p>
+          <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-airship-navy">
+            {label}
+            {badge ? <span className="badge-blue">{badge}</span> : null}
+          </p>
           <p className="mt-1 text-sm text-airship-muted">{description}</p>
           {selected && children ? <div className="mt-3">{children}</div> : null}
         </div>

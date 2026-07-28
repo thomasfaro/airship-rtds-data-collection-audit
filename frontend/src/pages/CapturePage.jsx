@@ -9,7 +9,7 @@ import { fetchCaptureOptions } from "../services/captureApi.js";
 const DEFAULT_SETTINGS = {
   profile: "",
   timezone: "Europe/Paris",
-  stopMode: "manual",
+  stopMode: "realtime",
   realtimePreset: "thorough",
   startPosition: "earliest",
   windowHours: null,

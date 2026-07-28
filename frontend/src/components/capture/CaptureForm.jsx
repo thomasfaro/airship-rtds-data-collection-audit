@@ -75,17 +75,9 @@ export default function CaptureForm({
         <legend className="section-title">How should the capture end?</legend>
 
         <StopModeCard
-          id="manual"
-          label="Manual stop"
-          description="The capture runs until you click Stop. Works for every project."
-          selected={settings.stopMode === "manual"}
-          disabled={disabled}
-          onSelect={set("stopMode")}
-        />
-
-        <StopModeCard
           id="realtime"
           label="Real-time auto-stop"
+          badge="Recommended"
           description="Stops on its own once no new tracking keys have appeared for a while."
           selected={settings.stopMode === "realtime"}
           disabled={disabled}
@@ -93,9 +85,12 @@ export default function CaptureForm({
         >
           <div className="space-y-3">
             <p className="alert-warning">
-              Only use this on projects that send data in real time. If the client pushes daily API
-              batches, the capture can stop before a batch arrives and the tagging plan will be
-              incomplete — use Manual stop instead.
+              This assumes the project sends its data to Airship in real time. If the client feeds
+              data through the API in batches instead — a nightly or hourly job rather than a live
+              stream — the capture can end between two batches: the period it covers will have gaps,
+              and every event, attribute or tag carried by the batches it missed will be absent from
+              the tagging plan. Use Manual stop for those projects, and keep the capture running long
+              enough to span at least one full batch cycle.
             </p>
             <div className="flex flex-wrap items-center gap-2">
               {["thorough", "fast"].map((preset) => (
@@ -118,6 +113,15 @@ export default function CaptureForm({
             </p>
           </div>
         </StopModeCard>
+
+        <StopModeCard
+          id="manual"
+          label="Manual stop"
+          description="Runs until you click Stop. Works for every project, including those fed by API batches."
+          selected={settings.stopMode === "manual"}
+          disabled={disabled}
+          onSelect={set("stopMode")}
+        />
       </fieldset>
 
       <div className="border-t border-airship-border pt-4">
