@@ -19,9 +19,13 @@ If you prefer to install Node.js yourself — or your company blocks downloads f
 
 ## 2. Get the app folder
 
-**Use [GitHub Desktop](https://desktop.github.com)**: install it, sign in with the GitHub account that
-has access to this repository, then **File → Clone repository** and pick a folder you will keep, such
-as `Documents`. Your projects and saved audits live inside it.
+**Use [GitHub Desktop](https://desktop.github.com)**: install it, then sign in with the GitHub account
+that has access to this repository.
+
+The one-click route from there: on the repository page, the green **Code** button →
+**Open with GitHub Desktop**. GitHub Desktop opens on the clone dialog — pick a folder you will keep,
+such as `Documents`, and click **Clone**. (**File → Clone repository** inside GitHub Desktop does the
+same thing.) Your projects and saved audits will live inside that folder.
 
 Two reasons this is the recommended route and not just one option among others. Updating later is a
 single **Pull** button instead of a re-download, which is also the step where people lose their saved
@@ -101,6 +105,9 @@ covers has gaps and the tagging plan misses whatever those batches carried. For 
 
 When the capture ends, the coverage summary offers the tagging plan as **.xlsx** and **.json**.
 Everything is saved locally and reopenable from **History**.
+
+**[The four steps with screenshots →](TUTORIAL.md)** — worth ten minutes before your first real
+capture, especially for reading what the summary is telling you.
 
 ## 5. Make it always ready (recommended)
 

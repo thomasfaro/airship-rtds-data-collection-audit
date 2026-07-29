@@ -22,3 +22,4 @@ config/.no-auto-update
 cache/
 .audit-tmp/
 .stored-files/
+frontend/.shots/

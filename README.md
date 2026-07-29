@@ -1,132 +1,108 @@
 # Airship RTDS Data Collection Audit
 
-A lightweight local app with a single purpose: capture a **tracking-only** Airship RTDS stream and
-generate the tagging plan as **.xlsx** and **.json**.
+**Find out what an app actually tracks.** Point this tool at an Airship project, let it listen to the
+real-time data stream, and it hands you the tagging plan: every custom event, attribute, tag, screen
+and subscription list the app sends, with counts, platforms and app versions — as a spreadsheet you
+can send to a client.
 
-It is the slim companion to the full `airship-rtds-qa` app. Same proven analysis engine and tagging
-plan exporter, three screens instead of a dozen, and no messaging/email/OPEN capture. Both apps can
-run at the same time — this one uses API port `3011` and UI port `5183`.
+No terminal, no server, no account to create. It runs on your own machine, and the data it reads
+never leaves it.
 
-Everything stays on your machine: RTDS tokens are encrypted at rest, and no raw event file is ever
-written to disk (events are analyzed as they stream in).
+[![Install the tool](https://img.shields.io/badge/Install%20the%20tool-2%20minutes-1668E3?style=for-the-badge)](docs/INSTALL.md)
+[![How to use it](https://img.shields.io/badge/How%20to%20use%20it-4%20steps-24292F?style=for-the-badge)](docs/TUTORIAL.md)
 
-## Requirements
+![The coverage summary at the end of a capture, with the two tagging plan downloads](docs/images/04-summary.png)
 
-- Node.js 20+ (see `.nvmrc`). If it is missing, the launcher offers to install a private copy in
-  `.node/` inside the app folder — no admin rights, nothing installed system-wide.
-- An RTDS bearer token for each project you want to audit
+## What you get
 
-## Install and run
+- **A tagging plan as `.xlsx`** — one sheet per category, with the values seen for each item. This is
+  the deliverable: what is tracked, how often, on which platforms and app versions.
+- **The same plan as `.json`** — for anything downstream. The `airship-engagement-review` skill reads
+  this file to ground a client engagement review in the client's real taxonomy.
+- **The findings that come for free** — an event tracked on iOS but never seen on Android, an
+  attribute written by both the SDK and a CRM, a screen name that only exists on an old build.
 
-Not a developer? Read **[docs/INSTALL.md](docs/INSTALL.md)**, clone with GitHub Desktop, and
-double-click the launcher — `Start RTDS Data Collection Audit.command` on macOS, the `.bat` on
-Windows. It installs what is missing (Node.js included, as a private copy in `.node/`), builds the
-interface, serves app + API on http://127.0.0.1:3011 and opens the browser.
+## Install it
 
-Two things make it usable without ever thinking about a terminal again:
+Two double-clicks, on **macOS** or **Windows**. Clone the folder with
+[GitHub Desktop](https://desktop.github.com) — the repository page's green **Code** button has an
+**Open with GitHub Desktop** entry that does it in one click — then double-click the launcher inside
+it. It installs everything it needs, Node.js included, and opens your browser on the tool.
 
-- **`Install background start`** registers the tool with your session, so http://127.0.0.1:3011 just
-  answers — at login, and again within ten minutes if it ever stops. `Remove background start` undoes
-  it.
-- **Install app** (Chrome/Edge, top right of the interface) turns it into a real local app: own
-  window, icon in Applications, Spotlight entry. When the server is down that icon lands on a page
-  offering to start it, courtesy of a deliberately minimal service worker — so the icon is a working
-  entry point, not just a bookmark. `Open RTDS Audit.html` at the repo root does the same job for
-  people who did not install it.
+**[Full install guide →](docs/INSTALL.md)** — including how to make it always available, so the tool
+becomes an icon in your Applications folder rather than something you launch.
 
-For development:
+## Use it
+
+![A capture in progress, with the four gauges tracking coverage](docs/images/03-running.png)
+
+1. **Projects** — add the client's RTDS token once.
+2. **Capture** — pick the project and how the capture should end: on its own once nothing new turns
+   up, or when you click Stop.
+3. Watch the coverage settle. The four gauges say when the plan is complete enough; the browser tab
+   keeps score, so you can leave it running.
+4. Download the plan. Every capture is saved and reopenable from **History**.
+
+**[The four steps, in detail →](docs/TUTORIAL.md)**
+
+## It keeps itself up to date
+
+Nothing to do. It picks up the latest version each time it starts, and while you are using it a
+banner offers the update with a single button. The version it is running sits in the top-right corner
+and is recorded inside every plan you export, so a file found six months later names the version that
+produced it.
+
+## Everything stays on your machine
+
+- Tokens are **encrypted at rest** with a key specific to your machine, in a file that is never
+  committed or shared.
+- The app answers on **loopback only** (`127.0.0.1`) and requires a local key that only the interface
+  on your machine can read. Nothing is exposed to your network.
+- Captures are **analysis-only**: events are read as they stream in and never written to disk. Only
+  the finished report is saved.
+- The one outbound call is to the Airship RTDS endpoint, with your token.
+
+## For developers
+
+This is the slim companion to the full `airship-rtds-qa` app: same analysis engine and tagging plan
+exporter, three screens instead of a dozen, tracking-only capture. Both can run at once — this one
+uses port `3011` (and `5183` for the Vite dev server).
+
+<details>
+<summary>Running it from source, tests, layout</summary>
+
+### Getting started
 
 ```bash
 npm run setup:local   # install both workspaces, create the local config files
-npm run dev           # API on :3011, UI on http://127.0.0.1:5183 (Vite, hot reload)
+npm run dev           # API on :3011, UI on http://127.0.0.1:5183 (hot reload)
+npm test              # server + frontend, both plain `node --test`
 ```
 
-Then open http://127.0.0.1:5183, go to **Projects** and add an RTDS token.
+`npm start` runs the double-click launcher; `npm run serve` builds and serves everything on the single
+port without opening a browser. Logs: `/tmp/rtds-dca-server.log` and `/tmp/rtds-dca-frontend.log` in
+dev, `/tmp/rtds-dca.log` from the launcher.
 
-`npm start` runs the launcher described above; `npm run serve` builds and serves everything on the
-single port without opening a browser.
+A development clone should keep an empty `config/.no-auto-update` file, so starting it does not
+fast-forward the folder underneath you. Bump a version with `npm run version:set 1.2.0` — it writes
+the three `package.json` files and both lockfiles, which have to move together.
 
-Logs land in `/tmp/rtds-dca-server.log` and `/tmp/rtds-dca-frontend.log` in dev, and
-`/tmp/rtds-dca.log` when started from the launcher.
+### Configuration
 
-## Staying up to date
+RTDS projects live in `config/rtds-profiles.json` (gitignored, `0600`, tokens encrypted). Add them
+from the Projects screen, or copy `config/rtds-profiles.example.json`.
 
-The tool keeps itself current, on the assumption that nobody is going to run `git pull` in a folder
-they never open.
-
-- **At every start**, the launcher fast-forwards the folder onto the latest version, then reinstalls
-  dependencies and rebuilds the interface if the update touched either. It only ever fast-forwards,
-  it never touches a folder with local changes, and it gives up quietly when git, the network or the
-  credentials are not there — the worst case is keeping the version you already had.
-- **While it runs**, a banner appears when a newer version exists on GitHub. *Update and restart*
-  fetches it and hands over to a fresh server, then the page reloads onto it by itself.
-- **When new code is already on disk** but this window is still running the old one, the banner asks
-  for a restart instead, which is the same handover without the download.
-- The running version sits in the top right of the interface — hover it for the commit — and is
-  stamped into every report and `.json` export, so a tagging plan found six months later names the
-  version that produced it.
-
-A capture cannot survive a restart, so both buttons ask first when one is running.
-
-To opt out of the startup update for good, leave an empty `config/.no-auto-update` file in the folder
-(a development clone should have one). The banner still lets you update on demand.
-
-Releasing a change: `npm run version:set 1.2.0` writes the number to the three `package.json` files
-and both lockfiles, which have to move together — see `AGENTS.md`.
-
-## The three screens
-
-**Capture** — pick a project and the report timezone, then choose how the capture should end:
-
-- **Real-time auto-stop** (default) — stops on its own once no new tracking key has appeared for a
-  while. One fixed set of guardrails, and deliberately a strict one: 1M events and 1h of processed
-  time before completeness is even considered, then 100k events and 30min without a new key. It
-  assumes the project streams in real time: when the client feeds Airship through the API in batches,
-  the capture can end between two batches and the tagging plan will miss whatever they carried.
-- **Manual stop** — runs until you click Stop. The right choice for batch-fed projects, kept running
-  across at least one full batch cycle.
-
-Under **Advanced options**: the start position (earliest available event, or new events only) and a
-backlog limit that caps how far back RTDS replays.
-
-**Live progress** — events captured, elapsed time, processed-time span covered, and a live count of
-the distinct keys found per category. Four gauges show how close coverage is to settling — in
-real-time mode that is exactly what ends the capture, and in manual mode it is what tells you a
-longer capture would add nothing, so Stop becomes a decision rather than a guess. The browser tab
-reports the same thing without
-being opened: the title counts the events (`● 1.2M events · RTDS Data Collection Audit`) and then
-announces the end (`✅ Audit complete`), while the favicon carries a blue dot during the capture, a
-green one once the plan is ready and a pink one if the capture failed.
-
-**Coverage summary** — one card per category (custom events, attributes, tags, screens, subscription
-lists). Each row shows the item, its event count, a **data source** badge (SDK / API / Unknown),
-**platform pills** with per-platform counts, and the app-version scope it was seen on. Below the
-cards, the grouped warnings list, and above them the two downloads:
-
-- **Download .xlsx** — the tagging plan workbook, one sheet per category plus value histograms.
-- **Download .json** — the same model as structured JSON, for downstream analysis. It is also the
-  file the `airship-engagement-review` skill ingests to add its data-foundation section to a client
-  engagement review.
-
-Every capture is saved locally and reopenable from **History**, where the exports can be
-regenerated.
-
-## Configuration
-
-RTDS projects are stored in `config/rtds-profiles.json` (gitignored, `0600`, tokens encrypted).
-Add them from the Projects screen, or copy `config/rtds-profiles.example.json` and fill it in.
-
-Optional environment variables (`server/.env`, copied from `server/.env.example`):
+Optional, in `server/.env` (see `server/.env.example`):
 
 | Variable | Default | Purpose |
 |---|---|---|
 | `PORT` | `3011` | API port |
-| `HOST` | `127.0.0.1` | API bind address (loopback only) |
+| `HOST` | `127.0.0.1` | Bind address (loopback only) |
 | `CORS_ORIGIN` | `http://localhost:5183` | Allowed UI origin |
 | `RTDS_PROFILES_PATH` | `config/rtds-profiles.json` | Profiles file location |
 | `RTDS_DCA_STORAGE_DIR` | `.stored-files/` | Where saved analyses live |
 
-## Project layout
+### Layout
 
 ```
 frontend/   React 18 + Vite + Tailwind — 3 routes, capture/summary components
@@ -137,7 +113,7 @@ server/     Express API: profiles, capture (SSE), values, history, updates
   src/updates/  version check, fast-forward update, handover to a fresh server
 assets/     icon sources + AppIcon.icns, rebuilt by scripts/build-icons.sh
 config/     local RTDS profiles (gitignored)
-docs/       INSTALL.md — the no-terminal install path
+docs/       INSTALL.md, TUTORIAL.md, images/ + screenshots/ (how they are produced)
 scripts/    dev-local.sh (dev stack), start.sh + start.ps1 (launchers),
             prepare-app.sh (update + install + build, shared), serve.sh (background service),
             start-detached.sh (no-window start, what the rtds-audit:// link runs),
@@ -148,21 +124,8 @@ scripts/    dev-local.sh (dev stack), start.sh + start.ps1 (launchers),
             — each with a .ps1 counterpart for Windows
 ```
 
-## Tests
+Architecture, conventions and the macOS constraints behind the launcher are in
+**[AGENTS.md](AGENTS.md)**. The documentation screenshots are regenerated by
+`bash docs/screenshots/shoot.sh`.
 
-```bash
-npm test                      # server + frontend
-npm run test --prefix server
-npm run test --prefix frontend
-```
-
-Both suites are plain `node --test`, no test runner to install.
-
-## Security notes
-
-- The API binds to loopback and requires a local API key (`config/.local-api-key`) that the UI
-  fetches from `GET /api/bootstrap`. Nothing is exposed to the network.
-- Tokens are encrypted at rest with a machine-local key; if you copy the profiles file to another
-  machine the tokens will not decrypt and must be re-entered.
-- Captures are analysis-only: only the finished report and its value sidecars are written, never the
-  raw RTDS events.
+</details>

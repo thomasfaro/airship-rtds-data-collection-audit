@@ -37,6 +37,21 @@ service run, so those two cannot drift.
   the window open long enough to read it.
 - See `docs/INSTALL.md` — keep it in sync when the startup flow changes.
 
+### The documentation set
+
+Three files, three audiences, and they should stay that way: `README.md` is the front door for
+someone deciding whether to use the tool, `docs/INSTALL.md` gets it running without a terminal,
+`docs/TUTORIAL.md` teaches the four steps and how to read the summary. Developer material lives in a
+collapsed section of the README and in this file. A change to the capture flow or the summary usually
+touches the tutorial.
+
+`bash docs/screenshots/shoot.sh` regenerates `docs/images/`. It streams an invented retail app
+through the real capture controller (`make-demo.mjs` stubs `globalThis.fetch`, everything downstream
+ships), then renders the real screens off that report with a bundled harness and shoots them in
+headless Chrome. Two rules: **no screenshot may contain client data** — hence the stub rather than a
+live server — and the window heights in `shoot.sh` are trimmed per screen, so check the PNGs after a
+screen grows.
+
 ### Starting it from a browser
 
 A page cannot start a local process, so three pieces cover the "it is not running" case, and each
