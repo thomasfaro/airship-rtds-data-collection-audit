@@ -46,43 +46,15 @@ if (Test-AppUp) {
   exit 0
 }
 
-New-Item -ItemType Directory -Force -Path "config" | Out-Null
+. (Join-Path $PSScriptRoot "Prepare-App.ps1")
+Invoke-PrepareApp -Root $Root
 
-if (-not (Test-Path "server/.env") -and (Test-Path "server/.env.example")) {
-  Copy-Item "server/.env.example" "server/.env"
-}
-
-# Quiet by design: npm's deprecation notices and vite's chunk advice read like
-# something is broken to whoever double-clicked this. Errors still come through.
-$NpmQuiet = @("--no-audit", "--no-fund", "--loglevel=error")
-
-if (-not (Test-Path "server/node_modules")) {
-  Write-Host "Installing server components (first run only, this takes a minute)..."
-  npm install --prefix server @NpmQuiet
-}
-
-if (-not (Test-Path "frontend/node_modules")) {
-  Write-Host "Installing interface components (first run only, this takes a minute)..."
-  npm install --prefix frontend @NpmQuiet
-}
-
-# Rebuild only when the build is missing or older than the sources it came from.
-$buildMarker = "frontend/dist/index.html"
-$needsBuild = $true
-if (Test-Path $buildMarker) {
-  $builtAt = (Get-Item $buildMarker).LastWriteTimeUtc
-  $sources = @("frontend/src", "frontend/index.html", "frontend/package.json", "frontend/vite.config.js") |
-    Where-Object { Test-Path $_ }
-  $newer = $sources |
-    ForEach-Object { Get-ChildItem $_ -Recurse -File -ErrorAction SilentlyContinue } |
-    Where-Object { $_.LastWriteTimeUtc -gt $builtAt } |
-    Select-Object -First 1
-  $needsBuild = $null -ne $newer
-}
-
-if ($needsBuild) {
-  Write-Host "Preparing the interface..."
-  npm run build --prefix frontend --silent -- --logLevel error
+# Makes the rtds-audit: link work, so the app's own page can restart it later.
+# Never worth failing a launch over.
+try {
+  & (Join-Path $PSScriptRoot "Register-UrlHandler.ps1") -Quiet
+} catch {
+  Write-Host "Could not register the rtds-audit: link." -ForegroundColor Yellow
 }
 
 Write-Host "Starting on port $Port..."

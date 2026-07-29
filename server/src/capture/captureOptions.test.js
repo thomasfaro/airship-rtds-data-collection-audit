@@ -1,6 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  DEFAULT_MIN_EVENTS,
+  DEFAULT_MIN_PROCESSED_SPAN_MS,
+  DEFAULT_PLATEAU_MARGIN,
+  DEFAULT_PLATEAU_SPAN_MS,
+} from "../audit/coveragePlateau.js";
+import {
   REALTIME_THRESHOLDS,
   resolveCaptureOptions,
   resolveCaptureWindow,
@@ -24,6 +30,15 @@ test("real-time stop mode carries the one set of plateau thresholds", () => {
   const options = resolveCaptureOptions({ profile: "Demo", stop_mode: "realtime" });
   assert.equal(options.realTime, true);
   assert.deepEqual(options.realtimeThresholds, { ...REALTIME_THRESHOLDS });
+});
+
+test("the plateau margin is lowered below the engine default on purpose", () => {
+  assert.equal(REALTIME_THRESHOLDS.plateauMargin, 100_000);
+  assert.ok(REALTIME_THRESHOLDS.plateauMargin < DEFAULT_PLATEAU_MARGIN);
+  // The rest of the guardrails stay on the engine defaults.
+  assert.equal(REALTIME_THRESHOLDS.minEvents, DEFAULT_MIN_EVENTS);
+  assert.equal(REALTIME_THRESHOLDS.minProcessedSpanMs, DEFAULT_MIN_PROCESSED_SPAN_MS);
+  assert.equal(REALTIME_THRESHOLDS.plateauSpanMs, DEFAULT_PLATEAU_SPAN_MS);
 });
 
 test("no sensitivity preset can loosen the guardrails", () => {

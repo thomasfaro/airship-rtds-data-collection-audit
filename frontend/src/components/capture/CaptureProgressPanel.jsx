@@ -8,7 +8,7 @@ const KEY_CATEGORIES = [
   { id: "subscriptionLists", label: "Subscription lists" },
 ];
 
-const AUTO_STOP_CONDITIONS = [
+const PLATEAU_CHECKS = [
   {
     id: "events",
     label: "Events captured",
@@ -41,7 +41,7 @@ function Metric({ label, value, hint }) {
   );
 }
 
-function ConditionRow({ label, current, target, format }) {
+function CheckRow({ label, current, target, format }) {
   const ratio = target > 0 ? Math.min(1, current / target) : 0;
   const met = current >= target;
   return (
@@ -66,8 +66,45 @@ function ConditionRow({ label, current, target, format }) {
 }
 
 /**
+ * The four checks that decide coverage has settled. Real-time stops the capture as
+ * soon as they all pass; manual only shows them, because "no new key in the last
+ * 100k events" is what turns clicking Stop into a decision rather than a guess.
+ */
+function PlateauChecks({ plateau, realtime }) {
+  const checks = PLATEAU_CHECKS.map((check) => ({
+    ...check,
+    current: plateau[check.id]?.current ?? 0,
+    target: plateau[check.id]?.target ?? 0,
+  }));
+  const allMet = checks.every((check) => check.target > 0 && check.current >= check.target);
+
+  return (
+    <div>
+      <h3 className="section-title">
+        {realtime ? "Progress toward the automatic stop" : "Has the coverage settled?"}
+      </h3>
+      <p className="mt-1 text-xs text-airship-muted">
+        {realtime
+          ? "The capture stops on its own once all four conditions are met at the same time."
+          : "Nothing stops on its own in manual mode. These are the four checks real-time mode uses — once they all pass, capturing longer rarely turns up a new key."}
+      </p>
+      <ul className="mt-3 space-y-3">
+        {checks.map((check) => (
+          <CheckRow key={check.id} {...check} />
+        ))}
+      </ul>
+      {allMet && !realtime && (
+        <p className="mt-3 rounded-airship border border-airship-success/40 bg-airship-success/10 p-3 text-sm font-medium text-teal-800">
+          Coverage has settled — a good moment to stop and build the plan.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
  * Live view of a running capture: how much has been read, what has been
- * discovered, and — in real-time mode — how close each auto-stop condition is.
+ * discovered, and how close coverage is to settling.
  */
 export default function CaptureProgressPanel({
   profile,
@@ -79,7 +116,7 @@ export default function CaptureProgressPanel({
 }) {
   const coverage = progress?.coverage ?? {};
   const keys = coverage.keys ?? {};
-  const autoStop = coverage.autoStop ?? null;
+  const plateau = coverage.plateau ?? null;
   const events = progress?.linesWritten ?? coverage.events ?? 0;
   const processedRange = progress?.processedRange ?? null;
   const analyzing = progress?.phase && progress.phase !== "download";
@@ -135,25 +172,7 @@ export default function CaptureProgressPanel({
         </ul>
       </div>
 
-      {autoStop && (
-        <div>
-          <h3 className="section-title">Progress toward the automatic stop</h3>
-          <p className="mt-1 text-xs text-airship-muted">
-            The capture stops on its own once all four conditions are met at the same time.
-          </p>
-          <ul className="mt-3 space-y-3">
-            {AUTO_STOP_CONDITIONS.map((condition) => (
-              <ConditionRow
-                key={condition.id}
-                label={condition.label}
-                current={autoStop[condition.id]?.current ?? 0}
-                target={autoStop[condition.id]?.target ?? 0}
-                format={condition.format}
-              />
-            ))}
-          </ul>
-        </div>
-      )}
+      {plateau && <PlateauChecks plateau={plateau} realtime={stopMode === "realtime"} />}
     </section>
   );
 }

@@ -1,6 +1,7 @@
 import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
 import AppNav from "./components/AppNav.jsx";
 import DocumentStatus from "./components/DocumentStatus.jsx";
+import UpdateBanner from "./components/UpdateBanner.jsx";
 import { CaptureSessionProvider } from "./contexts/CaptureSessionContext.jsx";
 import { ProfilesProvider } from "./contexts/ProfilesContext.jsx";
 import CapturePage from "./pages/CapturePage.jsx";
@@ -16,6 +17,7 @@ export default function App() {
           <div className="app-shell">
             <AppNav />
             <main className="page-container max-w-5xl">
+              <UpdateBanner />
               <Routes>
                 <Route path="/" element={<CapturePage />} />
                 <Route path="/history" element={<HistoryPage />} />

@@ -201,7 +201,27 @@ test("download progress carries the per-category coverage breakdown", async () =
     assert.equal(typeof last.coverage.keys.screens, "number");
     assert.equal(typeof last.coverage.keys.subscriptionLists, "number");
     assert.equal(last.coverage.keys.total >= 1, true);
-    assert.equal(last.coverage.autoStop, undefined, "manual stop has no auto-stop progress");
+  } finally {
+    restore();
+  }
+});
+
+test("manual stop reports the plateau checks too, and never stops by itself", async () => {
+  const restore = stubRtds([trackingEvent({ id: "a" }), trackingEvent({ id: "b" })]);
+  try {
+    const messages = await collect({ profile: "Demo", timezone: "UTC" }, { stopAfterEvents: 2 });
+    const last = messages.filter((m) => m.kind === "progress" && m.coverage?.plateau).at(-1);
+    assert.ok(last, "expected plateau progress in manual mode");
+    // Measured against the standard thresholds, since a manual run has none.
+    assert.equal(last.coverage.plateau.events.target, REALTIME_THRESHOLDS.minEvents);
+    assert.equal(
+      last.coverage.plateau.eventsSinceLastNewKey.target,
+      REALTIME_THRESHOLDS.plateauMargin,
+    );
+
+    const complete = messages.find((m) => m.kind === "complete");
+    assert.equal(complete.report.meta.realTime, false);
+    assert.equal(complete.report.meta.autoStopped, false, "manual stop is never automatic");
   } finally {
     restore();
   }
@@ -214,13 +234,13 @@ test("real-time mode exposes progress toward each auto-stop condition", async ()
       { profile: "Demo", timezone: "UTC", stop_mode: "realtime" },
       { stopAfterEvents: 2 },
     );
-    const last = messages.filter((m) => m.kind === "progress" && m.coverage?.autoStop).at(-1);
+    const last = messages.filter((m) => m.kind === "progress" && m.coverage?.plateau).at(-1);
     assert.ok(last, "expected auto-stop progress in real-time mode");
-    const { autoStop } = last.coverage;
-    assert.equal(autoStop.events.target, REALTIME_THRESHOLDS.minEvents);
-    assert.equal(autoStop.processedSpanMs.target, REALTIME_THRESHOLDS.minProcessedSpanMs);
-    assert.equal(autoStop.eventsSinceLastNewKey.target, REALTIME_THRESHOLDS.plateauMargin);
-    assert.equal(autoStop.spanSinceLastNewKeyMs.target, REALTIME_THRESHOLDS.plateauSpanMs);
+    const { plateau } = last.coverage;
+    assert.equal(plateau.events.target, REALTIME_THRESHOLDS.minEvents);
+    assert.equal(plateau.processedSpanMs.target, REALTIME_THRESHOLDS.minProcessedSpanMs);
+    assert.equal(plateau.eventsSinceLastNewKey.target, REALTIME_THRESHOLDS.plateauMargin);
+    assert.equal(plateau.spanSinceLastNewKeyMs.target, REALTIME_THRESHOLDS.plateauSpanMs);
 
     const complete = messages.find((m) => m.kind === "complete");
     assert.equal(complete.report.meta.realTime, true);

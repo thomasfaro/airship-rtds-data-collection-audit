@@ -1,0 +1,210 @@
+{
+  "folders": [
+    {
+      "name": "root",
+      "path": "."
+    },
+    {
+      "name": "server",
+      "path": "server"
+    },
+    {
+      "name": "frontend",
+      "path": "frontend"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/.stored-files": true,
+      "**/.audit-tmp": true,
+      ".node": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/package-lock.json": true,
+      "**/.stored-files": true,
+      ".node": true
+    },
+    "files.watcherExclude": {
+      "**/node_modules/**": true,
+      "**/dist/**": true,
+      "**/.stored-files/**": true,
+      ".node/**": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "bradlc.vscode-tailwindcss"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Debug API server",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder:server}/src/index.js",
+        "cwd": "${workspaceFolder:server}",
+        "envFile": "${workspaceFolder:server}/.env",
+        "skipFiles": ["<node_internals>/**"]
+      },
+      {
+        "name": "Debug API server (watch)",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "node",
+        "runtimeArgs": ["--watch"],
+        "program": "${workspaceFolder:server}/src/index.js",
+        "cwd": "${workspaceFolder:server}",
+        "envFile": "${workspaceFolder:server}/.env",
+        "restart": true,
+        "skipFiles": ["<node_internals>/**"]
+      },
+      {
+        "name": "Debug frontend (Chrome)",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://127.0.0.1:5183",
+        "webRoot": "${workspaceFolder:frontend}/src"
+      }
+    ],
+    "compounds": [
+      {
+        "name": "Debug full stack",
+        "configurations": ["Debug API server (watch)", "Debug frontend (Chrome)"],
+        "stopAll": true
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Setup: install deps + config",
+        "type": "shell",
+        "command": "npm run setup:local",
+        "options": {
+          "cwd": "${workspaceFolder:root}"
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Dev: API server",
+        "type": "npm",
+        "script": "dev",
+        "path": "server/",
+        "options": {
+          "cwd": "${workspaceFolder:root}"
+        },
+        "isBackground": true,
+        "problemMatcher": {
+          "owner": "rtds-dca",
+          "pattern": { "regexp": "^$" },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": "Airship RTDS Data Collection Audit"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "group": "dev"
+        }
+      },
+      {
+        "label": "Dev: frontend (Vite)",
+        "type": "npm",
+        "script": "dev",
+        "path": "frontend/",
+        "options": {
+          "cwd": "${workspaceFolder:root}"
+        },
+        "isBackground": true,
+        "problemMatcher": {
+          "owner": "rtds-dca",
+          "pattern": { "regexp": "^$" },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": "Local:\\s+http"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated",
+          "group": "dev"
+        }
+      },
+      {
+        "label": "Dev: API + frontend",
+        "dependsOn": ["Dev: API server", "Dev: frontend (Vite)"],
+        "dependsOrder": "parallel",
+        "problemMatcher": []
+      },
+      {
+        "label": "Serve: built UI + API on one port",
+        "type": "npm",
+        "script": "serve",
+        "options": {
+          "cwd": "${workspaceFolder:root}"
+        },
+        "isBackground": true,
+        "problemMatcher": {
+          "owner": "rtds-dca",
+          "pattern": { "regexp": "^$" },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": "App \\+ API: http"
+          }
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "dedicated"
+        }
+      },
+      {
+        "label": "Test: all",
+        "type": "npm",
+        "script": "test",
+        "options": {
+          "cwd": "${workspaceFolder:root}"
+        },
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "Test: server",
+        "type": "npm",
+        "script": "test",
+        "path": "server/",
+        "options": {
+          "cwd": "${workspaceFolder:root}"
+        },
+        "group": "test",
+        "problemMatcher": []
+      },
+      {
+        "label": "Test: frontend",
+        "type": "npm",
+        "script": "test",
+        "path": "frontend/",
+        "options": {
+          "cwd": "${workspaceFolder:root}"
+        },
+        "group": "test",
+        "problemMatcher": []
+      }
+    ]
+  }
+}

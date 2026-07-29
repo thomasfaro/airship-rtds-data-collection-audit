@@ -7,7 +7,6 @@ import { parseExcludedDeviceTypesQuery } from "../audit/parseExcludedDeviceTypes
 import {
   DEFAULT_MIN_EVENTS,
   DEFAULT_MIN_PROCESSED_SPAN_MS,
-  DEFAULT_PLATEAU_MARGIN,
   DEFAULT_PLATEAU_SPAN_MS,
 } from "../audit/coveragePlateau.js";
 
@@ -27,15 +26,20 @@ export const CAPTURE_START_POSITIONS = {
 };
 
 /**
- * The auto-stop guardrails, deliberately the only set on offer: the conservative
- * engine defaults. A looser variant used to be selectable and was removed — it
- * ended captures early enough to miss rare keys, which is the one thing a tagging
- * plan cannot afford.
+ * The auto-stop guardrails, deliberately the only set on offer. A looser variant
+ * used to be selectable and was removed — it ended captures early enough to miss
+ * rare keys, which is the one thing a tagging plan cannot afford.
+ *
+ * They follow the engine defaults except for the plateau margin, lowered here from
+ * 250k to 100k: paired with the 30 minutes of processed time that must also pass
+ * without a new key, 100k events is enough evidence of a plateau, and the higher
+ * bar mostly made low-traffic projects wait for volume they would never reach.
+ * Set in this module so the ported engine keeps its own defaults untouched.
  */
 export const REALTIME_THRESHOLDS = {
   minEvents: DEFAULT_MIN_EVENTS,
   minProcessedSpanMs: DEFAULT_MIN_PROCESSED_SPAN_MS,
-  plateauMargin: DEFAULT_PLATEAU_MARGIN,
+  plateauMargin: 100_000,
   plateauSpanMs: DEFAULT_PLATEAU_SPAN_MS,
 };
 

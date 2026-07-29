@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="RTDS Data Collection Audit">
+  <!-- Maskable variant: the background bleeds to the edges because the launcher
+       crops it to its own shape, and the mark stays inside the 80% safe zone. -->
+  <rect width="512" height="512" fill="#000818" />
+  <g fill="#ffffff">
+    <rect x="127" y="119" width="258" height="62" rx="31" />
+    <rect x="127" y="225" width="167" height="62" rx="31" />
+    <rect x="127" y="331" width="121" height="62" rx="31" />
+  </g>
+</svg>

@@ -170,6 +170,14 @@ function buildScopeInfoRows(report) {
     rows.push({ label: "Total events in scope", value: report.meta.totalEvents });
   }
 
+  const app = report?.meta?.appVersion;
+  if (app?.version) {
+    rows.push({
+      label: "Audited with",
+      value: app.commit ? `RTDS DCA ${app.version} (${app.commit})` : `RTDS DCA ${app.version}`,
+    });
+  }
+
   return rows;
 }
 
@@ -1222,6 +1230,7 @@ export function buildTaggingPlanJsonPayload(report, { extracts = null, profileNa
     generatedAt: new Date().toISOString(),
     meta: {
       profile,
+      appVersion: meta.appVersion ?? null,
       reportGeneratedAt: meta.generatedAt ?? null,
       taggingPlanMode: Boolean(meta.taggingPlanMode),
       typesRequested: meta.typesRequested ?? meta.queryContext?.typesRequested ?? [],

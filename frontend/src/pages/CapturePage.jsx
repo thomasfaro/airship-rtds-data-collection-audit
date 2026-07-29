@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import CaptureForm from "../components/capture/CaptureForm.jsx";
 import CaptureProgressPanel from "../components/capture/CaptureProgressPanel.jsx";
+import ServerRecovery from "../components/ServerRecovery.jsx";
 import CoverageSummary from "../components/summary/CoverageSummary.jsx";
 import { useCaptureSession } from "../contexts/CaptureSessionContext.jsx";
 import { readLastProfile, useProfiles } from "../contexts/ProfilesContext.jsx";
@@ -71,6 +72,7 @@ export default function CapturePage() {
         <div className="alert-warning">
           <p className="font-semibold">{error}</p>
           {errorHint ? <p className="mt-1">{errorHint}</p> : null}
+          <ServerRecovery />
         </div>
       ) : null}
 

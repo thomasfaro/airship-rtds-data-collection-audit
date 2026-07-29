@@ -77,43 +77,14 @@ if curl -sf "$HEALTH_URL" >/dev/null 2>&1; then
   exit 0
 fi
 
-mkdir -p config
+# shellcheck source=scripts/prepare-app.sh
+. "$ROOT/scripts/prepare-app.sh"
+prepare_app "$ROOT"
 
-if [[ ! -f server/.env ]] && [[ -f server/.env.example ]]; then
-  cp server/.env.example server/.env
-fi
-
-# Quiet by design: npm's deprecation notices and vite's chunk advice read like
-# something is broken to whoever double-clicked this. Errors still come through.
-NPM_QUIET=(--no-audit --no-fund --loglevel=error)
-
-if [[ ! -d server/node_modules ]]; then
-  echo "Installing server components (first run only, this takes a minute)…"
-  npm install --prefix server "${NPM_QUIET[@]}"
-fi
-
-if [[ ! -d frontend/node_modules ]]; then
-  echo "Installing interface components (first run only, this takes a minute)…"
-  npm install --prefix frontend "${NPM_QUIET[@]}"
-fi
-
-# Rebuild only when the build is missing or older than the sources it came from.
-needs_build() {
-  [[ -f frontend/dist/index.html ]] || return 0
-  local sources=(frontend/src frontend/index.html frontend/package.json frontend/vite.config.js)
-  local existing=()
-  local candidate
-  for candidate in "${sources[@]}"; do
-    [[ -e "$candidate" ]] && existing+=("$candidate")
-  done
-  local newer
-  newer="$(find "${existing[@]}" -newer frontend/dist/index.html -print -quit 2>/dev/null || true)"
-  [[ -n "$newer" ]]
-}
-
-if needs_build; then
-  echo "Preparing the interface…"
-  npm run build --prefix frontend --silent -- --logLevel error
+# Makes the rtds-audit:// link work, so the app's own page can restart it later.
+# Never worth failing a launch over.
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  bash "$ROOT/scripts/install-url-handler.sh" --quiet || true
 fi
 
 echo "Starting on port ${PORT}…"

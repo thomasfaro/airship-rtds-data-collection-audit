@@ -22,7 +22,8 @@ import { filterEntitledTypes } from "../audit/rtdsEntitlements.js";
 import { registerAuditSession, unregisterAuditSession } from "../audit/sessionRegistry.js";
 import { sseDataLine } from "../audit/reportJson.js";
 import { formatRtdsStreamError } from "../rtds/rtdsStreamErrors.js";
-import { resolveCaptureOptions } from "../capture/captureOptions.js";
+import { REALTIME_THRESHOLDS, resolveCaptureOptions } from "../capture/captureOptions.js";
+import { runningVersion } from "../version.js";
 
 /** Data collection capture always requests the tracking-only RTDS types. */
 const TRACKING_ONLY = true;
@@ -43,15 +44,18 @@ function startStatusMessage({ stopMode, startPosition, captureWindow }) {
 
 /**
  * Coverage snapshot attached to every download progress event: what has been
- * discovered so far and, in real-time mode, how close each auto-stop condition is.
+ * discovered so far, and how far along the four plateau checks are.
+ *
+ * The checks are reported in both stop modes. Real-time acts on them; manual does
+ * not, but they are still the only honest answer to "have I captured enough yet?",
+ * which beats stopping on a hunch.
  */
 function buildCoverageProgress(acc, plateauStopper) {
-  const coverage = { keys: distinctKeyBreakdown(acc), events: acc?.total ?? 0 };
-  if (!plateauStopper) return coverage;
   const plateau = plateauStopper.progress(acc);
   return {
-    ...coverage,
-    autoStop: {
+    keys: distinctKeyBreakdown(acc),
+    events: acc?.total ?? 0,
+    plateau: {
       events: { current: plateau.events, target: plateau.thresholds.minEvents },
       processedSpanMs: {
         current: plateau.processedSpanMs,
@@ -95,6 +99,9 @@ function attachReportMeta(report, { downloadResult, options, storagePath }) {
   report.meta.typesRequested = downloadResult.types ?? [];
   report.meta.taggingPlanMode = true;
   report.meta.typesCoverage = auditTypeCoverage({ trackingOnly: TRACKING_ONLY });
+  // Stamped into the report, so a tagging plan that comes back six months later can be
+  // traced to the version that produced it.
+  report.meta.appVersion = runningVersion();
 
   const processedRange = buildProcessedRange(
     downloadResult.oldestProcessed ?? null,
@@ -188,9 +195,12 @@ export async function* runDataCollectionCapture(
     sessionRegistered = true;
   }
 
-  const plateauStopper = realTime
-    ? createCoveragePlateauStopper(options.realtimeThresholds ?? {})
-    : null;
+  // Measured in both modes: in real-time it ends the capture, in manual it only
+  // feeds the gauges that say whether coverage has settled. A manual run carries no
+  // thresholds of its own, so it is measured against the standard ones.
+  const plateauStopper = createCoveragePlateauStopper(
+    options.realtimeThresholds ?? REALTIME_THRESHOLDS,
+  );
   let autoStopped = false;
 
   try {
@@ -220,7 +230,10 @@ export async function* runDataCollectionCapture(
         trackingOnly: TRACKING_ONLY,
         onLine: (line) => {
           const offset = ingestAuditLine(acc, line, timezone);
-          if (plateauStopper && !autoStopped && plateauStopper.observe(acc)) {
+          // observe() also maintains the "last new key" markers the gauges read, so
+          // it runs whatever the mode; only real-time acts on the answer.
+          const settled = plateauStopper.observe(acc);
+          if (settled && realTime && !autoStopped) {
             autoStopped = true;
             downloadAbort?.abort();
           }

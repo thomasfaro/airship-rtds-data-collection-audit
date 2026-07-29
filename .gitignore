@@ -18,6 +18,7 @@ config/*.json
 !config/*.example.json
 **/config/.local-api-key
 **/config/.profiles-key
+config/.no-auto-update
 cache/
 .audit-tmp/
 .stored-files/

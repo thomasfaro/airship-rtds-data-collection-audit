@@ -8,11 +8,18 @@ import { migrateProfilesEncryption } from "./config.js";
 import { requireLocalClient } from "./middleware/requireLocalClient.js";
 import apiRoutes from "./routes/api.js";
 import { getLocalApiKey, isLoopbackRequest } from "./security/localApiAuth.js";
+import { refreshRemote } from "./updates/updateService.js";
+import { runningVersion, versionLabel } from "./version.js";
 
 dotenv.config();
 
 ensureDataDirs();
 getLocalApiKey();
+
+// Pin the version now, while the folder still holds the code we just loaded. An
+// update pulled later moves the folder on, and the difference is what tells the UI a
+// restart is due.
+runningVersion();
 
 try {
   const { migrated } = migrateProfilesEncryption();
@@ -70,7 +77,7 @@ app.use((error, _req, res, _next) => {
 
 const server = app.listen(port, host, () => {
   console.log("=".repeat(56));
-  console.log("  Airship RTDS Data Collection Audit");
+  console.log(`  Airship RTDS Data Collection Audit ${versionLabel()}`);
   if (uiBuilt) {
     console.log(`  App + API: http://${host}:${port}`);
   } else {
@@ -82,6 +89,12 @@ const server = app.listen(port, host, () => {
   console.log("  Stop:     POST /api/capture/stop");
   console.log("  History:  GET  /api/history");
   console.log("=".repeat(56));
+
+  // Warm the update check in the background, so the first thing the UI asks already
+  // has an answer. Failures are the normal case offline and stay silent.
+  setTimeout(() => {
+    refreshRemote().catch(() => {});
+  }, 5_000).unref();
 });
 
 server.on("error", (error) => {

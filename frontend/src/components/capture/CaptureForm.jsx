@@ -88,7 +88,7 @@ export default function CaptureForm({
             </p>
             <p className="text-xs text-airship-muted">
               It waits for 1M events and one hour of processed time before it will even consider
-              coverage complete, then for 250k more events and 30 minutes without a single new key.
+              coverage complete, then for 100k more events and 30 minutes without a single new key.
               On a low-traffic project reaching that takes a while — you can always stop the capture
               by hand once you judge the coverage good enough.
             </p>
