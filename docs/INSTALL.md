@@ -176,6 +176,9 @@ Your `config/` folder and your saved audits are never touched by an update.
   changes, then use **Pull**.
 - **No network, or GitHub is unreachable.** It carries on with the version you have and tries again
   next time.
+- **GitHub does not recognise your machine.** The repository is private, so the update needs the
+  credentials GitHub Desktop stores when you clone with it — one more reason to use it rather than a
+  ZIP. Sign in there once and it works from then on.
 
 </details>
 
