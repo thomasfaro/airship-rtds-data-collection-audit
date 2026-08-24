@@ -192,6 +192,16 @@ export function annotateReportObsolescence(report, acc, params = OBSOLESCENCE_DE
     description:
       "Data points whose SDK (live) coverage only appears on older app versions and never on the platform's most recent versions — likely no longer tracked in current app builds. Reliability improves with longer captures.",
     params: { ...params },
+    // The landscape the verdict was reached against. An empty item list is a
+    // verdict too, and on its own it cannot be told apart from "the capture
+    // never saw an app version" — so whoever reads the plan needs the versions
+    // the rule compared against, not just its conclusion.
+    platforms: Object.entries(platformInfo).map(([deviceType, info]) => ({
+      deviceType,
+      currentVersion: info.maxVersion,
+      recentVersions: [...info.recent],
+      versionCount: info.versionCount,
+    })),
     flaggedCount: items.length,
     items,
   };

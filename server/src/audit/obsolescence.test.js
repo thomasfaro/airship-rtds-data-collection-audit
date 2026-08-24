@@ -65,6 +65,24 @@ test("annotateReportObsolescence flags SDK data only on old versions, conservati
   assert.equal(report.obsolescence.items[0].platformMaxVersion, "1.4.0");
 });
 
+test("annotateReportObsolescence reports the version landscape it judged against", () => {
+  const report = emptyReportSections();
+  annotateReportObsolescence(report, buildAcc());
+
+  assert.deepEqual(report.obsolescence.platforms, [
+    { deviceType: "IOS", currentVersion: "1.4.0", recentVersions: ["1.4.0", "1.3.0", "1.2.0"], versionCount: 5 },
+  ]);
+});
+
+test("annotateReportObsolescence reports no landscape when no event carried an app version", () => {
+  const acc = buildAcc();
+  acc.appByDevice = { WEB: { versions: {} } };
+  const report = emptyReportSections();
+  annotateReportObsolescence(report, acc);
+
+  assert.deepEqual(report.obsolescence.platforms, []);
+});
+
 test("annotateReportObsolescence does not flag when the platform has too few versions", () => {
   const acc = buildAcc();
   acc.appByDevice = { IOS: { versions: { "1.0.0": 5 } } }; // single version

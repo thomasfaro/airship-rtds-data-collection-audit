@@ -588,6 +588,92 @@ const ABSENT_TYPE_LABELS = {
 };
 const ABSENT_TYPE_ORDER = ["custom_event", "attribute", "tag", "screen", "subscription_list"];
 
+/** Every item the obsolescence rule looks at, in the same families the engine walks. */
+function obsolescenceJudgedRows(report) {
+  const rows = [];
+  for (const section of ["sdk", "api", "unknown"]) {
+    rows.push(...(report.customEvents?.[section]?.top ?? []));
+  }
+  rows.push(...(report.attributes?.topKeys ?? []));
+  rows.push(...(report.screenViewed?.top ?? []));
+  rows.push(...(report.subscriptionLists?.byList ?? []));
+
+  // A tag appears in both the added and removed tables; the rule judges it once.
+  const seenTags = new Set();
+  for (const row of [...(report.tags?.topAdded ?? []), ...(report.tags?.topRemoved ?? [])]) {
+    if (seenTags.has(row.key)) continue;
+    seenTags.add(row.key);
+    rows.push(row);
+  }
+  return rows;
+}
+
+/**
+ * Why nothing is flagged. "No rows" has three very different causes — everything
+ * is still live, nothing carried an app version, or what did carry one was too
+ * thin to judge — and a sheet that states none of them reads as a hole in the
+ * report rather than the clean bill of health it usually is.
+ */
+export function absentFromLatestVerdict(report) {
+  // A report captured before the engine reported its landscape cannot be told
+  // apart from one that saw no app version at all, and guessing wrong turns a
+  // clean bill of health into "we could not check". Absent is not empty.
+  const landscapeKnown = Array.isArray(report.obsolescence?.platforms);
+  const platforms = (report.obsolescence?.platforms ?? []).filter((p) => p.currentVersion);
+  const currentVersions = new Set(platforms.map((p) => p.currentVersion));
+
+  let onCurrent = 0;
+  let onOlder = 0;
+  let noVersion = 0;
+  for (const row of obsolescenceJudgedRows(report)) {
+    const seen = row.versionScope?.maxAppVersion ?? null;
+    if (!seen) noVersion += 1;
+    // Set membership, not a version comparison: the engine already worked out
+    // which build is current, and duplicating that arithmetic here is how the
+    // two would drift apart.
+    else if (currentVersions.has(seen)) onCurrent += 1;
+    else onOlder += 1;
+  }
+
+  return {
+    landscapeKnown,
+    total: onCurrent + onOlder + noVersion,
+    onCurrent,
+    onOlder,
+    noVersion,
+    minVolume: report.obsolescence?.params?.minVolume ?? null,
+    platformsLabel: platforms.map((p) => `${canonicalPlatform(p.deviceType)} ${p.currentVersion}`).join(", "),
+  };
+}
+
+/** The empty-state note: the verdict, and the evidence behind it. */
+function absentFromLatestEmptyNote(report) {
+  const v = absentFromLatestVerdict(report);
+  const n = (value) => value.toLocaleString("en-US");
+
+  if (!v.landscapeKnown) {
+    return "No tracked item appears absent from the latest app build for this capture window. Reliability improves with longer captures spanning several app versions.";
+  }
+
+  if (!v.platformsLabel) {
+    return "Nothing could be judged: no tracking event in this capture carried an app version, which only device (SDK) events do. API-fed data and web channels never do, so obsolescence cannot be assessed from this window.";
+  }
+
+  const parts = [`No tracked item looks absent from the latest app build (${v.platformsLabel}).`];
+  const evidence = [`${n(v.onCurrent)} of ${n(v.total)} items were last seen on a current build`];
+  if (v.noVersion > 0) {
+    evidence.push(`${n(v.noVersion)} carry no app version at all — API-fed data and web channels never do`);
+  }
+  if (v.onOlder > 0) {
+    evidence.push(
+      `${n(v.onOlder)} last appeared on an older build but stayed under the ${n(v.minVolume ?? 0)}-event floor the rule needs before it calls tracking dead`,
+    );
+  }
+  parts.push(`${evidence.join("; ")}.`);
+  parts.push("Reliability improves with longer captures spanning several app versions.");
+  return parts.join(" ");
+}
+
 function buildAbsentFromLatestSheet(report) {
   const columns = [
     { key: "name", label: "Name / Key", type: "text", width: 34 },
@@ -605,7 +691,7 @@ function buildAbsentFromLatestSheet(report) {
   if (items.length === 0) {
     return {
       name: "Absent from latest version",
-      note: "No custom events, attributes, tags, or screens appear absent from the latest app version for this capture window. Reliability improves with longer captures spanning multiple app versions.",
+      note: absentFromLatestEmptyNote(report),
       columns,
       rows: [],
       flagRows: false,

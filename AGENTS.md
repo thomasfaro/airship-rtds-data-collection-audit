@@ -154,7 +154,9 @@ frontend/src/
 
 - **`server/src/audit/` is a port.** It is shared history with `airship-rtds-qa` and heavily
   interdependent (`analyzeEvents.js` alone imports ~30 siblings). Fix bugs there, but avoid
-  refactors: they make it impossible to diff against the origin app.
+  refactors: they make it impossible to diff against the origin app. One deliberate divergence:
+  `obsolescence.js` also reports the version landscape it judged against (`obsolescence.platforms`),
+  because an empty flag list is a verdict and the workbook has to say which builds it compared.
 - **Captures are analysis-only.** `captureController.js` forces `trackingOnly` and never writes raw
   NDJSON. `report.meta.storage.sourceFileName` is a *stem*, not a file that exists — the persisted
   report and the value sidecars are keyed on it. Don't add code that tries to read it.

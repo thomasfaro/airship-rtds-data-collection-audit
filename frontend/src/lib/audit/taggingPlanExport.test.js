@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  absentFromLatestVerdict,
   buildTaggingPlanWorkbookModel,
   buildTaggingPlanJsonPayload,
   canonicalPlatform,
@@ -373,13 +374,68 @@ test("Subscription Lists sheet explains an empty result via entitlements", () =>
   assert.match(subs.note, /not entitled/);
 });
 
-test("buildAbsentFromLatestSheet shows an empty-state note when nothing is flagged", () => {
-  const report = sampleReport();
-  report.obsolescence = { items: [] };
+function emptyAbsentSheet(report) {
   const model = buildTaggingPlanWorkbookModel(report);
   const absent = model.dataSheets.find((s) => s.name === "Absent from latest version");
   assert.equal(absent.rows.length, 0);
-  assert.match(absent.note, /No custom events/);
+  return absent;
+}
+
+test("the absent-from-latest empty state gives the verdict and the evidence behind it", () => {
+  const report = sampleReport();
+  report.obsolescence = {
+    params: { recentVersions: 3, minVolume: 5 },
+    platforms: [
+      { deviceType: "IOS", currentVersion: "2.0.0", recentVersions: ["2.0.0"], versionCount: 4 },
+      { deviceType: "ANDROID", currentVersion: "2.0.0", recentVersions: ["2.0.0"], versionCount: 2 },
+    ],
+    flaggedCount: 0,
+    items: [],
+  };
+  // One item on the current build, one left behind on an older one, and the rest
+  // carrying no app version at all — the three reasons the sheet can be empty.
+  report.customEvents.sdk.top[0].versionScope = { maxAppVersion: "2.0.0" };
+  report.attributes.topKeys[0].versionScope = { maxAppVersion: "1.0.0" };
+
+  const note = emptyAbsentSheet(report).note;
+  assert.match(note, /No tracked item looks absent from the latest app build \(iOS 2\.0\.0, Android 2\.0\.0\)/);
+  assert.match(note, /1 of 6 items were last seen on a current build/);
+  assert.match(note, /4 carry no app version at all/);
+  assert.match(note, /1 last appeared on an older build but stayed under the 5-event floor/);
+});
+
+test("the absent-from-latest empty state says so when no event carried an app version", () => {
+  const report = sampleReport();
+  report.obsolescence = { params: { minVolume: 5 }, platforms: [], flaggedCount: 0, items: [] };
+
+  assert.match(emptyAbsentSheet(report).note, /Nothing could be judged: no tracking event/);
+});
+
+test("the absent-from-latest empty state stays vague on a report captured before the landscape existed", () => {
+  const report = sampleReport();
+  report.obsolescence = { params: { minVolume: 5 }, items: [] };
+
+  const note = emptyAbsentSheet(report).note;
+  assert.match(note, /No tracked item appears absent from the latest app build/);
+  assert.doesNotMatch(note, /Nothing could be judged/, "an old report is not a report without versions");
+});
+
+test("the absent-from-latest verdict counts each item once, tags included", () => {
+  const report = sampleReport();
+  report.obsolescence = {
+    params: { minVolume: 5 },
+    platforms: [{ deviceType: "IOS", currentVersion: "2.0.0", recentVersions: ["2.0.0"], versionCount: 4 }],
+    items: [],
+  };
+  // The same tag shows up in both tag tables; the rule judges it once, so the
+  // count has to as well.
+  report.tags.topRemoved = [{ key: "lang:fr", count: 2, versionScope: { maxAppVersion: "2.0.0" } }];
+  report.tags.topAdded[0].versionScope = { maxAppVersion: "2.0.0" };
+
+  const verdict = absentFromLatestVerdict(report);
+  assert.equal(verdict.total, 6);
+  assert.equal(verdict.onCurrent, 1);
+  assert.equal(verdict.platformsLabel, "iOS 2.0.0");
 });
 
 test("collectValueExtracts paginates with concurrency, cap and fallback", async () => {
