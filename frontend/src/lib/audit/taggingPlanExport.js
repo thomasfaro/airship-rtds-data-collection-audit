@@ -21,6 +21,15 @@ import {
   MISMATCH_LABELS,
   WARNING_CATEGORY_LABELS,
 } from "./auditWarningGroups.js";
+import {
+  BAR_COLUMN_WIDTH,
+  groupValueRows,
+  PALETTE,
+  shareBar,
+  shareColumn,
+  TAB_COLORS,
+  withShares,
+} from "./taggingPlanStyle.js";
 
 const VALUE_TRUNCATE = 200;
 const ANALYSE_SCOPE_SHEET = "Analyse scope";
@@ -184,8 +193,13 @@ function buildScopeInfoRows(report) {
 function obsolescenceColumns() {
   return [
     { key: "obsMaxVersion", label: "Max app version seen", type: "text", width: 18 },
-    { key: "obsFlag", label: "Potentially obsolete", type: "text", width: 22 },
+    { key: "obsFlag", label: "Potentially obsolete", type: "text", width: 22, flag: "warn" },
   ];
+}
+
+/** The one column that says a platform is missing the item. */
+function mismatchColumn() {
+  return { key: "mismatch", label: "Platform mismatch", type: "text", width: 16, flag: "danger" };
 }
 
 function obsolescenceCells(obs) {
@@ -247,7 +261,30 @@ function customRowPropertyNames(row) {
   return [...names];
 }
 
-function buildAnalyseScopeSheet(report) {
+/**
+ * What the plan actually contains, appended to the scope block. Reading this on
+ * the first sheet answers the questions the other sheets take a scroll each to
+ * answer: how much is tracked, and how much of it looks wrong.
+ */
+function planContentsRows(contents) {
+  if (!contents) return [];
+  const dataRows = (sheet) => (sheet?.rows ?? []).filter((r) => !r.__section && !r.__total).length;
+  const rows = [
+    { label: "Custom events tracked", value: dataRows(contents.customEvents) },
+    { label: "Attributes tracked", value: dataRows(contents.attributes) },
+    { label: "Tags tracked", value: dataRows(contents.tags) },
+    { label: "Subscription lists tracked", value: dataRows(contents.subscriptionLists) },
+    { label: "Screens tracked", value: dataRows(contents.screens) },
+  ];
+
+  // These two name the sheet that holds the detail. The label column is as wide
+  // as the table's first column, so a longer sentence is simply cut off.
+  rows.push({ label: "Absent from latest version", value: dataRows(contents.absentFromLatest) });
+  rows.push({ label: "Platform mismatches", value: dataRows(contents.mismatches) });
+  return rows;
+}
+
+function buildAnalyseScopeSheet(report, contents = null) {
   const byDevice = report.byDeviceType ?? [];
 
   // Union of event types across platforms, ordered by total volume desc.
@@ -267,6 +304,7 @@ function buildAnalyseScopeSheet(report) {
   const columns = [
     { key: "platform", label: "Platform (device_type)", type: "text", width: 26 },
     { key: "total", label: "Total events", type: "int", width: 16 },
+    shareColumn("% of events"),
     ...orderedTypes.map((type) => ({ key: keyByType.get(type), label: type, type: "int", width: 16 })),
   ];
 
@@ -298,9 +336,14 @@ function buildAnalyseScopeSheet(report) {
     platformRows.push(totalRow);
   }
 
+  withShares(platformRows, (r) => r.total);
+
   return {
     name: ANALYSE_SCOPE_SHEET,
-    infoBlock: { title: "Analysis scope", rows: buildScopeInfoRows(report) },
+    infoBlock: {
+      title: "Capture summary",
+      rows: [...buildScopeInfoRows(report), ...planContentsRows(contents)],
+    },
     note: "Event volume by platform (rows) and event type (columns). Blank cells mean no events of that type were seen on the platform.",
     columns,
     rows: platformRows,
@@ -313,13 +356,14 @@ function buildCustomEventsSheet(report, platforms, lookups = {}) {
     { key: "name", label: "Name", type: "text", width: 34 },
     { key: "source", label: "Source", type: "text", width: 14 },
     { key: "total", label: "Total", type: "int", width: 12 },
+    shareColumn("% of events"),
     ...platCols,
     { key: "eventValues", label: "Event value samples", type: "text", width: 40, wrap: true },
     { key: "properties", label: "Properties", type: "text", width: 40, wrap: true },
     { key: "propSamples", label: "Property sample values", type: "text", width: 70, wrap: true },
     { key: "present", label: "Present platforms", type: "text", width: 22 },
     { key: "missing", label: "Missing platforms", type: "text", width: 22 },
-    { key: "mismatch", label: "Platform mismatch", type: "text", width: 16 },
+    mismatchColumn(),
     ...versionScopeColumns(),
     ...obsolescenceColumns(),
   ];
@@ -365,6 +409,7 @@ function buildCustomEventsSheet(report, platforms, lookups = {}) {
     }
   }
   rows.sort((a, b) => (b.total ?? 0) - (a.total ?? 0));
+  withShares(rows, (r) => r.total);
   return { name: "Custom Events", columns, rows };
 }
 
@@ -373,15 +418,16 @@ function buildAttributesSheet(report, platforms, lookups = {}) {
     { key: "key", label: "Key", type: "text", width: 30 },
     { key: "normalized", label: "Normalized", type: "text", width: 30 },
     { key: "total", label: "Total ops", type: "int", width: 12 },
+    shareColumn("% of ops"),
     { key: "actions", label: "Actions", type: "text", width: 22 },
     { key: "sources", label: "Sources", type: "text", width: 22 },
     ...platformColumnDefs(platforms),
     { key: "distinctValues", label: "Distinct values", type: "int", width: 16 },
-    { key: "capped", label: "Values capped", type: "text", width: 16 },
+    { key: "capped", label: "Values capped", type: "text", width: 16, flag: "warn" },
     { key: "sampleValues", label: "Sample values", type: "text", width: 60, wrap: true },
     { key: "present", label: "Present platforms", type: "text", width: 22 },
     { key: "missing", label: "Missing platforms", type: "text", width: 22 },
-    { key: "mismatch", label: "Platform mismatch", type: "text", width: 16 },
+    mismatchColumn(),
     ...versionScopeColumns(),
     ...obsolescenceColumns(),
   ];
@@ -403,6 +449,7 @@ function buildAttributesSheet(report, platforms, lookups = {}) {
     ...obsolescenceCells(r.obsolescence),
   }));
   rows.sort((a, b) => (b.total ?? 0) - (a.total ?? 0));
+  withShares(rows, (r) => r.total);
   return { name: "Attributes", columns, rows };
 }
 
@@ -437,6 +484,7 @@ function buildTagsSheet(report) {
     { key: "added", label: "Added", type: "int", width: 12 },
     { key: "removed", label: "Removed", type: "int", width: 12 },
     { key: "net", label: "Net", type: "int", width: 12 },
+    shareColumn("% of changes"),
     ...versionScopeColumns(),
     ...obsolescenceColumns(),
   ];
@@ -453,6 +501,7 @@ function buildTagsSheet(report) {
       ...obsolescenceCells(r.obsolescence),
     }));
   rows.sort((a, b) => b.added + b.removed - (a.added + a.removed));
+  withShares(rows, (r) => r.added + r.removed);
   return { name: "Tags", columns, rows };
 }
 
@@ -462,12 +511,13 @@ function buildSubscriptionListsSheet(report, platforms) {
     { key: "subscribe", label: "Subscribe", type: "int", width: 12 },
     { key: "unsubscribe", label: "Unsubscribe", type: "int", width: 12 },
     { key: "net", label: "Net", type: "int", width: 12 },
+    shareColumn("% of changes"),
     ...platformColumnDefs(platforms),
     { key: "scopes", label: "Scopes", type: "text", width: 22 },
     { key: "source", label: "Source", type: "text", width: 14 },
     { key: "present", label: "Present platforms", type: "text", width: 22 },
     { key: "missing", label: "Missing platforms", type: "text", width: 22 },
-    { key: "mismatch", label: "Platform mismatch", type: "text", width: 16 },
+    mismatchColumn(),
     ...versionScopeColumns(),
     ...obsolescenceColumns(),
   ];
@@ -487,6 +537,7 @@ function buildSubscriptionListsSheet(report, platforms) {
     ...obsolescenceCells(r.obsolescence),
   }));
   rows.sort((a, b) => (b.subscribe + b.unsubscribe) - (a.subscribe + a.unsubscribe));
+  withShares(rows, (r) => r.subscribe + r.unsubscribe);
   return { name: "Subscription Lists", note: subscriptionListsNote(report, rows.length), columns, rows };
 }
 
@@ -504,10 +555,11 @@ function buildScreensSheet(report, platforms) {
   const columns = [
     { key: "name", label: "Screen", type: "text", width: 34 },
     { key: "total", label: "Total", type: "int", width: 12 },
+    shareColumn("% of views"),
     ...platformColumnDefs(platforms),
     { key: "present", label: "Present platforms", type: "text", width: 22 },
     { key: "missing", label: "Missing platforms", type: "text", width: 22 },
-    { key: "mismatch", label: "Platform mismatch", type: "text", width: 16 },
+    mismatchColumn(),
     ...versionScopeColumns(),
     ...obsolescenceColumns(),
   ];
@@ -523,6 +575,7 @@ function buildScreensSheet(report, platforms) {
     ...obsolescenceCells(r.obsolescence),
   }));
   rows.sort((a, b) => (b.total ?? 0) - (a.total ?? 0));
+  withShares(rows, (r) => r.total);
   return { name: "Screens", columns, rows };
 }
 
@@ -555,6 +608,7 @@ function buildAbsentFromLatestSheet(report) {
       note: "No custom events, attributes, tags, or screens appear absent from the latest app version for this capture window. Reliability improves with longer captures spanning multiple app versions.",
       columns,
       rows: [],
+      flagRows: false,
     };
   }
 
@@ -592,6 +646,7 @@ function buildAbsentFromLatestSheet(report) {
     note: `Likely no longer tracked in the latest app build — ${summaryParts.join("  ·  ")}. Only SDK (on-device) data carries app versions, so API-only data is never flagged.`,
     columns,
     rows,
+    flagRows: false,
   };
 }
 
@@ -631,6 +686,7 @@ function buildMismatchSheet(report) {
       note: "No cross-platform coverage or value/property mismatches were detected in this capture window. Detection improves with captures that include comparable mobile platforms (iOS and Android).",
       columns,
       rows: [],
+      flagRows: false,
     };
   }
 
@@ -659,6 +715,7 @@ function buildMismatchSheet(report) {
     note: "Cross-platform inconsistencies already flagged by the audit: presence gaps between platforms and value/property differences (event properties, attribute value shapes, casing, email properties). SDK version issues are reported separately.",
     columns,
     rows,
+    flagRows: false,
   };
 }
 
@@ -674,7 +731,7 @@ function buildAppVersionsSheet(report) {
     { key: "appVersion", label: "App version", type: "text", width: 18 },
     { key: "sdkVersion", label: "SDK version", type: "text", width: 18 },
     { key: "eventCount", label: "Tracking events", type: "int", width: 16 },
-    { key: "pctOfOs", label: "% of OS events", type: "pct", width: 16 },
+    { key: "pctOfOs", label: "% of OS events", type: "pct", width: 16, bar: true },
     { key: "pctOfAppVersion", label: "% of app version", type: "pct", width: 18 },
   ];
 
@@ -726,18 +783,31 @@ function buildAppVersionsSheet(report) {
 export function buildTaggingPlanWorkbookModel(report, { extracts = null } = {}) {
   const platforms = derivePlatformColumns(report);
   const lookups = buildValueLookups(extracts);
+
+  // The catalogue is built first so the scope sheet can report what it holds.
+  const contents = {
+    appVersions: buildAppVersionsSheet(report),
+    absentFromLatest: buildAbsentFromLatestSheet(report),
+    mismatches: buildMismatchSheet(report),
+    customEvents: buildCustomEventsSheet(report, platforms, lookups),
+    attributes: buildAttributesSheet(report, platforms, lookups),
+    tags: buildTagsSheet(report),
+    subscriptionLists: buildSubscriptionListsSheet(report, platforms),
+    screens: buildScreensSheet(report, platforms),
+  };
+
   return {
     platforms,
     dataSheets: [
-      buildAnalyseScopeSheet(report),
-      buildAppVersionsSheet(report),
-      buildAbsentFromLatestSheet(report),
-      buildMismatchSheet(report),
-      buildCustomEventsSheet(report, platforms, lookups),
-      buildAttributesSheet(report, platforms, lookups),
-      buildTagsSheet(report),
-      buildSubscriptionListsSheet(report, platforms),
-      buildScreensSheet(report, platforms),
+      buildAnalyseScopeSheet(report, contents),
+      contents.appVersions,
+      contents.absentFromLatest,
+      contents.mismatches,
+      contents.customEvents,
+      contents.attributes,
+      contents.tags,
+      contents.subscriptionLists,
+      contents.screens,
     ],
   };
 }
@@ -909,27 +979,39 @@ export async function collectValueExtracts({
 /* Workbook generation (browser-only)                                  */
 /* ------------------------------------------------------------------ */
 
-const BANNER_FILL = "FF0B1B33"; // deep navy banner
-const HEADER_FILL = "FF12263A"; // Airship navy
-const HEADER_FONT = "FFFFFFFF";
-const OBSOLETE_FILL = "FFFFF1C2"; // amber
-const MISMATCH_FILL = "FFFFE0E0"; // light red
-const ZEBRA_FILL = "FFF4F6F9"; // very light gray
-const SECTION_FILL = "FFE4E9F2"; // light blue-gray band
-const BORDER_ARGB = "FFD9DEE8"; // subtle cell border
-const NOTE_FONT = "FF8A6D3B"; // muted amber for notes
-
 function solidFill(argb) {
   return { type: "pattern", pattern: "solid", fgColor: { argb } };
 }
 
+function thin(argb = PALETTE.border) {
+  return { style: "thin", color: { argb } };
+}
+
 function applyCellBorder(cell) {
-  cell.border = {
-    top: { style: "thin", color: { argb: BORDER_ARGB } },
-    left: { style: "thin", color: { argb: BORDER_ARGB } },
-    bottom: { style: "thin", color: { argb: BORDER_ARGB } },
-    right: { style: "thin", color: { argb: BORDER_ARGB } },
-  };
+  cell.border = { top: thin(), left: thin(), bottom: thin(), right: thin() };
+}
+
+/**
+ * A flag column ("Platform mismatch", "Potentially obsolete", "Values capped")
+ * says nothing when it says "No". Only the answer that costs the reader
+ * something gets coloured.
+ */
+function isRaisedFlag(value) {
+  if (value == null) return false;
+  const text = String(value).trim();
+  return text !== "" && text !== "No" && text !== "—";
+}
+
+/**
+ * A column marked `bar: true` gets a text bar rendered right after it. The bar
+ * is a writer concern, so it never reaches the model the JSON export ships.
+ */
+function renderColumnsFor(columns) {
+  return columns.flatMap((c) =>
+    c.bar
+      ? [c, { key: `${c.key}__bar`, label: "vs top", type: "bar", from: c.key, width: BAR_COLUMN_WIDTH }]
+      : [c],
+  );
 }
 
 function sanitizeSheetName(name, used) {
@@ -953,6 +1035,29 @@ function numFmtForType(type) {
 }
 
 /**
+ * Height for the note band, which is one merged cell across the whole table.
+ * A fixed height silently cut the third line off the longest notes — and those
+ * are the ones explaining why a sheet looks empty, so they are the ones that
+ * have to be readable.
+ */
+function noteHeight(note, columns) {
+  const tableWidth = columns.reduce((sum, c) => sum + (c.width ?? 16), 0);
+  const perLine = Math.max(40, Math.floor(tableWidth * 0.95));
+  const lines = Math.max(1, Math.ceil(String(note).length / perLine));
+  return Math.min(90, 16 + lines * 14);
+}
+
+function alignmentFor(column) {
+  // Top, like every other cell: a bar centred in a row made tall by a wrapped
+  // sample-values column floats away from the number it belongs to.
+  if (column.type === "bar") return { vertical: "top", horizontal: "left" };
+  if (column.type === "int" || column.type === "pct") {
+    return { vertical: "top", horizontal: "right" };
+  }
+  return column.wrap ? { wrapText: true, vertical: "top" } : { vertical: "top" };
+}
+
+/**
  * Render an optional key/value "scope" block (title banner + label/value rows)
  * above the table. Returns the number of rows consumed so the caller can place
  * the table header beneath it.
@@ -963,12 +1068,12 @@ function renderInfoBlock(ws, colCount, infoBlock, startRow) {
 
   cursor += 1;
   const bannerRow = ws.getRow(cursor);
-  bannerRow.height = 24;
+  bannerRow.height = 22;
   ws.mergeCells(cursor, 1, cursor, colCount);
   const bannerCell = bannerRow.getCell(1);
   bannerCell.value = infoBlock.title ?? "Analysis scope";
-  bannerCell.fill = solidFill(BANNER_FILL);
-  bannerCell.font = { bold: true, size: 13, color: { argb: HEADER_FONT } };
+  bannerCell.fill = solidFill(PALETTE.blueLight);
+  bannerCell.font = { bold: true, size: 12, color: { argb: PALETTE.blueDark } };
   bannerCell.alignment = { vertical: "middle", horizontal: "left", indent: 1 };
 
   for (const info of infoRows) {
@@ -978,16 +1083,17 @@ function renderInfoBlock(ws, colCount, infoBlock, startRow) {
 
     const labelCell = row.getCell(1);
     labelCell.value = info.label;
-    labelCell.fill = solidFill(SECTION_FILL);
-    labelCell.font = { bold: true, color: { argb: HEADER_FILL } };
+    labelCell.font = { bold: true, color: { argb: PALETTE.navySoft } };
     labelCell.alignment = { vertical: "middle", horizontal: "left", indent: 1 };
+    labelCell.border = { bottom: thin() };
 
     if (colCount > 1) ws.mergeCells(cursor, 2, cursor, colCount);
     const valueCell = row.getCell(2);
     valueCell.value = info.value;
     if (typeof info.value === "number") valueCell.numFmt = "#,##0";
-    valueCell.fill = solidFill(ZEBRA_FILL);
+    valueCell.font = { color: { argb: PALETTE.body } };
     valueCell.alignment = { vertical: "middle", horizontal: "left", indent: 1 };
+    valueCell.border = { bottom: thin() };
   }
 
   // Blank spacer row separates the block from the table below.
@@ -995,20 +1101,33 @@ function renderInfoBlock(ws, colCount, infoBlock, startRow) {
   return cursor - startRow;
 }
 
-function styleHeaderRow(row, colCount) {
-  for (let i = 1; i <= colCount; i += 1) {
-    const cell = row.getCell(i);
-    cell.fill = solidFill(HEADER_FILL);
-    cell.font = { bold: true, color: { argb: HEADER_FONT } };
-    cell.alignment = { vertical: "middle", horizontal: "left", wrapText: true };
-    applyCellBorder(cell);
-  }
+function styleHeaderRow(row, columns) {
+  columns.forEach((column, index) => {
+    const cell = row.getCell(index + 1);
+    cell.fill = solidFill(PALETTE.navySoft);
+    cell.font = { bold: true, color: { argb: PALETTE.white } };
+    cell.alignment = {
+      vertical: "middle",
+      wrapText: true,
+      horizontal: column.type === "int" || column.type === "pct" ? "right" : "left",
+    };
+    // An accent rule under the header reads as the edge of the table, which is
+    // what tells a reader the rows below are data and the rows above are not.
+    cell.border = {
+      top: thin(PALETTE.navySoft),
+      left: thin(PALETTE.navySoft),
+      right: thin(PALETTE.navySoft),
+      bottom: { style: "medium", color: { argb: PALETTE.blue } },
+    };
+  });
 }
 
-function addDataSheet(workbook, used, sheetModel) {
-  const { columns, rows, note, infoBlock } = sheetModel;
+function addDataSheet(workbook, used, sheetModel, { tabColor = null } = {}) {
+  const { rows, note, infoBlock, flagRows = true } = sheetModel;
+  const columns = renderColumnsFor(sheetModel.columns);
   const colCount = columns.length;
   const ws = workbook.addWorksheet(sanitizeSheetName(sheetModel.name, used));
+  if (tabColor) ws.properties.tabColor = { argb: tabColor };
 
   ws.columns = columns.map((c) => ({ header: c.label, key: c.key, width: c.width ?? 16 }));
 
@@ -1018,13 +1137,34 @@ function addDataSheet(workbook, used, sheetModel) {
   ws.spliceRows(1, 0, ...Array.from({ length: preRows }, () => []));
   const headerRowNum = preRows + 1;
 
+  const bodyRowCount = rows.filter((r) => !r.__section && !r.__total).length;
+  // Bars are drawn against the largest value on the sheet, the way a bar chart
+  // scales its axis. Against a fixed 0-100% these sheets would be a column of
+  // slivers: a tagging plan is a long tail, and the exact share sits in the
+  // number beside the bar anyway.
+  const barScale = new Map();
+  for (const column of columns) {
+    if (column.type !== "bar") continue;
+    const values = rows
+      .filter((r) => !r.__section && !r.__total)
+      .map((r) => Number(r[column.from]))
+      .filter((v) => Number.isFinite(v) && v > 0);
+    barScale.set(column.key, values.length ? Math.max(...values) : 0);
+  }
   const titleRow = ws.getRow(1);
-  titleRow.height = 26;
+  titleRow.height = 28;
   ws.mergeCells(1, 1, 1, colCount);
   const titleCell = titleRow.getCell(1);
-  titleCell.value = sheetModel.title ?? sheetModel.name;
-  titleCell.fill = solidFill(BANNER_FILL);
-  titleCell.font = { bold: true, size: 14, color: { argb: HEADER_FONT } };
+  const heading = sheetModel.title ?? sheetModel.name;
+  // The count belongs in the banner: "how many events does this plan have" is
+  // the first question asked of a catalogue sheet. The scope sheet counts
+  // platforms, which nobody is asking, and reports its own tallies below.
+  titleCell.value =
+    bodyRowCount > 0 && !infoBlock
+      ? `${heading}  ·  ${bodyRowCount.toLocaleString("en-US")} rows`
+      : heading;
+  titleCell.fill = solidFill(PALETTE.navy);
+  titleCell.font = { bold: true, size: 14, color: { argb: PALETTE.white } };
   titleCell.alignment = { vertical: "middle", horizontal: "left", indent: 1 };
 
   let cursor = 1;
@@ -1035,17 +1175,20 @@ function addDataSheet(workbook, used, sheetModel) {
   if (note) {
     cursor += 1;
     const noteRow = ws.getRow(cursor);
-    noteRow.height = 30;
+    noteRow.height = noteHeight(note, columns);
     ws.mergeCells(cursor, 1, cursor, colCount);
     const noteCell = noteRow.getCell(1);
     noteCell.value = note;
-    noteCell.font = { italic: true, color: { argb: NOTE_FONT } };
+    // Notes explain, they do not warn. In amber they read as a problem on every
+    // sheet that carries one, which is most of them.
+    noteCell.fill = solidFill(PALETTE.blueLight);
+    noteCell.font = { italic: true, color: { argb: PALETTE.navySoft } };
     noteCell.alignment = { vertical: "middle", horizontal: "left", wrapText: true, indent: 1 };
   }
 
   const headerRow = ws.getRow(headerRowNum);
-  headerRow.height = 26;
-  styleHeaderRow(headerRow, colCount);
+  headerRow.height = 28;
+  styleHeaderRow(headerRow, columns);
 
   let zebra = 0;
   let hasSections = false;
@@ -1058,44 +1201,70 @@ function addDataSheet(workbook, used, sheetModel) {
       ws.mergeCells(n, 1, n, colCount);
       const sc = sectionRow.getCell(1);
       sc.value = row.__section;
-      sc.fill = solidFill(SECTION_FILL);
-      sc.font = { bold: true, color: { argb: HEADER_FILL } };
+      sc.fill = solidFill(PALETTE.blueLight);
+      sc.font = { bold: true, color: { argb: PALETTE.blueDark } };
       sc.alignment = { vertical: "middle", horizontal: "left", indent: 1 };
       sectionRow.height = 20;
       zebra = 0;
       continue;
     }
 
+    // Each group of collected values starts unshaded, so the banding reads
+    // inside a group rather than straight through it.
+    if (row.__groupStart) zebra = 0;
+
     const added = ws.addRow(row);
     const isTotal = Boolean(row.__total);
-    const isObsolete = Boolean(row.__obsolete);
-    const isMismatch = Boolean(row.__mismatch);
-    const rowFill = isObsolete
-      ? OBSOLETE_FILL
-      : isMismatch
-        ? MISMATCH_FILL
-        : isTotal
-          ? SECTION_FILL
-          : zebra % 2 === 1
-            ? ZEBRA_FILL
-            : null;
+    // A flag earns a hairline in the margin and a coloured word in its own
+    // column — nothing more. Filling the row is tempting until a real capture
+    // flags nine rows out of ten, and the fill becomes the wallpaper. On a sheet
+    // whose every row is flagged by definition, even the hairline says nothing
+    // the sheet name has not already said.
+    const isObsolete = flagRows && Boolean(row.__obsolete);
+    const isMismatch = flagRows && Boolean(row.__mismatch);
+    const rowFill = isTotal
+      ? PALETTE.surfaceMuted
+      : zebra % 2 === 1
+        ? PALETTE.offWhite
+        : null;
+    const accent = isObsolete ? PALETTE.warnText : isMismatch ? PALETTE.dangerText : null;
 
     for (let i = 0; i < colCount; i += 1) {
       const c = columns[i];
       const cell = added.getCell(i + 1);
+
+      if (c.type === "bar") {
+        const scale = barScale.get(c.key) || 0;
+        cell.value = scale > 0 ? shareBar(Number(row[c.from]) / scale) : "";
+        cell.font = { color: { argb: PALETTE.blue } };
+      }
+
       const fmt = numFmtForType(c.type);
       if (fmt) cell.numFmt = fmt;
-      cell.alignment = c.wrap ? { wrapText: true, vertical: "top" } : { vertical: "top" };
+      cell.alignment = alignmentFor(c);
       if (c.type === "text" && (cell.value == null || cell.value === "")) cell.value = "—";
       applyCellBorder(cell);
       if (rowFill) cell.fill = solidFill(rowFill);
-      if (isTotal) cell.font = { bold: true };
+      if (isTotal) cell.font = { bold: true, color: { argb: PALETTE.navy } };
+      if (c.flag && isRaisedFlag(cell.value)) {
+        cell.font = {
+          bold: true,
+          color: { argb: c.flag === "danger" ? PALETTE.dangerText : PALETTE.warnText },
+        };
+      }
+      // A rule above the row separates a total from its rows, and one group of
+      // collected values from the next, without merging anything away.
+      if (isTotal) cell.border = { ...cell.border, top: { style: "medium", color: { argb: PALETTE.blue } } };
+      else if (row.__groupStart) {
+        cell.border = { ...cell.border, top: { style: "medium", color: { argb: PALETTE.blueMid } } };
+      }
+      if (accent && i === 0) cell.border = { ...cell.border, left: thin(accent) };
     }
 
-    if (!isTotal && !isObsolete && !isMismatch) zebra += 1;
+    if (!isTotal) zebra += 1;
   }
 
-  ws.views = [{ state: "frozen", xSplit: 1, ySplit: headerRowNum }];
+  ws.views = [{ state: "frozen", xSplit: 1, ySplit: headerRowNum, showGridLines: false }];
 
   // AutoFilter only when the body is a flat table (merged section bands break filters).
   const dataRowCount = rows.filter((r) => !r.__section).length;
@@ -1109,7 +1278,7 @@ function addDataSheet(workbook, used, sheetModel) {
 }
 
 function addValuesSheet(workbook, used, name, columns, rows, note) {
-  return addDataSheet(workbook, used, { name, columns, rows, note });
+  return addDataSheet(workbook, used, { name, columns, rows, note }, { tabColor: TAB_COLORS.values });
 }
 
 function downloadBuffer(buffer, filename) {
@@ -1169,16 +1338,19 @@ export async function generateTaggingPlanXlsx(
 
   const used = new Set();
   const byName = Object.fromEntries(model.dataSheets.map((s) => [s.name, s]));
+  const overview = { tabColor: TAB_COLORS.overview };
+  const catalogue = { tabColor: TAB_COLORS.catalogue };
 
-  addDataSheet(workbook, used, byName[ANALYSE_SCOPE_SHEET]);
-  addDataSheet(workbook, used, byName["App Versions"]);
-  addDataSheet(workbook, used, byName["Absent from latest version"]);
-  addDataSheet(workbook, used, byName["Custom Events"]);
+  addDataSheet(workbook, used, byName[ANALYSE_SCOPE_SHEET], overview);
+  addDataSheet(workbook, used, byName["App Versions"], overview);
+  addDataSheet(workbook, used, byName["Absent from latest version"], overview);
+  addDataSheet(workbook, used, byName["Mismatches"], overview);
+  addDataSheet(workbook, used, byName["Custom Events"], catalogue);
 
   const customValueNote = extracts.available
     ? extracts.truncated
-      ? "Extract capped (total value row count limited)."
-      : null
+      ? "Extract capped (total value row count limited). Values are grouped by event property, heaviest property first, and the share is that property's own split."
+      : "Values are grouped by event property, heaviest property first. The share is that property's own split, so it reads as a distribution."
     : "Raw file not kept: values limited to report samples.";
   addValuesSheet(
     workbook,
@@ -1190,14 +1362,15 @@ export async function generateTaggingPlanXlsx(
       { key: "property", label: "Property", type: "text", width: 24 },
       { key: "value", label: "Value", type: "text", width: 50, wrap: true },
       { key: "count", label: "Count", type: "int", width: 12 },
+      shareColumn("% of property"),
       { key: "deviceTypes", label: "Device types", type: "text", width: 30 },
-      { key: "capped", label: "Capped", type: "text", width: 10 },
+      { key: "capped", label: "Capped", type: "text", width: 10, flag: "warn" },
     ],
-    extracts.customValues,
+    groupValueRows(extracts.customValues, (r) => `${r.source}\u0000${r.event}\u0000${r.property}`),
     customValueNote,
   );
 
-  addDataSheet(workbook, used, byName["Attributes"]);
+  addDataSheet(workbook, used, byName["Attributes"], catalogue);
   addValuesSheet(
     workbook,
     used,
@@ -1206,16 +1379,19 @@ export async function generateTaggingPlanXlsx(
       { key: "key", label: "Key", type: "text", width: 30 },
       { key: "value", label: "Value", type: "text", width: 50, wrap: true },
       { key: "count", label: "Count", type: "int", width: 12 },
+      shareColumn("% of key"),
       { key: "deviceTypes", label: "Device types", type: "text", width: 30 },
-      { key: "capped", label: "Capped", type: "text", width: 10 },
+      { key: "capped", label: "Capped", type: "text", width: 10, flag: "warn" },
     ],
-    extracts.attributeValues,
-    extracts.available ? null : "Raw file not kept: no detailed attribute values available.",
+    groupValueRows(extracts.attributeValues, (r) => r.key),
+    extracts.available
+      ? "Values are grouped by attribute, heaviest attribute first. The share is that attribute's own split, so it reads as a distribution."
+      : "Raw file not kept: no detailed attribute values available.",
   );
 
-  addDataSheet(workbook, used, byName["Tags"]);
-  addDataSheet(workbook, used, byName["Subscription Lists"]);
-  addDataSheet(workbook, used, byName["Screens"]);
+  addDataSheet(workbook, used, byName["Tags"], catalogue);
+  addDataSheet(workbook, used, byName["Subscription Lists"], catalogue);
+  addDataSheet(workbook, used, byName["Screens"], catalogue);
 
   const buffer = await workbook.xlsx.writeBuffer();
   const profile = profileName ?? report?.meta?.profile ?? "audit";

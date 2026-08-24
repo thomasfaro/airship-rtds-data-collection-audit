@@ -90,7 +90,10 @@ came out, the time span covered, how the capture ended, and which platforms were
 before you send anything: *Real-time auto-stop (triggered)* means the tool judged the coverage
 complete, while a manual stop after fifteen minutes says rather less.
 
-**Download .xlsx** is the deliverable — one sheet per category, plus the value histograms.
+**Download .xlsx** is the deliverable — one sheet per category, plus the value histograms. Its first
+sheet repeats the capture summary and counts what the plan holds, so whoever opens it does not need
+this page to read it. Each category sheet is sorted by volume, and the bar next to each item sizes it
+against the biggest one on the sheet.
 **Download .json** is the same content as structured data; it is also the file the
 `airship-engagement-review` skill reads to add a data-foundation section to a client engagement
 review.

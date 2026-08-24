@@ -145,7 +145,8 @@ frontend/src/
   components/summary/ CoverageSummary, CoverageCategoryCard, WarningsList, TaggingPlanDownloads
   contexts/           ProfilesContext, CaptureSessionContext
   lib/                coverageSummary.js, captureParams.js, tabStatus.js, installPrompt.js,
-                      serviceWorker.js, serverControl.js, updateNotice.js, audit/ (ported helpers)
+                      serviceWorker.js, serverControl.js, updateNotice.js, audit/ (ported helpers,
+                      plus taggingPlanStyle.js — the workbook palette and its share bars)
   services/           apiClient + one module per API area
 ```
 
@@ -160,7 +161,15 @@ frontend/src/
 - **Only five RTDS types are ever requested** (custom events, attributes, tags, screens,
   subscription lists). The messaging/email/OPEN branches in the engine are simply never reached.
 - **The exporter is shared with the full app.** `frontend/src/lib/audit/taggingPlanExport.js` takes
-  its value fetchers by injection; wire them to `/api/values/*`, don't fork the module.
+ its value fetchers by injection; wire them to `/api/values/*`, don't fork the module.
+- **The workbook has to import into Google Sheets**, which silently drops the features that would be
+ the obvious way to decorate it: data bars, icon sets, tables. So `taggingPlanStyle.js` draws its
+ bars out of block characters and every colour is a static fill — no conditional formatting anywhere.
+ Two rules the renders taught: a bar wider than its column is *clipped* by the next cell, so
+ `BAR_UNITS` and `BAR_COLUMN_WIDTH` move together (a block glyph is about twice a width unit), and a
+ flag colour belongs in the flag column, not on the row — a real capture flags nine rows in ten, and
+ a filled row then means nothing. The palette mirrors `tailwind.config.js`; amber is what the app
+ calls a warning (`.alert-warning`), `airship-danger` what it calls an error.
 - **Auto-stop lives server-side** in `audit/coveragePlateau.js`. The UI only renders the progress the
   SSE reports (`coverage.plateau`). That progress is measured in *both* stop modes — manual runs are
   gauged against `REALTIME_THRESHOLDS` — because the four checks answer "have I captured enough?",

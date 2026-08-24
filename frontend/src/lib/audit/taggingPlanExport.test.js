@@ -185,7 +185,7 @@ test("buildTaggingPlanWorkbookModel derives platform columns and rows", () => {
   // Analyse scope sheet: scope info block (above the table) + event-type matrix.
   const scope = byName["Analyse scope"];
   assert.ok(scope);
-  assert.equal(scope.infoBlock.title, "Analysis scope");
+  assert.equal(scope.infoBlock.title, "Capture summary");
   const durationRow = scope.infoBlock.rows.find((r) => r.label === "Duration analyzed");
   assert.equal(durationRow.value, "24 h");
   const fromRow = scope.infoBlock.rows.find((r) => r.label === "Processed from");
@@ -194,6 +194,17 @@ test("buildTaggingPlanWorkbookModel derives platform columns and rows", () => {
   assert.ok(String(toRow.value).includes("2026"));
   const totalEventsRow = scope.infoBlock.rows.find((r) => r.label === "Total events in scope");
   assert.equal(totalEventsRow.value, 100);
+  // The scope block doubles as a cover page: what the plan holds, and how much
+  // of it the audit flagged.
+  const contentsRow = (label) => scope.infoBlock.rows.find((r) => r.label === label)?.value;
+  assert.equal(contentsRow("Custom events tracked"), 2);
+  assert.equal(contentsRow("Attributes tracked"), 1);
+  assert.equal(contentsRow("Screens tracked"), 1);
+  assert.equal(contentsRow("Absent from latest version"), 1);
+  assert.equal(contentsRow("Platform mismatches"), 0);
+  // Platform rows carry their share of the traffic; the total row is left out.
+  assert.equal(scope.rows.find((r) => r.platform === "iOS").share, 0.6);
+  assert.equal(scope.rows.find((r) => r.__total).share, undefined);
   // Scope metadata is kept out of the data rows.
   assert.ok(!scope.rows.some((r) => r.label === "Duration analyzed"));
 
@@ -206,6 +217,26 @@ test("buildTaggingPlanWorkbookModel derives platform columns and rows", () => {
   assert.ok(totalRow, "matrix has a total row");
   assert.equal(totalRow.total, 100);
   assert.equal(totalRow[customCol.key], 50);
+
+  // Every volume column carries the item's share of its sheet, and asks the
+  // writer for a bar beside it.
+  const shareCol = byName["Custom Events"].columns.find((c) => c.key === "share");
+  assert.equal(shareCol.label, "% of events");
+  assert.equal(shareCol.bar, true);
+  assert.equal(addToCart.share, 0.75);
+  assert.equal(byName["Custom Events"].rows.find((r) => r.name === "server_event").share, 0.25);
+  assert.equal(byName["Attributes"].rows[0].share, 1);
+  assert.equal(byName["Tags"].rows[0].share, 1);
+
+  // The flag columns declare which colour they raise, so the writer can tint
+  // the word instead of the whole row.
+  const flagOf = (sheet, key) => sheet.columns.find((c) => c.key === key)?.flag;
+  assert.equal(flagOf(byName["Custom Events"], "mismatch"), "danger");
+  assert.equal(flagOf(byName["Custom Events"], "obsFlag"), "warn");
+  assert.equal(flagOf(byName["Attributes"], "capped"), "warn");
+  // A sheet that is entirely about flagged items does not tint every row.
+  assert.equal(byName["Mismatches"].flagRows, false);
+  assert.equal(byName["Absent from latest version"].flagRows, false);
 
   // App Versions sheet counts the tracking events per app + SDK version.
   const versions = byName["App Versions"];
