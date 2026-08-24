@@ -100,31 +100,36 @@ function sampleReport() {
       ],
     },
     screenViewed: { top: [{ name: "home", count: 15, byDeviceBreakdown: [{ deviceType: "IOS", count: 15 }], presentPlatforms: ["iOS"], missingPlatforms: ["Android"], platformMismatch: true, obsolescence: { potentiallyObsolete: false } }] },
-    openEvents: {
-      total: 100,
-      byAppVersion: [
-        {
-          deviceType: "IOS",
-          deviceEventTotal: 60,
-          versions: [
-            {
-              version: "2.0.0",
-              count: 40,
-              sdkVersions: [{ version: "18.0.0", count: 35 }, { version: "17.9.0", count: 5 }],
-              sdkLabel: "18.0.0",
-            },
-            { version: "1.9.0", count: 20, sdkVersions: [{ version: "17.8.0", count: 20 }], sdkLabel: "17.8.0" },
-          ],
-        },
-        {
-          deviceType: "ANDROID",
-          deviceEventTotal: 40,
-          versions: [{ version: "2.0.0", count: 40, sdkVersions: [{ version: "18.0.0", count: 40 }], sdkLabel: "18.0.0" }],
-        },
-      ],
-    },
     sdkVersions: [{ deviceType: "IOS", versions: [{ version: "18.0.0", count: 60, pctOfDevice: 100 }] }],
-    appVersions: [{ deviceType: "IOS", versions: [{ version: "1.0.0", count: 60, pctOfDevice: 100, sdkLabel: "18.0.0" }] }],
+    appVersions: [
+      {
+        deviceType: "IOS",
+        deviceEventTotal: 60,
+        eventsWithVersion: 55,
+        versions: [
+          {
+            version: "2.0.0",
+            count: 40,
+            pctOfDevice: 66.7,
+            sdkVersions: [{ version: "18.0.0", count: 35 }, { version: "17.9.0", count: 3 }],
+            sdkLabel: "18.0.0",
+          },
+          {
+            version: "1.9.0",
+            count: 15,
+            pctOfDevice: 25,
+            sdkVersions: [{ version: "17.8.0", count: 15 }],
+            sdkLabel: "17.8.0",
+          },
+        ],
+      },
+      {
+        deviceType: "ANDROID",
+        deviceEventTotal: 40,
+        eventsWithVersion: 40,
+        versions: [{ version: "2.0.0", count: 40, pctOfDevice: 100, sdkVersions: [], sdkLabel: "18.0.0" }],
+      },
+    ],
     obsolescence: {
       params: { recentVersions: 3, minVolume: 5 },
       flaggedCount: 1,
@@ -202,13 +207,27 @@ test("buildTaggingPlanWorkbookModel derives platform columns and rows", () => {
   assert.equal(totalRow.total, 100);
   assert.equal(totalRow[customCol.key], 50);
 
-  // App Opens by Version sheet lists OPEN counts per app + SDK version.
-  const opens = byName["App Opens by Version"];
-  assert.ok(opens);
-  const iosOpen = opens.rows.find((r) => r.os === "iOS" && r.appVersion === "2.0.0" && r.sdkVersion === "18.0.0");
-  assert.equal(iosOpen.openCount, 35);
-  assert.equal(iosOpen.pctOfOs, 35 / 60);
-  assert.ok(!opens.columns.some((c) => c.key === "deviceType"), "RTDS device type column removed");
+  // App Versions sheet counts the tracking events per app + SDK version.
+  const versions = byName["App Versions"];
+  assert.ok(versions);
+  const iosLatest = versions.rows.find(
+    (r) => r.os === "iOS" && r.appVersion === "2.0.0" && r.sdkVersion === "18.0.0",
+  );
+  assert.equal(iosLatest.eventCount, 35);
+  assert.equal(iosLatest.pctOfOs, 35 / 60);
+  assert.equal(iosLatest.pctOfAppVersion, 35 / 40);
+  // An event can carry app_version without ua_sdk_version: it keeps its own row.
+  const iosUnknownSdk = versions.rows.find(
+    (r) => r.os === "iOS" && r.appVersion === "2.0.0" && r.sdkVersion === "—",
+  );
+  assert.equal(iosUnknownSdk.eventCount, 2);
+  // No SDK breakdown at all: the dominant label stands for the whole app version.
+  const android = versions.rows.find((r) => r.os === "Android");
+  assert.equal(android.sdkVersion, "18.0.0");
+  assert.equal(android.eventCount, 40);
+  assert.ok(!versions.columns.some((c) => c.key === "deviceType"), "RTDS device type column removed");
+  // The note states how much of the device traffic carried a version at all.
+  assert.ok(versions.note.includes("95 of 100"), versions.note);
 
   // Absent-from-latest sheet groups the flagged item under a section band.
   const absent = byName["Absent from latest version"];

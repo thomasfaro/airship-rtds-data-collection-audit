@@ -662,51 +662,62 @@ function buildMismatchSheet(report) {
   };
 }
 
-function buildAppOpensByVersionSheet(report) {
-  const byPlatform = report.openEvents?.byAppVersion ?? [];
+/**
+ * App versions live during the capture, read from the `app_version` the tracking
+ * events carry themselves. A tracking-only capture never requests OPEN, so this
+ * is the version signal available here.
+ */
+function buildAppVersionsSheet(report) {
+  const byPlatform = report.appVersions ?? [];
   const columns = [
     { key: "os", label: "OS", type: "text", width: 12 },
     { key: "appVersion", label: "App version", type: "text", width: 18 },
     { key: "sdkVersion", label: "SDK version", type: "text", width: 18 },
-    { key: "openCount", label: "OPEN count", type: "int", width: 14 },
-    { key: "pctOfOs", label: "% of OS OPENs", type: "pct", width: 16 },
-    { key: "pctOfAppVersion", label: "% of app version OPENs", type: "pct", width: 22 },
+    { key: "eventCount", label: "Tracking events", type: "int", width: 16 },
+    { key: "pctOfOs", label: "% of OS events", type: "pct", width: 16 },
+    { key: "pctOfAppVersion", label: "% of app version", type: "pct", width: 18 },
   ];
 
   const rows = [];
+  let withVersionTotal = 0;
+  let deviceTotal = 0;
   for (const plat of byPlatform) {
     const os = canonicalPlatform(plat.deviceType);
-    const osOpenTotal = plat.deviceEventTotal ?? 0;
+    const osTotal = plat.deviceEventTotal ?? 0;
+    deviceTotal += osTotal;
     for (const ver of plat.versions ?? []) {
-      const appOpenTotal = ver.count ?? 0;
-      const sdkRows = ver.sdkVersions?.length
-        ? ver.sdkVersions
-        : [{ version: ver.sdkLabel ?? null, count: appOpenTotal }];
+      const appTotal = ver.count ?? 0;
+      withVersionTotal += appTotal;
+      const sdkRows = ver.sdkVersions?.length ? [...ver.sdkVersions] : [];
+      const sdkTotal = sdkRows.reduce((sum, sdk) => sum + (sdk.count ?? 0), 0);
+      if (appTotal > sdkTotal) {
+        // ua_sdk_version can be missing on an event that still carries app_version:
+        // without this row those events would vanish from the sheet.
+        const label = sdkRows.length === 0 ? (ver.sdkLabel ?? null) : null;
+        sdkRows.push({ version: label, count: appTotal - sdkTotal });
+      }
       for (const sdk of sdkRows) {
-        const openCount = sdk.count ?? 0;
-        if (openCount <= 0) continue;
+        const eventCount = sdk.count ?? 0;
+        if (eventCount <= 0) continue;
         rows.push({
           os,
           appVersion: ver.version,
           sdkVersion: sdk.version ?? "—",
-          openCount,
-          pctOfOs: osOpenTotal ? openCount / osOpenTotal : 0,
-          pctOfAppVersion: appOpenTotal ? openCount / appOpenTotal : 0,
+          eventCount,
+          pctOfOs: osTotal ? eventCount / osTotal : 0,
+          pctOfAppVersion: appTotal ? eventCount / appTotal : 0,
         });
       }
     }
   }
-  rows.sort((a, b) => (b.openCount ?? 0) - (a.openCount ?? 0));
+  rows.sort((a, b) => (b.eventCount ?? 0) - (a.eventCount ?? 0));
 
-  const openTotal = report.openEvents?.total ?? 0;
   const note =
     rows.length > 0
-      ? `OPEN events with app_version in the capture window (total OPEN: ${openTotal.toLocaleString("en-US")}). SDK version is ua_sdk_version on the same device event.`
-      : openTotal > 0
-        ? "OPEN events were seen but none carried app_version on the device payload."
-        : "No OPEN events in this capture window.";
+      ? `App versions carried by the tracking events in the capture window: ${withVersionTotal.toLocaleString("en-US")} of ${deviceTotal.toLocaleString("en-US")} events on device channels. SDK version is ua_sdk_version on the same device event. Events with no app version are absent from this sheet: API-fed data, which carries no device, and web channels.`
+      : "No tracking event carried an app version: the capture saw API-fed data or web channels only.";
 
-  return { name: "App Opens by Version", note, columns, rows };
+  return { name: "App Versions", note, columns, rows };
 }
 
 /**
@@ -719,7 +730,7 @@ export function buildTaggingPlanWorkbookModel(report, { extracts = null } = {}) 
     platforms,
     dataSheets: [
       buildAnalyseScopeSheet(report),
-      buildAppOpensByVersionSheet(report),
+      buildAppVersionsSheet(report),
       buildAbsentFromLatestSheet(report),
       buildMismatchSheet(report),
       buildCustomEventsSheet(report, platforms, lookups),
@@ -1160,7 +1171,7 @@ export async function generateTaggingPlanXlsx(
   const byName = Object.fromEntries(model.dataSheets.map((s) => [s.name, s]));
 
   addDataSheet(workbook, used, byName[ANALYSE_SCOPE_SHEET]);
-  addDataSheet(workbook, used, byName["App Opens by Version"]);
+  addDataSheet(workbook, used, byName["App Versions"]);
   addDataSheet(workbook, used, byName["Absent from latest version"]);
   addDataSheet(workbook, used, byName["Custom Events"]);
 
