@@ -19,27 +19,27 @@ If you prefer to install Node.js yourself — or your company blocks downloads f
 
 ## 2. Get the app folder
 
-**Use [GitHub Desktop](https://desktop.github.com)**: install it, then sign in with the GitHub account
-that has access to this repository.
+On the repository page: green **Code** button → **Download ZIP**. Unzip it, then move the folder
+somewhere you will keep it, such as `Documents`. Your projects and saved audits will live inside it.
 
-The one-click route from there: on the repository page, the green **Code** button →
-**Open with GitHub Desktop**. GitHub Desktop opens on the clone dialog — pick a folder you will keep,
-such as `Documents`, and click **Clone**. (**File → Clone repository** inside GitHub Desktop does the
-same thing.) Your projects and saved audits will live inside that folder.
+No account, no sign-in, nothing else to install. The app keeps itself up to date from then on, so this
+is a one-time download — see [Updating to a newer version](#updating-to-a-newer-version).
 
-Two reasons this is the recommended route and not just one option among others. Updating later is a
-single **Pull** button instead of a re-download, which is also the step where people lose their saved
-projects. And nothing arrives flagged: macOS quarantines everything a browser downloads, and a
-quarantined folder costs you a security detour on first launch.
+> **macOS only:** a folder downloaded by a browser arrives quarantined, which costs you one security
+> prompt the first time you start the app. Step 3 explains how to clear it in two clicks.
 
 <details>
-<summary>Downloading the ZIP instead</summary>
+<summary>Using GitHub Desktop instead</summary>
 
-From the repository page: green **Code** button → **Download ZIP**, then unzip it and put the folder
-somewhere you will keep it. You need to be signed in to GitHub in your browser.
+If you already use [GitHub Desktop](https://desktop.github.com), cloning works too and has two small
+advantages: nothing arrives quarantined, and updates use `git pull`, which refuses to overwrite any
+change you made in the folder.
 
-On macOS this costs one security prompt the first time you start the app — step 3 explains how to
-clear it in two clicks.
+On the repository page: green **Code** button → **Open with GitHub Desktop**, pick a folder you will
+keep, and click **Clone**.
+
+Either route gives you the same app and the same automatic updates. Pick the ZIP if you have no reason
+to prefer the other.
 
 </details>
 
@@ -175,17 +175,13 @@ Your `config/` folder and your saved audits are never touched by an update.
 <details>
 <summary>The cases where it cannot update itself</summary>
 
-- **You installed from a ZIP.** There is no link back to the repository, so download the new ZIP into
-  a new folder and copy your `config/` folder across to keep your projects. Your tokens keep working
-  as long as it is the same machine. Cloning with GitHub Desktop avoids this for good.
-- **You edited files in the app folder.** Anything unsaved to GitHub would be at risk, so the tool
-  leaves the folder alone and says so in the banner. In GitHub Desktop, either commit or discard your
-  changes, then use **Pull**.
 - **No network, or GitHub is unreachable.** It carries on with the version you have and tries again
-  next time.
-- **GitHub does not recognise your machine.** The repository is private, so the update needs the
-  credentials GitHub Desktop stores when you clone with it — one more reason to use it rather than a
-  ZIP. Sign in there once and it works from then on.
+  next time. This is the common one, and it needs nothing from you.
+- **You edited files in the app folder** *(clones only)*. Anything unsaved to GitHub would be at risk,
+  so the tool leaves the folder alone and says so in the banner. In GitHub Desktop, either commit or
+  discard your changes, then use **Pull**.
+- **Your version is newer than the published one.** An update only ever moves forward, so a folder
+  ahead of the repository is left exactly as it is.
 
 </details>
 
@@ -196,7 +192,7 @@ Your `config/` folder and your saved audits are never touched by an update.
 | The browser says it cannot connect | The tool is not running. Double-click `Open RTDS Audit.html` in the app folder, or the launcher |
 | A page says "the tool is not running" | Click **Start the tool** on it and wait a few seconds — the page reloads on its own |
 | The tool stopped while you were using it | The error shown carries **Start the tool again**. Or click the **Airship** wordmark to reload |
-| A banner offers an update but says the folder has local changes | Something in the app folder was edited. In GitHub Desktop, commit or discard the changes, then press **Pull** |
+| A banner offers an update but says the folder has local changes | Only happens on a clone. Something in the app folder was edited — in GitHub Desktop, commit or discard the changes, then press **Pull** |
 | The banner never goes away after updating | The restart did not complete. Double-click the launcher, or `Open RTDS Audit.html` |
 | **Start the tool** seems to do nothing | The link it uses is registered the first time the launcher runs. Start the tool once with the launcher, then it works |
 | No **Install app** button | Only Chrome and Edge offer it. Safari: **File → Add to Dock**. Firefox: bookmark the address |

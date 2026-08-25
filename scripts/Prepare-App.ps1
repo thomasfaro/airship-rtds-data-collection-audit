@@ -73,6 +73,24 @@ function Invoke-DcaAutoUpdate {
   }
 }
 
+# The same job for a folder that came from a ZIP: no remote, no refs, nothing to
+# fast-forward, so it compares published version numbers and replaces its own files.
+#
+# The decision and the copying live in scripts\apply-update.mjs and the tested modules
+# under server\src\updates\ - deliberately not here. A version comparison and a list of
+# paths an update must never touch are the guards that keep this safe, and reimplementing
+# them per platform would mean maintaining them three times.
+#
+# Node built-ins only, so this works on the very first run, before any npm install.
+function Invoke-DcaArchiveUpdate {
+  if (Test-Path ".git") { return }
+  if (Test-Path "config/.no-auto-update") { return }
+  if ($env:RTDS_DCA_NO_AUTO_UPDATE -eq "1") { return }
+  if (-not (Get-Command node -ErrorAction SilentlyContinue)) { return }
+
+  & node "scripts/apply-update.mjs" 2>$null
+}
+
 function Invoke-PrepareApp {
   param([Parameter(Mandatory = $true)][string]$Root)
 
@@ -84,8 +102,11 @@ function Invoke-PrepareApp {
     Copy-Item "server/.env.example" "server/.env"
   }
 
-  # First, so the checks below see whatever the update brought in.
+  # First, so the install and build below see whatever the update brought in. Exactly
+  # one of these two does anything: the folder either has a .git to fast-forward or it
+  # does not, in which case the archive route is all there is.
   Invoke-DcaAutoUpdate
+  Invoke-DcaArchiveUpdate
 
   if (Test-DcaNeedsInstall "server") { Invoke-DcaInstall "server" "server" }
   if (Test-DcaNeedsInstall "frontend") { Invoke-DcaInstall "frontend" "interface" }

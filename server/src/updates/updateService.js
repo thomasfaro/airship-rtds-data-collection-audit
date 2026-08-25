@@ -10,19 +10,32 @@ import {
   isWorkingTreeClean,
   pullFastForward,
 } from "./gitInfo.js";
-import { buildUpdateState } from "./updateState.js";
+import { applyPublishedArchive } from "./applyArchive.js";
+import { fetchPublishedVersion } from "./releaseInfo.js";
+import { buildUpdateState, compareVersions } from "./updateState.js";
 
 /**
  * Keeping the tool up to date without anyone having to think about it.
  *
- * Three jobs: know whether a newer version exists, fast-forward onto it on request,
- * and hand the process over to a fresh one. All three are best-effort — the audit is
- * what matters, so a failed check or a refused pull is reported and then forgotten.
+ * Three jobs: know whether a newer version exists, move onto it on request, and hand
+ * the process over to a fresh one. All three are best-effort — the audit is what
+ * matters, so a failed check or a refused update is reported and then forgotten.
+ *
+ * There are two ways to do the middle job, and which one applies is not a preference:
+ *
+ *   - **A git checkout fast-forwards.** `--ff-only` proves the new history contains the
+ *     old one, so a rewritten history or an older commit is refused by git itself.
+ *   - **A folder with no git replaces its files from the published archive.** That has
+ *     no ancestry to check, which is exactly why `updateState.js` will only ever offer
+ *     it for a strictly newer version number.
+ *
+ * The stronger mechanism is used wherever it exists. The weaker one only reaches
+ * installs that, until now, could not update at all.
  */
 
 const REMOTE_TTL_MS = 6 * 60 * 60 * 1_000;
 
-let remote = { checkedAt: null, behind: null, error: null };
+let remote = { checkedAt: null, behind: null, publishedVersion: null, error: null };
 let inFlight = null;
 
 function isStale(now) {
@@ -33,23 +46,37 @@ function isStale(now) {
 }
 
 /**
- * Ask the remote what it has. Deduplicated: several pollers arriving together share
- * one fetch instead of stacking network calls on top of each other.
+ * Ask upstream what it has, by whichever route this install can use. Deduplicated:
+ * several pollers arriving together share one check instead of stacking network calls.
  */
 export function refreshRemote() {
   if (inFlight) {
     return inFlight;
   }
   inFlight = (async () => {
+    const checkedAt = new Date().toISOString();
+
+    if (!hasGitRepo()) {
+      const published = await fetchPublishedVersion();
+      remote = {
+        checkedAt,
+        behind: null,
+        publishedVersion: published.version,
+        error: published.error,
+      };
+      return remote;
+    }
+
     const branch = gitBranch();
     if (!branch) {
-      remote = { checkedAt: new Date().toISOString(), behind: null, error: null };
+      remote = { checkedAt, behind: null, publishedVersion: null, error: null };
       return remote;
     }
     const fetched = await gitFetch(branch);
     remote = {
-      checkedAt: new Date().toISOString(),
+      checkedAt,
       behind: fetched.ok ? commitsBehind(branch) : null,
+      publishedVersion: null,
       error: fetched.ok ? null : fetched.error,
     };
     return remote;
@@ -67,7 +94,7 @@ export function refreshRemote() {
 export async function getUpdateStatus({ force = false, now = Date.now() } = {}) {
   const tracked = hasGitRepo();
 
-  if (tracked && (force || isStale(now))) {
+  if (force || isStale(now)) {
     await refreshRemote();
   }
 
@@ -80,6 +107,7 @@ export async function getUpdateStatus({ force = false, now = Date.now() } = {}) 
     tracked,
     clean,
     behind: remote.behind,
+    remoteVersion: remote.publishedVersion,
   });
 
   return {
@@ -90,6 +118,7 @@ export async function getUpdateStatus({ force = false, now = Date.now() } = {}) 
     clean,
     branch: tracked ? gitBranch() : null,
     behind: remote.behind,
+    publishedVersion: remote.publishedVersion,
     checkedAt: remote.checkedAt,
     checkError: remote.error,
     ...decision,
@@ -97,14 +126,59 @@ export async function getUpdateStatus({ force = false, now = Date.now() } = {}) 
 }
 
 /**
- * Fast-forward the folder onto the remote branch.
+ * The archive route, for a folder with no git.
+ *
+ * The version is re-read from upstream here rather than taken from the cached check.
+ * Applying is the consequential step, so it is gated on a fact fetched moments before
+ * acting, not on one that may be six hours old — and the comparison is the same tested
+ * `compareVersions` the banner used, so the two cannot disagree about what "newer" is.
+ */
+async function applyArchiveUpdate() {
+  const before = diskVersion();
+  const published = await fetchPublishedVersion();
+  if (!published.version) {
+    return { ok: false, error: `Could not reach the repository: ${published.error}` };
+  }
+
+  const ordering = compareVersions(published.version, before.version);
+  if (ordering === null) {
+    return { ok: false, error: "Could not compare the published version with this one." };
+  }
+  if (ordering <= 0) {
+    // Not an error worth alarming anyone with: this is the guard doing its job.
+    remote = {
+      checkedAt: new Date().toISOString(),
+      behind: null,
+      publishedVersion: published.version,
+      error: null,
+    };
+    return { ok: true, updated: false, from: before, to: before };
+  }
+
+  const applied = await applyPublishedArchive();
+  if (!applied.ok) {
+    return { ok: false, error: `Update refused: ${applied.error}` };
+  }
+
+  const after = diskVersion();
+  remote = {
+    checkedAt: new Date().toISOString(),
+    behind: null,
+    publishedVersion: published.version,
+    error: null,
+  };
+  return { ok: true, updated: before.version !== after.version, from: before, to: after };
+}
+
+/**
+ * Replace the folder's code with the published version, by whichever route applies.
  *
  * Refuses out loud rather than guessing: the caller shows the reason, which is far
  * better than an update that silently did nothing, or worse, one that discarded work.
  */
 export async function applyUpdate() {
   if (!hasGitRepo()) {
-    return { ok: false, error: "This copy was not installed with git, so it cannot update itself." };
+    return applyArchiveUpdate();
   }
   const branch = gitBranch();
   if (!branch) {
@@ -128,7 +202,12 @@ export async function applyUpdate() {
   }
 
   const after = diskVersion();
-  remote = { checkedAt: new Date().toISOString(), behind: commitsBehind(branch), error: null };
+  remote = {
+    checkedAt: new Date().toISOString(),
+    behind: commitsBehind(branch),
+    publishedVersion: null,
+    error: null,
+  };
   return {
     ok: true,
     updated: before.commit !== after.commit,
@@ -189,6 +268,6 @@ export function scheduleRestart({
 
 /** Test hook: forget the cached remote check. */
 export function resetRemoteCache() {
-  remote = { checkedAt: null, behind: null, error: null };
+  remote = { checkedAt: null, behind: null, publishedVersion: null, error: null };
   inFlight = null;
 }

@@ -99,8 +99,8 @@ within a couple of seconds.
 
 ### Keeping installs up to date
 
-Installs live in folders nobody opens, so the app updates itself. `prepare-app.sh` fast-forwards
-before it installs and builds, `server/src/updates/` handles it while running, and
+Installs live in folders nobody opens, so the app updates itself. `prepare-app.sh` updates before it
+installs and builds, `server/src/updates/` handles it while running, and
 `components/UpdateBanner.jsx` is the only place versions are ever mentioned unprompted.
 
 - **`scripts/set-version.sh` is the only way to bump the version.** Five files carry it: three
@@ -111,9 +111,25 @@ before it installs and builds, `server/src/updates/` handles it while running, a
 - **`runningVersion()` is pinned during boot** (`index.js` calls it before anything else) while
   `diskVersion()` re-reads the folder. The difference between them *is* the "restart to apply"
   banner; caching both, or neither, silently removes the feature.
-- **The update guards are not decoration.** No git folder, local changes, a detached HEAD, no
-  credentials, no network: each one means "keep the version you have" and say nothing. Fast-forward
-  only, never a merge. The one acceptable failure of an auto-updater is doing nothing.
+- **The update guards are not decoration.** Local changes, a detached HEAD, no credentials, no
+ network: each one means "keep the version you have" and say nothing. The one acceptable failure of
+ an auto-updater is doing nothing.
+- **There are two update routes, and the weaker one is never used where the stronger one exists.** A
+ folder with `.git` fast-forwards — never a merge — because `--ff-only` *proves* the new history
+ contains the old one, which is an integrity check an archive cannot offer. A folder without `.git`
+ (a ZIP install, which is now the documented default) compares published version numbers and
+ replaces its own files from `codeload.github.com`. That route carries three guards which are the
+ only thing standing in for the ancestry check, so treat them as load-bearing: it moves **strictly
+ forward** (`compareVersions` in `updateState.js`, so a downgrade or an unreadable version is
+ refused), it writes **only** paths that pass `isWritablePath` (`applyArchive.js` — `config/` and
+ `.stored-files/` hold tokens and saved audits, are absent from the archive, and a naive folder swap
+ would delete them), and it talks to **two pinned hostnames** with redirects checked per hop rather
+ than followed (`releaseInfo.js`). Each of those has tests; a change there without one is a
+ regression waiting to ship. Files deleted upstream are deliberately left behind — an orphaned module
+ is inert, a delete loop aimed at the wrong path is not.
+- **`scripts/apply-update.mjs` is the launcher's way into that code**, and it is Node rather than more
+ shell so the version comparison and the protected-path list exist once instead of once per platform.
+ It runs before `npm install`, so it and everything it imports may use **Node built-ins only**.
 - **A restart cannot happen in-process.** `scheduleRestart()` spawns `restart-app.sh` detached, which
   waits for the port to go quiet before starting the replacement. Anything simpler either races its
   own listener or leaves nothing running. On the frontend side `waitForRestart()` waits for the
@@ -138,8 +154,10 @@ server/src/
   live/               runLiveSse, streamRegistry, paths, readLiveCapture
   history/            liveHistory.js — list kept live-*.ndjson for History
   rtds/               buildRtdsBody (full-type live body), liveStreamReconnect, openRtdsStream
-  updates/            gitInfo (bounded git calls), updateState (pure decision),
-                      updateService (remote check, fast-forward, handover)
+  updates/            gitInfo (bounded git calls), updateState (pure decision + version
+                      ordering), releaseInfo (pinned hosts, published version),
+                      applyArchive (hardened download/extract/copy for git-less installs),
+                      updateService (remote check, update by either route, handover)
   audit/              the analysis engine, ported from airship-rtds-qa
   security/, utils/, storage/, middleware/
 frontend/src/

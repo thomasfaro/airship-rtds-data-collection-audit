@@ -89,6 +89,24 @@ _dca_auto_update() {
   fi
 }
 
+# The same job for a folder that came from a ZIP: no remote, no refs, nothing to
+# fast-forward, so it compares published version numbers and replaces its own files.
+#
+# The decision and the copying live in scripts/apply-update.mjs and the tested modules
+# under server/src/updates/ — deliberately not here. A version comparison and a list of
+# paths an update must never touch are the guards that keep this safe, and reimplementing
+# them in bash would mean maintaining them twice.
+#
+# Node built-ins only, so this works on the very first run, before any npm install.
+_dca_archive_update() {
+  [[ -d .git ]] && return 0
+  command -v node >/dev/null 2>&1 || return 0
+  if [[ -f config/.no-auto-update || "${RTDS_DCA_NO_AUTO_UPDATE:-0}" == "1" ]]; then
+    return 0
+  fi
+  node scripts/apply-update.mjs 2>/dev/null || true
+}
+
 prepare_app() {
   local root="$1"
   cd "$root" || return 1
@@ -99,8 +117,11 @@ prepare_app() {
     cp server/.env.example server/.env
   fi
 
-  # First, so the checks below see whatever the update brought in.
+  # First, so the install and build below see whatever the update brought in. Exactly
+  # one of these two does anything: the folder either has a .git to fast-forward or it
+  # does not, in which case the archive route is all there is.
   _dca_auto_update
+  _dca_archive_update
 
   if _dca_needs_install server; then
     _dca_install server "server"

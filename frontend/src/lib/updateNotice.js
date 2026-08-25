@@ -32,8 +32,18 @@ export function updateNotice(status) {
   }
 
   if (status.state === "update-available") {
+    /*
+     * A git checkout can count commits; a folder updated from an archive cannot, but it
+     * does know the published version number, which says more to the person reading it
+     * than a commit count ever did. Whichever fact we have, lead with it.
+     */
     const count = typeof status.behind === "number" ? status.behind : null;
-    const changes = count ? `${count} update${count === 1 ? "" : "s"} behind. ` : "";
+    const published = status.publishedVersion ?? null;
+    const changes = published
+      ? `Version ${published} is available. `
+      : count
+        ? `${count} update${count === 1 ? "" : "s"} behind. `
+        : "";
     if (!status.canApply) {
       return {
         action: null,

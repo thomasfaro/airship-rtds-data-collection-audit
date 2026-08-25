@@ -26,10 +26,10 @@ never leaves it.
 
 ## Install it
 
-Two double-clicks, on **macOS** or **Windows**. Clone the folder with
-[GitHub Desktop](https://desktop.github.com) — the repository page's green **Code** button has an
-**Open with GitHub Desktop** entry that does it in one click — then double-click the launcher inside
-it. It installs everything it needs, Node.js included, and opens your browser on the tool.
+Two double-clicks, on **macOS** or **Windows**. Download the folder with the repository page's green
+**Code** button → **Download ZIP**, unzip it, then double-click the launcher inside. It installs
+everything it needs, Node.js included, opens your browser on the tool, and keeps itself up to date
+from then on. No account and no git required.
 
 **[Full install guide →](docs/INSTALL.md)** — including how to make it always available, so the tool
 becomes an icon in your Applications folder rather than something you launch.
@@ -115,7 +115,7 @@ frontend/   React 18 + Vite + Tailwind — audit, live stream, history, projects
 server/     Express API: profiles, capture (SSE), live stream, values, history, updates
   src/audit/    the analysis engine (ported from airship-rtds-qa)
   src/capture/  capture option resolution (stop mode, thresholds, start position)
-  src/updates/  version check, fast-forward update, handover to a fresh server
+  src/updates/  version check, fast-forward or archive update, handover to a fresh server
 assets/     icon sources + AppIcon.icns, rebuilt by scripts/build-icons.sh
 config/     local RTDS profiles (gitignored)
 docs/       INSTALL.md, TUTORIAL.md, images/ + screenshots/ (how they are produced)
