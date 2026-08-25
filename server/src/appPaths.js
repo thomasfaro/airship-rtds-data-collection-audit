@@ -32,9 +32,8 @@ export function resolveProfilesConfigPath() {
 }
 
 /**
- * Directory holding the persisted analyses: `*.audit-report.json` plus the value
- * sidecars that back the detailed tagging plan export. Captures are analysis-only,
- * so no raw NDJSON is ever written here.
+ * Directory holding persisted analyses (`*.audit-report.json` and value sidecars)
+ * and optional live raw captures (`live-*.ndjson`) when the user opts in.
  */
 export function storedFilesDir() {
   if (process.env.RTDS_DCA_STORAGE_DIR) {

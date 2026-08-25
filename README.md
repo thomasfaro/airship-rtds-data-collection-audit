@@ -37,11 +37,14 @@ becomes an icon in your Applications folder rather than something you launch.
 ![A capture in progress, with the four gauges tracking coverage](docs/images/03-running.png)
 
 1. **Projects** — add the client's RTDS token once.
-2. **Capture** — pick the project and how the capture should end: on its own once nothing new turns
-   up, or when you click Stop.
+2. **Data collection audit** — pick the project and how the capture should end: on its own once
+   nothing new turns up, or when you click Stop.
 3. Watch the coverage settle. The four gauges say when the plan is complete enough; the browser tab
    keeps score, so you can leave it running.
-4. Download the plan. Every capture is saved and reopenable from **History**.
+4. Download the plan. Every audit is saved and reopenable from **History**.
+
+**Live stream** (optional) watches events as they arrive. Tick **Store raw data file** if you want
+the NDJSON on disk — only then does it appear in History, with a Download button.
 
 **[The four steps, in detail →](docs/TUTORIAL.md)**
 
@@ -59,7 +62,7 @@ produced it.
 - The app answers on **loopback only** (`127.0.0.1`) and requires a local key that only the interface
   on your machine can read. Nothing is exposed to your network.
 - Captures are **analysis-only**: events are read as they stream in and never written to disk. Only
-  the finished report is saved.
+  the finished report is saved. Live stream can keep a raw NDJSON if you tick **Store raw data file**.
 - The one outbound call is to the Airship RTDS endpoint, with your token.
 
 ## For developers
@@ -105,9 +108,9 @@ Optional, in `server/.env` (see `server/.env.example`):
 ### Layout
 
 ```
-frontend/   React 18 + Vite + Tailwind — 3 routes, capture/summary components
+frontend/   React 18 + Vite + Tailwind — audit, live stream, history, projects
   public/       manifest, icons, sw.js + offline.html (the "start it again" page)
-server/     Express API: profiles, capture (SSE), values, history, updates
+server/     Express API: profiles, capture (SSE), live stream, values, history, updates
   src/audit/    the analysis engine (ported from airship-rtds-qa)
   src/capture/  capture option resolution (stop mode, thresholds, start position)
   src/updates/  version check, fast-forward update, handover to a fresh server

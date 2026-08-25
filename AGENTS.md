@@ -4,9 +4,10 @@ This repo is **Airship RTDS Data Collection Audit**: a local browser app that ca
 tracking-only RTDS stream and generates the tagging plan (`.xlsx` / `.json`). React (Vite) UI +
 Node.js (Express) API. No desktop build, no deployment target — it runs on the developer's machine.
 
-It is the slim companion of `airship-rtds-qa`. Keep it slim: the value of this app is that it does
-one thing. Before adding a feature, ask whether it serves "capture tracking events → get the tagging
-plan".
+It is the slim companion of `airship-rtds-qa`. Keep it slim: the core job is still
+"capture tracking events → get the tagging plan". **Live stream** is the one extra surface —
+inspect events as they arrive, optionally keep the raw NDJSON. No Public viewer, no multi-audit,
+no tagging-plan analysis of live files. Audit captures remain analysis-only; live raw is opt-in.
 
 ## Language
 
@@ -72,8 +73,8 @@ exists for a reason:
   only launches an external application on a real click, so awaiting a probe first and then setting
   `location` gets swallowed without a word. `lib/serverControl.js` therefore only probes and waits.
 - **The wordmark in `AppNav.jsx` is the reload button.** An installed window has no address bar, so
-  without it there is no way to retry. It confirms first when a capture is running, since a reload
-  ends the stream.
+  without it there is no way to retry. It confirms first when a capture **or** a live stream is
+  running, since a reload ends the stream.
 
 Four macOS behaviours were found the hard way here. Changing any of them silently breaks the feature,
 with no error anywhere:
@@ -130,21 +131,28 @@ before it installs and builds, `server/src/updates/` handles it while running, a
 server/src/
   index.js            slim entry: /api/bootstrap, /api/health, then the routers
   version.js          the running version vs the one on disk
-  routes/             profiles, capture, values, history, updates
-  controllers/        captureController (SSE), valuesController, historyController
+  routes/             profiles, capture, stream, values, history, updates
+  controllers/        captureController (SSE), rtdsController, liveCacheController,
+                      liveCaptureController, valuesController, historyController
   capture/            captureOptions.js — stop mode, thresholds, start position, window
+  live/               runLiveSse, streamRegistry, paths, readLiveCapture
+  history/            liveHistory.js — list kept live-*.ndjson for History
+  rtds/               buildRtdsBody (full-type live body), liveStreamReconnect, openRtdsStream
   updates/            gitInfo (bounded git calls), updateState (pure decision),
                       updateService (remote check, fast-forward, handover)
   audit/              the analysis engine, ported from airship-rtds-qa
-  rtds/, security/, utils/, storage/, middleware/
+  security/, utils/, storage/, middleware/
 frontend/src/
-  pages/              CapturePage, HistoryPage, SettingsPage
+  pages/              CapturePage, LiveSetupPage, LiveMonitorPage, HistoryPage, SettingsPage
   components/         AppNav, DocumentStatus (tab title + favicon), InstallAppButton,
-                      UpdateBanner, ServerRecovery, ProfileForm, ConfirmDialog
+                      UpdateBanner, ServerRecovery, ProfileForm, ConfirmDialog,
+                      StreamFilter, DisplayFilters, VirtualStreamList, LiveMonitorHeader, …
   components/capture/ CaptureForm, StopModeCard, CaptureProgressPanel
   components/summary/ CoverageSummary, CoverageCategoryCard, WarningsList, TaggingPlanDownloads
-  contexts/           ProfilesContext, CaptureSessionContext
-  lib/                coverageSummary.js, captureParams.js, tabStatus.js, installPrompt.js,
+  contexts/           ProfilesContext, CaptureSessionContext, LiveStreamContext
+  hooks/              useRtdsStream, useQueryParams
+  lib/                coverageSummary.js, captureParams.js, tabStatus.js, streamRequestFilters.js,
+                      eventRegistry.js, streamEntries.js, installPrompt.js,
                       serviceWorker.js, serverControl.js, updateNotice.js, audit/ (ported helpers,
                       plus taggingPlanStyle.js — the workbook palette and its share bars)
   services/           apiClient + one module per API area
@@ -160,6 +168,9 @@ frontend/src/
 - **Captures are analysis-only.** `captureController.js` forces `trackingOnly` and never writes raw
   NDJSON. `report.meta.storage.sourceFileName` is a *stem*, not a file that exists — the persisted
   report and the value sidecars are keyed on it. Don't add code that tries to read it.
+- **Live raw is opt-in.** `GET /api/stream` can keep `live-{profile}-{uuid}.ndjson` in `.stored-files`
+  only when `store_raw=1`. History lists those files and can download them; unsaved sessions leave
+  nothing. Do not turn `writeToFile` on for audit captures.
 - **Only five RTDS types are ever requested** (custom events, attributes, tags, screens,
   subscription lists). The messaging/email/OPEN branches in the engine are simply never reached.
 - **The exporter is shared with the full app.** `frontend/src/lib/audit/taggingPlanExport.js` takes

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { BASE_TITLE, TAB_ICONS, captureTabStatus } from "./tabStatus.js";
+import { BASE_TITLE, TAB_ICONS, captureTabStatus, liveTabStatus, sessionTabStatus } from "./tabStatus.js";
 
 test("an idle session shows the plain app name", () => {
   assert.deepEqual(captureTabStatus({}), { state: "idle", title: BASE_TITLE });
@@ -71,4 +71,16 @@ test("every state has a favicon", () => {
   for (const { state } of states) {
     assert.ok(TAB_ICONS[state], `missing favicon for ${state}`);
   }
+});
+
+test("a live stream takes over the tab title", () => {
+  const live = liveTabStatus({ isLive: true, eventCount: 42 });
+  assert.equal(live.state, "running");
+  assert.equal(live.title, `● Live · 42 events · ${BASE_TITLE}`);
+
+  const combined = sessionTabStatus({
+    capture: { report: { meta: {} } },
+    live: { isLive: true, eventCount: 12 },
+  });
+  assert.equal(combined.title, `● Live · 12 events · ${BASE_TITLE}`);
 });

@@ -6,6 +6,8 @@ import { removeAttributeValuesSidecar } from "../audit/attributeValues.js";
 import { removeCustomPropertyValuesSidecar } from "../audit/customEventPropertyValues.js";
 import { removeEventSamplesSidecar } from "../audit/eventSamplesSidecar.js";
 import { resolveCapturePath } from "../storage/resolveCapturePath.js";
+import { isLiveFileLocked } from "../live/streamRegistry.js";
+import { isLiveHistoryName, listLiveHistoryItems } from "../history/liveHistory.js";
 
 const REPORT_SUFFIX = ".audit-report.json";
 
@@ -36,8 +38,8 @@ function summarizeReport(report) {
   };
 }
 
-/** List saved analyses, newest first. */
-export function listHistoryHandler(_req, res) {
+/** List saved analyses and kept live captures, newest first. */
+export async function listHistoryHandler(_req, res) {
   const dir = storedFilesDir();
   if (!fs.existsSync(dir)) {
     res.json({ ok: true, items: [] });
@@ -59,6 +61,7 @@ export function listHistoryHandler(_req, res) {
 
     const stat = fs.statSync(reportPath);
     items.push({
+      kind: "audit",
       name: captureNameFromReportFile(entry.name),
       profile: report.meta.profile ?? null,
       savedAt: payload.savedAt ?? new Date(stat.mtimeMs).toISOString(),
@@ -75,6 +78,13 @@ export function listHistoryHandler(_req, res) {
       coverage: summarizeReport(report),
       sizeBytes: stat.size,
     });
+  }
+
+  try {
+    const liveItems = await listLiveHistoryItems(dir);
+    items.push(...liveItems);
+  } catch (error) {
+    console.warn("[history] failed to list live captures:", error.message);
   }
 
   items.sort((a, b) => String(b.savedAt).localeCompare(String(a.savedAt)));
@@ -102,7 +112,33 @@ export function getHistoryReportHandler(req, res) {
   }
 }
 
-/** Delete one saved analysis and every sidecar keyed on the same stem. */
+/** Stream a stored live NDJSON as an attachment. Audit captures have no raw file. */
+export function downloadHistoryRawHandler(req, res) {
+  const name = String(req.query.name ?? "").trim();
+  if (!name) {
+    res.status(400).json({ ok: false, error: "name query param is required" });
+    return;
+  }
+  if (!isLiveHistoryName(name)) {
+    res.status(400).json({ ok: false, error: "Raw download is only available for live captures" });
+    return;
+  }
+
+  try {
+    const { filePath } = resolveCapturePath(name);
+    if (!fs.existsSync(filePath)) {
+      res.status(404).json({ ok: false, error: "Live capture not found" });
+      return;
+    }
+    res.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="${name}"`);
+    fs.createReadStream(filePath).pipe(res);
+  } catch (error) {
+    res.status(400).json({ ok: false, error: error.message || "Failed to download the capture" });
+  }
+}
+
+/** Delete one saved analysis (and sidecars) or one kept live NDJSON. */
 export function deleteHistoryItemHandler(req, res) {
   const name = String(req.query.name ?? req.body?.name ?? "").trim();
   if (!name) {
@@ -112,6 +148,23 @@ export function deleteHistoryItemHandler(req, res) {
 
   try {
     const { filePath } = resolveCapturePath(name);
+    if (isLiveHistoryName(name)) {
+      if (isLiveFileLocked(filePath)) {
+        res.status(409).json({
+          ok: false,
+          error: "This live capture is still in use by an active stream",
+        });
+        return;
+      }
+      if (!fs.existsSync(filePath)) {
+        res.status(404).json({ ok: false, error: "Live capture not found" });
+        return;
+      }
+      fs.unlinkSync(filePath);
+      res.json({ ok: true, deleted: name });
+      return;
+    }
+
     removeStoredAuditReport(filePath);
     removeAttributeValuesSidecar(filePath);
     removeCustomPropertyValuesSidecar(filePath);

@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useCaptureSession } from "../contexts/CaptureSessionContext.jsx";
+import { useLiveStreamOptional } from "../contexts/LiveStreamContext.jsx";
 import { fetchAppVersion } from "../services/updatesApi.js";
 import InstallAppButton from "./InstallAppButton.jsx";
 
 const LINKS = [
-  { to: "/", label: "Capture" },
-  { to: "/history", label: "History" },
-  { to: "/settings", label: "Projects" },
+  { to: "/", label: "Data collection audit", end: true },
+  { to: "/live", label: "Live stream", end: false },
+  { to: "/history", label: "History", end: true },
+  { to: "/settings", label: "Projects", end: true },
 ];
 
 function navClass({ isActive }) {
@@ -21,6 +23,8 @@ function navClass({ isActive }) {
 
 export default function AppNav() {
   const { active } = useCaptureSession();
+  const live = useLiveStreamOptional();
+  const liveActive = Boolean(live?.isLive);
   const [version, setVersion] = useState(null);
 
   /*
@@ -50,11 +54,17 @@ export default function AppNav() {
    * stray click on the logo would be an expensive lesson.
    */
   function reload() {
-    if (
-      active &&
-      !window.confirm("A capture is running. Reloading ends it and loses its progress. Reload?")
-    ) {
-      return;
+    if (active || liveActive) {
+      const parts = [];
+      if (active) parts.push("a capture");
+      if (liveActive) parts.push("a live stream");
+      if (
+        !window.confirm(
+          `Reloading ends ${parts.join(" and ")} and loses progress. Reload?`,
+        )
+      ) {
+        return;
+      }
     }
     window.location.reload();
   }
@@ -70,13 +80,10 @@ export default function AppNav() {
           className="-mx-1 flex items-baseline gap-2 rounded-airship px-1 text-left transition hover:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-airship-blue"
         >
           <span className="logo-wordmark">Airship</span>
-          <span className="text-sm font-semibold text-airship-muted">
-            RTDS Data Collection Audit
-          </span>
         </button>
         <nav className="flex items-center gap-1">
           {LINKS.map((link) => (
-            <NavLink key={link.to} to={link.to} end={link.to === "/"} className={navClass}>
+            <NavLink key={link.to} to={link.to} end={link.end} className={navClass}>
               {link.label}
             </NavLink>
           ))}
@@ -94,12 +101,18 @@ export default function AppNav() {
               v{version.version}
             </span>
           )}
-          {active && (
+          {active ? (
             <span className="inline-flex items-center gap-2 text-xs font-semibold text-teal-700">
               <span className="h-2 w-2 animate-pulse rounded-full bg-airship-seafoam" />
               Capture running
             </span>
-          )}
+          ) : null}
+          {liveActive ? (
+            <span className="inline-flex items-center gap-2 text-xs font-semibold text-teal-700">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-airship-seafoam" />
+              Live · {(live.displayEventCount ?? 0).toLocaleString("en-US")} events
+            </span>
+          ) : null}
           <InstallAppButton />
         </div>
       </div>

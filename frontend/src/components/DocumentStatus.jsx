@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useCaptureSession } from "../contexts/CaptureSessionContext.jsx";
-import { TAB_ICONS, captureTabStatus } from "../lib/tabStatus.js";
+import { useLiveStreamOptional } from "../contexts/LiveStreamContext.jsx";
+import { TAB_ICONS, sessionTabStatus } from "../lib/tabStatus.js";
 
 function iconLink() {
   let link = document.querySelector("link[rel='icon']");
@@ -14,13 +15,19 @@ function iconLink() {
 }
 
 /**
- * Mirrors the capture session into the browser tab (title + favicon) so a capture
- * left running in a background tab can be followed without switching to it.
+ * Mirrors the capture or live session into the browser tab (title + favicon)
+ * so a run left in a background tab can be followed without switching to it.
  * Renders nothing.
  */
 export default function DocumentStatus() {
   const { active, stopping, progress, status, report, error } = useCaptureSession();
-  const { title, state } = captureTabStatus({ active, stopping, progress, status, report, error });
+  const live = useLiveStreamOptional();
+  const { title, state } = sessionTabStatus({
+    capture: { active, stopping, progress, status, report, error },
+    live: live
+      ? { isLive: live.isLive, eventCount: live.displayEventCount }
+      : undefined,
+  });
 
   useEffect(() => {
     document.title = title;

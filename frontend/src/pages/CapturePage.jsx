@@ -4,6 +4,7 @@ import CaptureProgressPanel from "../components/capture/CaptureProgressPanel.jsx
 import ServerRecovery from "../components/ServerRecovery.jsx";
 import CoverageSummary from "../components/summary/CoverageSummary.jsx";
 import { useCaptureSession } from "../contexts/CaptureSessionContext.jsx";
+import { useLiveStreamOptional } from "../contexts/LiveStreamContext.jsx";
 import { readLastProfile, useProfiles } from "../contexts/ProfilesContext.jsx";
 import { fetchCaptureOptions } from "../services/captureApi.js";
 
@@ -19,6 +20,7 @@ export default function CapturePage() {
   const { names, loading: profilesLoading } = useProfiles();
   const { active, stopping, settings: runningSettings, status, progress, error, errorHint, report, start, stop, reset } =
     useCaptureSession();
+  const live = useLiveStreamOptional();
 
   const [settings, setSettings] = useState(() => ({
     ...DEFAULT_SETTINGS,
@@ -27,6 +29,8 @@ export default function CapturePage() {
     profile: readLastProfile(),
   }));
   const [windowHoursOptions, setWindowHoursOptions] = useState([]);
+  const liveOnSameProject =
+    live?.isLive && live.filters?.profile && live.filters.profile === settings.profile;
 
   useEffect(() => {
     fetchCaptureOptions()
@@ -77,6 +81,13 @@ export default function CapturePage() {
       ) : null}
 
       {status && !active ? <p className="text-sm text-airship-body">{status}</p> : null}
+
+      {liveOnSameProject ? (
+        <p className="alert-warning">
+          A live stream is already watching this project. You can still start an audit capture, but
+          both will consume the same RTDS token.
+        </p>
+      ) : null}
 
       <CaptureForm
         profileNames={names}

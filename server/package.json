@@ -1,12 +1,12 @@
 {
   "name": "rtds-data-collection-audit-server",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "test": "node --test src/utils/*.test.js src/audit/*.test.js src/capture/*.test.js src/controllers/*.test.js src/rtds/*.test.js src/storage/*.test.js src/security/*.test.js src/updates/*.test.js"
+    "test": "node --test src/utils/*.test.js src/audit/*.test.js src/capture/*.test.js src/controllers/*.test.js src/history/*.test.js src/live/*.test.js src/rtds/*.test.js src/storage/*.test.js src/security/*.test.js src/updates/*.test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

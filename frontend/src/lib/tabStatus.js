@@ -1,4 +1,4 @@
-export const BASE_TITLE = "RTDS Data Collection Audit";
+export const BASE_TITLE = "RTDS";
 
 /** Favicon per session state — the tab is often too narrow to show any title at all. */
 export const TAB_ICONS = {
@@ -42,4 +42,22 @@ export function captureTabStatus({ active, stopping, progress, status, report, e
     return { state: "running", title: `● Finishing… · ${BASE_TITLE}` };
   }
   return { state: "idle", title: BASE_TITLE };
+}
+
+/**
+ * Tab copy for a live stream. When live is running it wins over an idle or
+ * finished capture — the stream is what the user left in the background.
+ */
+export function liveTabStatus({ isLive, eventCount } = {}) {
+  if (!isLive) return null;
+  const count = Number(eventCount) || 0;
+  return {
+    state: "running",
+    title: `● Live · ${compactCount.format(count)} events · ${BASE_TITLE}`,
+  };
+}
+
+export function sessionTabStatus({ capture, live } = {}) {
+  if (live?.isLive) return liveTabStatus(live);
+  return captureTabStatus(capture);
 }

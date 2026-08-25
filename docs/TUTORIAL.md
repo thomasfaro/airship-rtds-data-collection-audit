@@ -27,8 +27,8 @@ Do this once per client. The projects stay there, and captures reuse them.
 
 ## 2. Choose how the capture should end
 
-Open **Capture**, pick the project, and check the report timezone — every date in the report and in
-the exports is expressed in it.
+Open **Data collection audit**, pick the project, and check the report timezone — every date in the
+report and in the exports is expressed in it.
 
 ![The Capture screen, with the project selected and real-time auto-stop chosen](images/02-capture.png)
 
@@ -112,10 +112,25 @@ findings hide:
 Every capture is saved locally. **History** reopens any of them and regenerates both exports, so you
 never need to recapture to produce the file again.
 
+## Live stream (optional)
+
+**Live stream** is a separate screen: it watches events as they arrive, it does not build a tagging
+plan. Open it from the nav, pick the project and a timezone, then add a **Named user** or **Channel
+ID** before you start — strongly recommended on production projects, where all-traffic streaming at
+full volume puts unnecessary load on the connection. Advanced options expose event types, device
+types, and the other audience filters.
+
+Leave **Store raw data file** off unless you need the NDJSON. Only then does the session appear in
+**History**, with a Download button. Audit captures stay analysis-only and never write that file.
+
+The monitor can run in the background while you use the other screens. The tab title shows the live
+count; reloading the app stops the stream.
+
 ## Good to know
 
-- **Nothing goes anywhere.** The events are analysed as they stream in and never written to disk;
-  only the finished report is saved. The tokens and the reports stay in the app folder.
+- **Nothing goes anywhere.** Audit captures are analysed as they stream in and never written to disk;
+  only the finished report is saved. Live stream writes NDJSON only if you tick **Store raw data file**.
+  The tokens and the reports stay in the app folder.
 - **A capture cannot be resumed.** If it is interrupted, whatever was captured is lost — start again.
 - **The exports are client deliverables.** A tagging plan describes a client's taxonomy in detail;
   treat the files with the same care as anything else you would send them.

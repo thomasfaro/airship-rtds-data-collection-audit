@@ -13,6 +13,9 @@ export const CONNECT_URLS = {
   us: "https://connect.urbanairship.com/api/events",
 };
 
+/** RTDS types that carry campaign categories — used when that audience filter is set. */
+export const CAMPAIGN_CATEGORY_EVENT_TYPES = ["PUSH_BODY", "SEND", "OPEN"];
+
 function normalizeName(value) {
   return String(value).toLowerCase().replace(/\s+/g, "");
 }

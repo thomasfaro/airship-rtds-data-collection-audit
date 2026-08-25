@@ -95,8 +95,8 @@ Go to the **Projects** screen and add a project:
 
 Tokens are encrypted at rest with a key specific to your machine.
 
-Then go to **Capture**, pick the project, and start. The capture ends on its own once no new tracking
-key has appeared for a while — that is **Real-time auto-stop**, the default.
+Then go to **Data collection audit**, pick the project, and start. The capture ends on its own once no
+new tracking key has appeared for a while — that is **Real-time auto-stop**, the default.
 
 One caveat worth knowing: it assumes the project sends its data to Airship in real time. If the client
 uploads through the API in batches instead, the capture can end between two batches, so the period it

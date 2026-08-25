@@ -3,6 +3,7 @@ import { runningVersion } from "../version.js";
 import captureRoutes from "./capture.js";
 import historyRoutes from "./history.js";
 import profileRoutes from "./profiles.js";
+import streamRoutes from "./stream.js";
 import updateRoutes from "./updates.js";
 import valueRoutes from "./values.js";
 
@@ -23,6 +24,7 @@ router.get("/health", (_req, res) => {
 
 router.use("/profiles", profileRoutes);
 router.use("/capture", captureRoutes);
+router.use("/stream", streamRoutes);
 router.use("/values", valueRoutes);
 router.use("/history", historyRoutes);
 router.use("/updates", updateRoutes);
