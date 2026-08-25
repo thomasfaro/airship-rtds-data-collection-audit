@@ -21,6 +21,8 @@ never leaves it.
   this file to ground a client engagement review in the client's real taxonomy.
 - **The findings that come for free** — an event tracked on iOS but never seen on Android, an
   attribute written by both the SDK and a CRM, a screen name that only exists on an old build.
+- **A live stream monitor** — watch events as they arrive, filtered by named user or channel ID.
+  Separate from the audit; does not produce a plan. Optionally keeps the raw NDJSON on disk.
 
 ## Install it
 
