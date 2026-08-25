@@ -26,9 +26,10 @@ platform feature. There is no feature manifest to record it in.
 
 **This tool contains no AI.** No model, no inference, no LLM or ML provider, no prompt construction.
 It is therefore outside the scope of the EU AI Act, ISO/IEC 42001 and Airship's BEES AI Compliance
-Assessment. That matters for filing: an `ISO42K` label or a page under the AI space would
-miscategorise it. What it *is* in scope for is data protection, because it streams a client's mobile
-analytics through an employee's laptop and produces a deliverable from them.
+Assessment, and it must not be added to the AI Products inventory or the AI Risk Register. What it
+*is* in scope for is data protection, because it streams a client's mobile analytics through an
+employee's laptop and produces a deliverable from them. See *Filing* at the end for where that
+leaves the page itself.
 
 Ratings below use High / Medium / Low as the template requires. Platform-level controls that Airship
 verifies centrally — managed-endpoint full-disk encryption, MDM, corporate network controls — are
@@ -225,10 +226,17 @@ structure below should be checked against whatever the current canonical templat
 3. Fill in: Feature Owner, Engineering Lead and Target Launch Date, left blank above.
 4. Update the sign-off table with reviewer names and dates.
 
-**Filing note before publishing.** The skill's default destination is the Confluence AI space under
-*Compliance & Risk Assessments*, with an `ISO42K` label on the tracking ticket. Neither fits: ISO/IEC
-42001 is the AI management system standard, and this tool has no AI. Publish it where internal tools
-handling client data belong, and label it accordingly.
+**Filing.** Published under *Compliance & Risk Assessments* in the Confluence **AI** space, which is
+the skill's default destination and — despite this tool having no AI — the right one. The precedent
+is *SMS Quiet Hours*, filed there in August 2026 for a deterministic messaging policy under an
+explicit "not an AI product" banner. The reason the convention works is that the reviewers this
+document needs — Legal, Information Security, Privacy, Compliance — watch that parent page; filing a
+non-AI assessment somewhere conceptually tidier means filing it where nobody looks. The banner, not
+the location, is what prevents the miscategorisation.
+
+What does **not** apply is the labelling: no `ISO42K` label on the tracking ticket, since ISO/IEC
+42001 is the AI management system standard, no BEES Pilot ticket, and no entry on the AI Products
+inventory or the AI Risk Register.
 
 There is no feature manifest in this repository to record the artefact paths in, so the two documents
 reference each other directly instead.

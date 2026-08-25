@@ -5,7 +5,7 @@
 | **Tool** | RTDS Data Collection Audit |
 | **Version reviewed** | 1.6.0 as read; the fixes recorded below shipped in 1.6.1 and 1.6.2 |
 | **Repository** | `urbanairship/rtds_data_collection` (private) |
-| **Commit reviewed** | the import commit on `initial-import` ([PR #1](https://github.com/urbanairship/rtds_data_collection/pull/1)) |
+| **Commit reviewed** | the single commit on `internal-review` ([PR #2](https://github.com/urbanairship/rtds_data_collection/pull/2)) |
 | **Date** | 2026-08-25 |
 | **Prepared for** | Privacy & AI Compliance Manager, Legal, Infrastructure & Security |
 | **Framework** | Not the BEES AI Compliance Assessment — see *Scope* below |
@@ -352,7 +352,7 @@ contain startup banners, reconnect attempts, line counts and error messages.
 3. **Deliverable classification.** Should a tagging plan containing observed values be handled as
    client-confidential by default, and does that change how it may be shared?
 4. **Licence.** The repository declares none. Out of scope for data protection, but it is open in
-   [PR #1](https://github.com/urbanairship/rtds_data_collection/pull/1) and needs an owner.
+   [PR #2](https://github.com/urbanairship/rtds_data_collection/pull/2) and needs an owner.
 
 ## Method
 
