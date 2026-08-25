@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open RTDS Data Collection Audit</title>
+    <!--
+      Double-click this file to open the tool, whether or not it is running.
+
+      It is opened from disk, so nothing here may depend on the server: no stylesheet,
+      no script file, no image request. That is also why it duplicates a little of
+      frontend/public/offline.html — that one is served by the app itself, this one
+      never is, and each has to stand alone.
+    -->
+    <style>
+      :root {
+        --navy: #000818;
+        --body: #414651;
+        --muted: #535862;
+        --blue: #056dff;
+        --blue-dark: #0451bd;
+        --border: #e5e7eb;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: #f7f8f8;
+        color: var(--body);
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+        line-height: 1.5;
+      }
+      .card {
+        width: 100%;
+        max-width: 30rem;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 8, 24, 0.06);
+        padding: 32px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 28px;
+      }
+      .brand span {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 1.375rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: var(--navy);
+      }
+      p {
+        margin: 0 0 16px;
+        font-size: 0.9375rem;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 22px;
+        border: 0;
+        border-radius: 9999px;
+        background: var(--blue);
+        color: #fff;
+        font: inherit;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .btn:hover {
+        background: var(--blue-dark);
+      }
+      .btn[aria-disabled="true"] {
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      .status {
+        margin: 16px 0 0;
+        min-height: 1.5rem;
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+      .spinner {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        margin-right: 8px;
+        vertical-align: -1px;
+        border: 2px solid rgba(5, 109, 255, 0.25);
+        border-top-color: var(--blue);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      details {
+        margin-top: 28px;
+        border-top: 1px solid var(--border);
+        padding-top: 20px;
+        font-size: 0.875rem;
+      }
+      summary {
+        cursor: pointer;
+        color: var(--blue);
+        font-weight: 500;
+      }
+      details p {
+        margin: 14px 0 0;
+        color: var(--muted);
+      }
+      code {
+        padding: 2px 5px;
+        border-radius: 4px;
+        background: #f5f5f5;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.8125rem;
+        color: var(--navy);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="brand">
+        <svg width="32" height="32" viewBox="0 0 32 32" role="img" aria-label="Airship">
+          <rect width="32" height="32" rx="8" fill="#000818" />
+          <g fill="#ffffff">
+            <rect x="7" y="8" width="17" height="4" rx="2" />
+            <rect x="7" y="15" width="11" height="4" rx="2" />
+            <rect x="7" y="22" width="8" height="4" rx="2" />
+          </g>
+        </svg>
+        <span>RTDS Data Collection Audit</span>
+      </div>
+
+      <h1 id="heading">Opening the tool…</h1>
+      <p id="lede">Checking whether it is already running on this machine.</p>
+
+      <a class="btn" id="start" href="rtds-audit://start" hidden>Start the tool</a>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+
+      <details id="manual">
+        <summary>Start it by hand instead</summary>
+        <p>
+          In this folder, double-click <code>Start RTDS Data Collection Audit.command</code> on
+          macOS, or <code>Start RTDS Data Collection Audit.bat</code> on Windows. This page opens the
+          tool on its own once it is up.
+        </p>
+        <p>
+          To skip this step for good, run <code>Install background start</code> from this folder: the
+          tool then starts with your session and is always ready.
+        </p>
+      </details>
+    </main>
+
+    <script>
+      const APP_URL = "http://127.0.0.1:3011/";
+
+      const heading = document.getElementById("heading");
+      const lede = document.getElementById("lede");
+      const startLink = document.getElementById("start");
+      const status = document.getElementById("status");
+      const manual = document.getElementById("manual");
+
+      let opened = false;
+      let starting = false;
+
+      function say(text, spinning) {
+        status.innerHTML = spinning ? '<span class="spinner"></span>' : "";
+        status.append(text);
+      }
+
+      // Asks the server for a static file: image loads are not subject to CORS, so a
+      // load means the server really answered, from a page opened off the disk.
+      function probe(onDown) {
+        const probeImage = new Image();
+        probeImage.onload = () => {
+          if (opened) return;
+          opened = true;
+          say("Up — opening it now.", true);
+          window.location.href = APP_URL;
+        };
+        probeImage.onerror = () => onDown?.();
+        probeImage.src = `${APP_URL}favicon.svg?probe=${Date.now()}`;
+      }
+
+      function offerToStart() {
+        if (opened || startLink.hidden === false) return;
+        heading.textContent = "The tool is not running";
+        lede.textContent =
+          "It runs on your own machine, so it has to be started before the interface can load.";
+        startLink.hidden = false;
+        say("");
+      }
+
+      startLink.addEventListener("click", () => {
+        if (starting) return;
+        starting = true;
+        startLink.setAttribute("aria-disabled", "true");
+        say("Starting… this takes a few seconds the first time.", true);
+
+        // No handler registered, or a start that failed: stop promising and show the
+        // manual route. The probe below keeps running, so a late start still lands.
+        window.setTimeout(() => {
+          if (opened || !starting) return;
+          starting = false;
+          startLink.removeAttribute("aria-disabled");
+          say("Still not up. Try starting it by hand below.");
+          manual.open = true;
+        }, 45000);
+      });
+
+      probe(offerToStart);
+      window.setInterval(() => probe(offerToStart), 2000);
+    </script>
+  </body>
+</html>

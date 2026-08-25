@@ -1,0 +1,69 @@
+# Everything `AGENTS.md` asks for before finishing, run on every push.
+#
+# Two jobs rather than one, because they answer different questions: the tests say the
+# logic is intact, the build says the thing people actually double-click still compiles.
+# A green tick on both is what makes a review of this repository mechanical.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            frontend/package-lock.json
+
+      # `npm ci` per workspace: this is not an npm workspaces repo, the root manifest
+      # carries no dependencies and each side has its own lockfile.
+      - run: npm ci --prefix server
+      - run: npm ci --prefix frontend
+
+      # The root script runs both suites, which keeps CI and `npm test` identical.
+      - run: npm test
+
+  build:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci --prefix frontend
+      - run: npm run build --prefix frontend
+
+  # This tool is built and run on the machines of people who will not read a changelog, so a known
+  # vulnerability reaching them unannounced is the failure worth catching. Reads the lockfiles rather
+  # than installing, and fails on high and critical only: moderate findings in build tooling would
+  # turn a red tick into background noise, and a tick nobody trusts stops being a control.
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - run: npm audit --audit-level=high --package-lock-only --prefix server
+      - run: npm audit --audit-level=high --package-lock-only --prefix frontend

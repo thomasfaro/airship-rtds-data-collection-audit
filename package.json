@@ -1,0 +1,19 @@
+{
+  "name": "rtds-data-collection",
+  "version": "1.6.2",
+  "private": true,
+  "description": "Airship RTDS Data Collection Audit — capture a tracking-only RTDS stream and generate the tagging plan (.xlsx / .json)",
+  "scripts": {
+    "install:all": "npm install --prefix server && npm install --prefix frontend",
+    "setup:local": "npm run install:all && mkdir -p config && (test -f server/.env || cp server/.env.example server/.env) && (test -f frontend/.env.local || cp frontend/.env.local.example frontend/.env.local)",
+    "dev": "bash scripts/dev-local.sh",
+    "start": "bash scripts/start.sh",
+    "build": "npm run build --prefix frontend",
+    "serve": "npm run build && npm start --prefix server",
+    "test": "npm run test --prefix server && npm run test --prefix frontend",
+    "version:set": "bash scripts/set-version.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

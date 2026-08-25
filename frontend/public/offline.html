@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000818" />
+    <title>RTDS Data Collection Audit — not running</title>
+    <!--
+      Served by sw.js when the local server is down, so it must stand entirely on
+      its own: no stylesheet, no script file, no image request. Everything a browser
+      would have to fetch is inline, because fetching is precisely what fails here.
+    -->
+    <style>
+      :root {
+        --navy: #000818;
+        --body: #414651;
+        --muted: #535862;
+        --blue: #056dff;
+        --blue-dark: #0451bd;
+        --border: #e5e7eb;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: #f7f8f8;
+        color: var(--body);
+        font-family: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+        line-height: 1.5;
+      }
+      .card {
+        width: 100%;
+        max-width: 30rem;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 8, 24, 0.06);
+        padding: 32px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 28px;
+      }
+      .brand span {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 1.375rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: var(--navy);
+      }
+      p {
+        margin: 0 0 16px;
+        font-size: 0.9375rem;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 22px;
+        border: 0;
+        border-radius: 9999px;
+        background: var(--blue);
+        color: #fff;
+        font: inherit;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .btn:hover {
+        background: var(--blue-dark);
+      }
+      .btn[aria-disabled="true"] {
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      .status {
+        margin: 16px 0 0;
+        min-height: 1.5rem;
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+      .spinner {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        margin-right: 8px;
+        vertical-align: -1px;
+        border: 2px solid rgba(5, 109, 255, 0.25);
+        border-top-color: var(--blue);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      details {
+        margin-top: 28px;
+        border-top: 1px solid var(--border);
+        padding-top: 20px;
+        font-size: 0.875rem;
+      }
+      summary {
+        cursor: pointer;
+        color: var(--blue);
+        font-weight: 500;
+      }
+      details p {
+        margin: 14px 0 0;
+        color: var(--muted);
+      }
+      code {
+        padding: 2px 5px;
+        border-radius: 4px;
+        background: #f5f5f5;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.8125rem;
+        color: var(--navy);
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="brand">
+        <svg width="32" height="32" viewBox="0 0 32 32" role="img" aria-label="Airship">
+          <rect width="32" height="32" rx="8" fill="#000818" />
+          <g fill="#ffffff">
+            <rect x="7" y="8" width="17" height="4" rx="2" />
+            <rect x="7" y="15" width="11" height="4" rx="2" />
+            <rect x="7" y="22" width="8" height="4" rx="2" />
+          </g>
+        </svg>
+        <span>RTDS Data Collection Audit</span>
+      </div>
+
+      <h1>The tool is not running</h1>
+      <p>
+        It runs on your own machine, so it has to be started before the interface can load. Nothing
+        was lost: your projects and saved audits are on disk.
+      </p>
+
+      <a class="btn" id="start" href="rtds-audit://start">Start the tool</a>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+
+      <details id="manual">
+        <summary>Start it by hand instead</summary>
+        <p>
+          Open the folder where the tool is installed and double-click
+          <code>Start RTDS Data Collection Audit.command</code> on macOS, or
+          <code>Start RTDS Data Collection Audit.bat</code> on Windows. This page reloads on its own
+          once it is up.
+        </p>
+        <p>
+          To skip this step for good, run <code>Install background start</code> from that same
+          folder: the tool then starts with your session and is always ready.
+        </p>
+      </details>
+    </main>
+
+    <script>
+      const startLink = document.getElementById("start");
+      const status = document.getElementById("status");
+      const manual = document.getElementById("manual");
+
+      let starting = false;
+
+      function say(text, spinning) {
+        status.innerHTML = spinning ? '<span class="spinner"></span>' : "";
+        status.append(text);
+      }
+
+      // Asks the server directly for a static file: image loads bypass both CORS and
+      // the service worker, so a load means the server really answered.
+      function probe() {
+        const probeImage = new Image();
+        probeImage.onload = () => {
+          say("Up — opening the tool…", true);
+          window.location.reload();
+        };
+        probeImage.src = `/favicon.svg?probe=${Date.now()}`;
+      }
+
+      startLink.addEventListener("click", () => {
+        if (starting) return;
+        starting = true;
+        startLink.setAttribute("aria-disabled", "true");
+        say("Starting… this takes a few seconds the first time.", true);
+
+        // No handler registered, or a start that failed: stop promising and show the
+        // manual route rather than spinning forever.
+        window.setTimeout(() => {
+          if (!starting) return;
+          starting = false;
+          startLink.removeAttribute("aria-disabled");
+          say("Still not up. Try starting it by hand below.");
+          manual.open = true;
+        }, 45000);
+      });
+
+      probe();
+      window.setInterval(probe, 2000);
+    </script>
+  </body>
+</html>

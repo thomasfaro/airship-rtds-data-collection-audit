@@ -1,0 +1,26 @@
+# The CI audit job says a known vulnerability is present; this says what to do about it, by opening
+# the pull request that fixes it. Both are needed: nobody watches a red tick on a repository they
+# only visit to review, and this tool is rebuilt from source on other people's machines.
+#
+# Two npm entries rather than one, because this is not an npm workspaces repo: each side carries its
+# own manifest and lockfile.
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /server
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  # The workflow's own actions pin to major versions, which still drift.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

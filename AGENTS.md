@@ -1,0 +1,280 @@
+# Instructions for coding agents
+
+This repo is **Airship RTDS Data Collection Audit**: a local browser app that captures a
+tracking-only RTDS stream and generates the tagging plan (`.xlsx` / `.json`). React (Vite) UI +
+Node.js (Express) API. No desktop build, no deployment target — it runs on the developer's machine.
+
+It is the slim companion of `airship-rtds-qa`. Keep it slim: the core job is still
+"capture tracking events → get the tagging plan". **Live stream** is the one extra surface —
+inspect events as they arrive, optionally keep the raw NDJSON. No Public viewer, no multi-audit,
+no tagging-plan analysis of live files. Audit captures remain analysis-only; live raw is opt-in.
+
+## Language
+
+All user-facing strings, comments and docs are **English only**.
+
+## Getting started
+
+```bash
+npm run setup:local   # install both workspaces + local config files
+npm run dev           # API :3011, UI http://127.0.0.1:5183
+npm test              # server + frontend (node --test)
+```
+
+Ports differ from `airship-rtds-qa` (3001 / 5173) so both can run side by side. Logs:
+`/tmp/rtds-dca-server.log`, `/tmp/rtds-dca-frontend.log`.
+
+`npm start` runs the double-click launcher; `npm run serve` builds and serves everything on the single
+port without opening a browser (log: `/tmp/rtds-dca.log`).
+
+**A development clone should keep an empty `config/.no-auto-update` file**, so starting it does not
+move the folder underneath you while you are working in it.
+
+RTDS projects live in `config/rtds-profiles.json` (gitignored, `0600`, tokens encrypted at rest). Add
+them from the Projects screen, or copy `config/rtds-profiles.example.json`. Everything else is
+optional and goes in `server/.env` (see `server/.env.example`):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `PORT` | `3011` | API port |
+| `HOST` | `127.0.0.1` | Bind address (loopback only) |
+| `CORS_ORIGIN` | `http://localhost:5183` | Allowed UI origin |
+| `RTDS_PROFILES_PATH` | `config/rtds-profiles.json` | Profiles file location |
+| `RTDS_DCA_STORAGE_DIR` | `.stored-files/` | Where saved analyses and kept live raw files live |
+| `RTDS_DCA_RETENTION_DAYS` | `30` | Days before a saved analysis or kept live file expires; `0` keeps forever |
+
+## Shipping it to non-developers
+
+`scripts/start.sh` (macOS/Linux) and `scripts/start.ps1` (Windows) are the double-click path: install
+what is missing, build the UI, then serve UI + API from the single API port — `server/src/index.js`
+serves `frontend/dist` when that build exists. `scripts/ensure-node.sh` and `Ensure-Node.ps1` install a
+private Node in `.node/` when the machine has none, checksum-verified, without admin rights.
+`scripts/prepare-app.sh` holds the update, install and build steps both the launcher and the background
+service run, so those two cannot drift.
+
+- The launchers at the repo root must keep git mode `100755`, or a double-click on macOS does nothing.
+- Assume whoever runs them has no terminal skills: every failure path says what to do next and keeps
+  the window open long enough to read it.
+- See `docs/INSTALL.md` — keep it in sync when the startup flow changes.
+
+### The documentation set
+
+Three files, three audiences, and they should stay that way: `README.md` is the front door for
+someone deciding whether to use the tool, `docs/INSTALL.md` gets it running without a terminal,
+`docs/TUTORIAL.md` teaches the four steps and how to read the summary. **All of it is written for
+someone who will never open the source** — developer material lives here instead, which is why this
+file carries the env vars and the folder layout rather than the README. A change to the capture flow
+or the summary usually touches the tutorial.
+
+`bash docs/screenshots/shoot.sh` regenerates `docs/images/`. It streams an invented retail app
+through the real capture controller (`make-demo.mjs` stubs `globalThis.fetch`, everything downstream
+ships), then renders the real screens off that report with a bundled harness and shoots them in
+headless Chrome. Two rules: **no screenshot may contain client data** — hence the stub rather than a
+live server — and the window heights in `shoot.sh` are trimmed per screen, so check the PNGs after a
+screen grows.
+
+### Starting it from a browser
+
+A page cannot start a local process, so three pieces cover the "it is not running" case, and each
+exists for a reason:
+
+- **`frontend/public/sw.js`** answers failed navigations with `offline.html`, which carries a *Start
+  the tool* button. It caches that one page and nothing else — no app shell, no API — because a cached
+  bundle would survive a rebuild and serve stale JS forever. Bump `CACHE` when `offline.html` changes.
+- **`rtds-audit://`** is what that button opens. `scripts/install-url-handler.sh` compiles
+  `url-handler.applescript` into `~/Applications/Start RTDS Audit.app` (Windows: a `HKCU` key written
+  by `Register-UrlHandler.ps1`), which runs `scripts/start-detached.sh`. `start.sh` refreshes it on
+  every launch, so it is present even without the autostart.
+- **`scripts/install-autostart.sh`** registers a login agent. `serve.sh` is the foreground server for
+  a supervisor; `start-detached.sh` is the no-window start that `nohup`s it.
+- **`components/ServerRecovery.jsx`** covers the case the fallback page cannot: a page that loaded
+  fine and outlived its server, so every request fails while the app is still on screen. It probes
+  `/api/health` and only then offers the same link. The offer *must* stay a plain `<a>` — a browser
+  only launches an external application on a real click, so awaiting a probe first and then setting
+  `location` gets swallowed without a word. `lib/serverControl.js` therefore only probes and waits.
+- **The wordmark in `AppNav.jsx` is the reload button.** An installed window has no address bar, so
+  without it there is no way to retry. It confirms first when a capture **or** a live stream is
+  running, since a reload ends the stream.
+
+Four macOS behaviours were found the hard way here. Changing any of them silently breaks the feature,
+with no error anywhere:
+
+- **A launchd agent cannot read the app folder.** With `/bin/bash …/serve.sh` as its program, every
+  file under `Documents`, `Desktop` or `Downloads` comes back `Operation not permitted`, and no
+  prompt is ever offered — an ad-hoc signed bundle as the program fares no better. That is why the
+  agent instead opens the `rtds-audit://` link: work done by an app bundle launched through Launch
+  Services *is* allowed. The agent's own script therefore lives in `~/Library/Application Support/`
+  and only curls the health endpoint before opening the link.
+- **`osacompile` signs what it builds**, so editing `Info.plist` or the icon afterwards breaks the
+  seal and macOS then refuses to launch the bundle — silently, `open` still exits 0. Re-sign with
+  `codesign --force --sign -` as the last step. `codesign` ships with macOS; no developer tools
+  needed.
+- **Launch Services caches a record per path.** Replace the bundle in place and links are accepted but
+  launch nothing. `lsregister -u` the old path before rebuilding.
+- **`LSUIElement` costs you the URL event.** Hiding the launcher from the Dock looks tidy and stops
+  `on open location` from ever firing.
+
+The whole chain is verifiable from a terminal: `open "rtds-audit://start"` should answer on port 3011
+within a couple of seconds.
+
+### Keeping installs up to date
+
+Installs live in folders nobody opens, so the app updates itself. `prepare-app.sh` updates before it
+installs and builds, `server/src/updates/` handles it while running, and
+`components/UpdateBanner.jsx` is the only place versions are ever mentioned unprompted.
+
+- **`scripts/set-version.sh` is the only way to bump the version.** Five files carry it: three
+  `package.json` and both lockfiles, which hold a copy of their package's version. Bump only the
+  manifests and the next `npm install` rewrites the lockfiles — the folder is then permanently dirty,
+  and a dirty folder is one the updater refuses to touch. That single oversight would strand every
+  install on the version it had.
+- **`runningVersion()` is pinned during boot** (`index.js` calls it before anything else) while
+  `diskVersion()` re-reads the folder. The difference between them *is* the "restart to apply"
+  banner; caching both, or neither, silently removes the feature.
+- **The update guards are not decoration.** Local changes, a detached HEAD, no credentials, no
+ network: each one means "keep the version you have" and say nothing. The one acceptable failure of
+ an auto-updater is doing nothing.
+- **The archive route is switched off, because this repository is private.** Every call in
+ `releaseInfo.js` is anonymous and a private repo answers those with 404; authenticating instead
+ would put a token on the machine of everyone who runs the tool, which is worse than being a version
+ behind. `PUBLISHED_ARCHIVE_AVAILABLE` is the single constant that says so, and flipping it to true
+ is the whole change needed if the repo ever goes public — the tests skip themselves in that case
+ rather than having to be edited too. So a ZIP install stays on the version it was installed with,
+ which is why `docs/INSTALL.md` recommends cloning with GitHub Desktop: git is the route that still
+ works, using the credentials the person already has. The rest of this bullet describes machinery
+ that is kept, tested and dormant.
+- **There are two update routes, and the weaker one is never used where the stronger one exists.** A
+ folder with `.git` fast-forwards — never a merge — because `--ff-only` *proves* the new history
+ contains the old one, which is an integrity check an archive cannot offer. A folder without `.git`
+ (a ZIP install) compares published version numbers and
+ replaces its own files from `codeload.github.com`. That route carries three guards which are the
+ only thing standing in for the ancestry check, so treat them as load-bearing: it moves **strictly
+ forward** (`compareVersions` in `updateState.js`, so a downgrade or an unreadable version is
+ refused), it writes **only** paths that pass `isWritablePath` (`applyArchive.js` — `config/` and
+ `.stored-files/` hold tokens and saved audits, are absent from the archive, and a naive folder swap
+ would delete them), and it talks to **two pinned hostnames** with redirects checked per hop rather
+ than followed (`releaseInfo.js`). Each of those has tests; a change there without one is a
+ regression waiting to ship. Files deleted upstream are deliberately left behind — an orphaned module
+ is inert, a delete loop aimed at the wrong path is not.
+- **`scripts/apply-update.mjs` is the launcher's way into that code**, and it is Node rather than more
+ shell so the version comparison and the protected-path list exist once instead of once per platform.
+ It runs before `npm install`, so it and everything it imports may use **Node built-ins only**.
+- **A restart cannot happen in-process.** `scheduleRestart()` spawns `restart-app.sh` detached, which
+  waits for the port to go quiet before starting the replacement. Anything simpler either races its
+  own listener or leaves nothing running. On the frontend side `waitForRestart()` waits for the
+  server to *disappear* first — polling straight away catches the old one on its way out and reloads
+  onto a process that is already exiting.
+- **Git calls are bounded and prompt-free** (`updates/gitInfo.js`): `GIT_TERMINAL_PROMPT=0`, a
+  low-speed abort and a timeout on every call, and the two that touch the network are async so a
+  twenty-second fetch cannot stall the capture streams the server is holding open.
+- **Silence is the default.** `lib/updateNotice.js` returns `null` for everything except the two
+  states with a button. Keep new states out of the banner unless the user can act on them.
+
+## Architecture
+
+```
+server/src/
+  index.js            slim entry: /api/bootstrap, /api/health, then the routers
+  version.js          the running version vs the one on disk
+  routes/             profiles, capture, stream, values, history, updates
+  controllers/        captureController (SSE), rtdsController, liveCacheController,
+                      liveCaptureController, valuesController, historyController
+  capture/            captureOptions.js — stop mode, thresholds, start position, window
+  live/               runLiveSse, streamRegistry, paths, readLiveCapture
+  history/            liveHistory.js — list kept live-*.ndjson for History
+  rtds/               buildRtdsBody (full-type live body), liveStreamReconnect, openRtdsStream
+  updates/            gitInfo (bounded git calls), updateState (pure decision + version
+                      ordering), releaseInfo (pinned hosts, published version),
+                      applyArchive (hardened download/extract/copy for git-less installs),
+                      updateService (remote check, update by either route, handover)
+  audit/              the analysis engine, ported from airship-rtds-qa
+  security/, utils/, storage/, middleware/
+frontend/src/
+  pages/              CapturePage, LiveSetupPage, LiveMonitorPage, HistoryPage, SettingsPage
+  components/         AppNav, DocumentStatus (tab title + favicon), InstallAppButton,
+                      UpdateBanner, ServerRecovery, ProfileForm, ConfirmDialog,
+                      StreamFilter, DisplayFilters, VirtualStreamList, LiveMonitorHeader, …
+  components/capture/ CaptureForm, StopModeCard, CaptureProgressPanel
+  components/summary/ CoverageSummary, CoverageCategoryCard, WarningsList, TaggingPlanDownloads
+  contexts/           ProfilesContext, CaptureSessionContext, LiveStreamContext
+  hooks/              useRtdsStream, useQueryParams
+  lib/                coverageSummary.js, captureParams.js, tabStatus.js, streamRequestFilters.js,
+                      eventRegistry.js, streamEntries.js, installPrompt.js,
+                      serviceWorker.js, serverControl.js, updateNotice.js, audit/ (ported helpers,
+                      plus taggingPlanStyle.js — the workbook palette and its share bars)
+  services/           apiClient + one module per API area
+```
+
+The rest of the top level: `assets/` holds the icon sources and `AppIcon.icns` that
+`scripts/build-icons.sh` rebuilds, `config/` the local RTDS profiles (gitignored), `docs/` the three
+guides plus `images/` and the `screenshots/` machinery that produces them, and `scripts/` the
+launchers and their `.ps1` counterparts — one per platform for every entry point, which is why the
+shared work sits in `prepare-app.sh` and `apply-update.mjs` instead of in each of them.
+
+### Things to know before editing
+
+- **`server/src/audit/` is a port.** It is shared history with `airship-rtds-qa` and heavily
+  interdependent (`analyzeEvents.js` alone imports ~30 siblings). Fix bugs there, but avoid
+  refactors: they make it impossible to diff against the origin app. One deliberate divergence:
+  `obsolescence.js` also reports the version landscape it judged against (`obsolescence.platforms`),
+  because an empty flag list is a verdict and the workbook has to say which builds it compared.
+- **Captures are analysis-only.** `captureController.js` forces `trackingOnly` and never writes raw
+  NDJSON. `report.meta.storage.sourceFileName` is a *stem*, not a file that exists — the persisted
+  report and the value sidecars are keyed on it. Don't add code that tries to read it.
+- **Live raw is opt-in.** `GET /api/stream` can keep `live-{profile}-{uuid}.ndjson` in `.stored-files`
+ only when `store_raw=1`. History lists those files and can download them; unsaved sessions leave
+ nothing. Do not turn `writeToFile` on for audit captures.
+- **Stored captures expire, and two choices in `storage/retention.js` are deliberate.** It deletes
+ every file sharing a capture's stem rather than the four known suffixes, because sidecars also come
+ as `.scope-{id}.json` and one left behind leaves the client's values behind with it. And an
+ unreadable `RTDS_DCA_RETENTION_DAYS` switches expiry *off* instead of falling back to the default:
+ deleting a deliverable because a setting was mistyped is the one outcome worth ruling out. It runs
+ once at startup — no scheduler, for a tool someone starts by hand — and logs only when it actually
+ removed something.
+- **Only five RTDS types are ever requested** (custom events, attributes, tags, screens,
+  subscription lists). The messaging/email/OPEN branches in the engine are simply never reached.
+- **The exporter is shared with the full app.** `frontend/src/lib/audit/taggingPlanExport.js` takes
+ its value fetchers by injection; wire them to `/api/values/*`, don't fork the module.
+- **The workbook has to import into Google Sheets**, which silently drops the features that would be
+ the obvious way to decorate it: data bars, icon sets, tables. So `taggingPlanStyle.js` draws its
+ bars out of block characters and every colour is a static fill — no conditional formatting anywhere.
+ Two rules the renders taught: a bar wider than its column is *clipped* by the next cell, so
+ `BAR_UNITS` and `BAR_COLUMN_WIDTH` move together (a block glyph is about twice a width unit), and a
+ flag colour belongs in the flag column, not on the row — a real capture flags nine rows in ten, and
+ a filled row then means nothing. The palette mirrors `tailwind.config.js`; amber is what the app
+ calls a warning (`.alert-warning`), `airship-danger` what it calls an error.
+- **Auto-stop lives server-side** in `audit/coveragePlateau.js`. The UI only renders the progress the
+  SSE reports (`coverage.plateau`). That progress is measured in *both* stop modes — manual runs are
+  gauged against `REALTIME_THRESHOLDS` — because the four checks answer "have I captured enough?",
+  which a manual capture needs just as much. Only `realTime` acts on the verdict, so
+  `plateauStopper.observe()` must keep running in manual mode: it maintains the last-new-key markers
+  the gauges read.
+- **The browser tab is a status surface.** A real-time capture runs for hours in a tab nobody looks
+  at, so `components/DocumentStatus.jsx` mirrors the session into the title and swaps the favicon
+  (`frontend/public/favicon*.svg`, one per state). The whole mapping is the pure `lib/tabStatus.js` —
+  add states there, keep the component down to two effects.
+- **One set of auto-stop guardrails, on purpose.** A looser "fast" preset was offered and removed:
+  it stopped captures early enough to miss rare keys. `REALTIME_THRESHOLDS` is the only set, and the
+  `rt_*` query overrides exist for tuning a single run, not for the UI to expose again. Tune the
+  values there, in `capture/captureOptions.js` — the plateau margin already sits at 100k instead of
+  the engine's 250k — never in `audit/coveragePlateau.js`, which must stay diffable against the
+  origin app. The two prose copies of these numbers (README, `CaptureForm.jsx`) follow.
+
+## Conventions
+
+- ES modules everywhere, `node --test` for tests, no test framework.
+- Pure logic goes in a `lib/` (frontend) or dedicated module (server) with a `*.test.js` next to it;
+  React components stay presentational so they need no DOM test setup.
+- Tailwind with the `airship-*` palette and the component classes in `frontend/src/index.css`
+  (`card`, `btn-primary`, `badge-blue`, …). Prefer those over ad-hoc utility soup.
+- Comments explain intent or a constraint, never what the next line does.
+
+## Before you finish
+
+```bash
+npm test
+npm run build --prefix frontend
+```
+
+Bumping the version is part of shipping a user-visible change: `npm run version:set <x.y.z>`, and
+commit the five files it touches together.

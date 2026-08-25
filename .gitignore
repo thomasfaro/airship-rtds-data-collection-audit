@@ -1,0 +1,29 @@
+node_modules/
+.node/
+dist/
+build/
+.env
+.env.local
+.env.*
+!*.env.example
+!**/.env.example
+server/.env
+frontend/.env.local
+.DS_Store
+**/.DS_Store
+*.log
+*.ndjson
+config/rtds-profiles.json
+config/*.json
+!config/*.example.json
+**/config/.local-api-key
+**/config/.profiles-key
+config/.no-auto-update
+cache/
+.audit-tmp/
+.stored-files/
+frontend/.shots/
+# Publication bundles are assembled from the two review documents for one paste into Confluence.
+# Ignored rather than committed: a generated copy would drift from its sources, and an untracked
+# file left lying here would mark the folder dirty, which stops the updater for good.
+docs/**/*-combined-for-publication.md

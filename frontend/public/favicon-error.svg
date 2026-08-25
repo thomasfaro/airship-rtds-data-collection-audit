@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="RTDS Data Collection Audit: capture failed">
+  <rect width="32" height="32" rx="8" fill="#000818" />
+  <g fill="#ffffff">
+    <rect x="7" y="8" width="17" height="4" rx="2" />
+    <rect x="7" y="15" width="11" height="4" rx="2" />
+    <rect x="7" y="22" width="8" height="4" rx="2" />
+  </g>
+  <circle cx="24" cy="24" r="6" fill="#FF3976" stroke="#000818" stroke-width="2" />
+</svg>

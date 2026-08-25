@@ -1,0 +1,17 @@
+# Who gets asked to review a change here.
+#
+# Interim: the author, so that pull requests have a reviewer from day one. Replace the
+# entry below with the owning team's handle once the internal review names one — a
+# CODEOWNERS pointing at a team that does not exist is worse than none, because GitHub
+# reports it as an error and assigns nobody.
+*                       @thomasfaro
+
+# The parts where a second pair of eyes is worth asking for by name.
+#
+# `updates/` and the launchers can replace the code in someone's app folder or run at
+# login, and `security/` holds the token encryption. The rest of the tool reads a stream
+# and writes a spreadsheet; these decide what executes.
+/server/src/updates/    @thomasfaro
+/server/src/security/   @thomasfaro
+/scripts/               @thomasfaro
+/.github/               @thomasfaro
