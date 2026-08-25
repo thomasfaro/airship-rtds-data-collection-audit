@@ -13,8 +13,10 @@ import AppNav from "../src/components/AppNav.jsx";
 import CaptureProgressPanel from "../src/components/capture/CaptureProgressPanel.jsx";
 import CoverageSummary from "../src/components/summary/CoverageSummary.jsx";
 import { CaptureSessionProvider } from "../src/contexts/CaptureSessionContext.jsx";
+import { LiveStreamProvider } from "../src/contexts/LiveStreamContext.jsx";
 import { ProfilesProvider } from "../src/contexts/ProfilesContext.jsx";
 import CapturePage from "../src/pages/CapturePage.jsx";
+import LiveSetupPage from "../src/pages/LiveSetupPage.jsx";
 import SettingsPage from "../src/pages/SettingsPage.jsx";
 import progress from "./progress.json";
 import report from "./report.json";
@@ -58,10 +60,12 @@ function Shell({ children }) {
     <HashRouter>
       <ProfilesProvider>
         <CaptureSessionProvider>
-          <div className="app-shell">
-            <AppNav />
-            <main className="page-container max-w-5xl">{children}</main>
-          </div>
+          <LiveStreamProvider>
+            <div className="app-shell">
+              <AppNav />
+              <main className="page-container max-w-5xl">{children}</main>
+            </div>
+          </LiveStreamProvider>
         </CaptureSessionProvider>
       </ProfilesProvider>
     </HashRouter>
@@ -71,6 +75,7 @@ function Shell({ children }) {
 const SCREENS = {
   projects: () => <SettingsPage />,
   capture: () => <CapturePage />,
+  live: () => <LiveSetupPage />,
   running: () => (
     <CaptureProgressPanel
       profile={PROFILE}

@@ -120,6 +120,8 @@ ID** before you start — strongly recommended on production projects, where all
 full volume puts unnecessary load on the connection. Advanced options expose event types, device
 types, and the other audience filters.
 
+![The Live stream setup screen, with the audience filter and Start Stream button](images/05-live.png)
+
 Leave **Store raw data file** off unless you need the NDJSON. Only then does the session appear in
 **History**, with a Download button. Audit captures stay analysis-only and never write that file.
 

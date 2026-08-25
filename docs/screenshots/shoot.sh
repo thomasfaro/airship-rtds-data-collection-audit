@@ -86,5 +86,6 @@ shoot projects 1280 640 "01-projects.png"
 shoot capture 1280 815 "02-capture.png"
 shoot running 1280 660 "03-running.png"
 shoot summary 1280 840 "04-summary.png"
+shoot live    1280 760 "05-live.png"
 
 echo "done — $OUT"
