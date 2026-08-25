@@ -24,6 +24,24 @@ npm test              # server + frontend (node --test)
 Ports differ from `airship-rtds-qa` (3001 / 5173) so both can run side by side. Logs:
 `/tmp/rtds-dca-server.log`, `/tmp/rtds-dca-frontend.log`.
 
+`npm start` runs the double-click launcher; `npm run serve` builds and serves everything on the single
+port without opening a browser (log: `/tmp/rtds-dca.log`).
+
+**A development clone should keep an empty `config/.no-auto-update` file**, so starting it does not
+move the folder underneath you while you are working in it.
+
+RTDS projects live in `config/rtds-profiles.json` (gitignored, `0600`, tokens encrypted at rest). Add
+them from the Projects screen, or copy `config/rtds-profiles.example.json`. Everything else is
+optional and goes in `server/.env` (see `server/.env.example`):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `PORT` | `3011` | API port |
+| `HOST` | `127.0.0.1` | Bind address (loopback only) |
+| `CORS_ORIGIN` | `http://localhost:5183` | Allowed UI origin |
+| `RTDS_PROFILES_PATH` | `config/rtds-profiles.json` | Profiles file location |
+| `RTDS_DCA_STORAGE_DIR` | `.stored-files/` | Where saved analyses and kept live raw files live |
+
 ## Shipping it to non-developers
 
 `scripts/start.sh` (macOS/Linux) and `scripts/start.ps1` (Windows) are the double-click path: install
@@ -42,9 +60,10 @@ service run, so those two cannot drift.
 
 Three files, three audiences, and they should stay that way: `README.md` is the front door for
 someone deciding whether to use the tool, `docs/INSTALL.md` gets it running without a terminal,
-`docs/TUTORIAL.md` teaches the four steps and how to read the summary. Developer material lives in a
-collapsed section of the README and in this file. A change to the capture flow or the summary usually
-touches the tutorial.
+`docs/TUTORIAL.md` teaches the four steps and how to read the summary. **All of it is written for
+someone who will never open the source** — developer material lives here instead, which is why this
+file carries the env vars and the folder layout rather than the README. A change to the capture flow
+or the summary usually touches the tutorial.
 
 `bash docs/screenshots/shoot.sh` regenerates `docs/images/`. It streams an invented retail app
 through the real capture controller (`make-demo.mjs` stubs `globalThis.fetch`, everything downstream
@@ -175,6 +194,12 @@ frontend/src/
                       plus taggingPlanStyle.js — the workbook palette and its share bars)
   services/           apiClient + one module per API area
 ```
+
+The rest of the top level: `assets/` holds the icon sources and `AppIcon.icns` that
+`scripts/build-icons.sh` rebuilds, `config/` the local RTDS profiles (gitignored), `docs/` the three
+guides plus `images/` and the `screenshots/` machinery that produces them, and `scripts/` the
+launchers and their `.ps1` counterparts — one per platform for every entry point, which is why the
+shared work sits in `prepare-app.sh` and `apply-update.mjs` instead of in each of them.
 
 ### Things to know before editing
 
