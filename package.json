@@ -1,6 +1,6 @@
 {
   "name": "rtds-data-collection",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "private": true,
   "description": "Airship RTDS Data Collection Audit — capture a tracking-only RTDS stream and generate the tagging plan (.xlsx / .json)",
   "scripts": {

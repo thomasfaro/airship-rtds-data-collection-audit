@@ -4,10 +4,11 @@ import StreamAudienceFilterInput from "./StreamAudienceFilterInput.jsx";
 import TimezoneSelect from "./TimezoneSelect.jsx";
 import { DEVICE_TYPES, deviceTypesToCsv, parseDeviceTypesCsv } from "../lib/deviceTypes.js";
 import {
-  addAudienceValue,
+  addAudienceValues,
   AUDIENCE_FILTER_FIELDS,
   hasAttributeKeys,
   hasAudienceFilters,
+  parseAudienceInput,
   removeAudienceValue,
   splitAudienceValues,
 } from "../lib/streamAudienceFilters.js";
@@ -72,8 +73,11 @@ export default function StreamFilter({
     .filter(Boolean).length;
   const streamTypesSummary = selectedStreamTypesCount === 0 ? "all types (default)" : `${selectedStreamTypesCount} selected`;
 
-  const addAudienceFilter = (key, value) => {
-    onChange({ ...filters, [key]: addAudienceValue(filters[key], value) });
+  const addAudienceFilter = (key, input) => {
+    const field = AUDIENCE_FILTER_FIELDS.find((item) => item.key === key);
+    const values = parseAudienceInput(input, field);
+    if (!values.length) return;
+    onChange({ ...filters, [key]: addAudienceValues(filters[key], values) });
   };
 
   const removeAudienceFilter = (key, value) => {
