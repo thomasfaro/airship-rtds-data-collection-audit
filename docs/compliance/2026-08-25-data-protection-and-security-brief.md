@@ -115,7 +115,7 @@ and `cleanupLiveStream` deletes the temp file on disconnect unless the user aske
 
 The exported workbook has two sheets built entirely from values seen in the client's stream,
 `"Custom Event Values"` and `"Attribute Values"`
-([frontend/src/lib/audit/taggingPlanExport.js:1444](../../frontend/src/lib/audit/taggingPlanExport.js)),
+([frontend/src/lib/audit/taggingPlan/render.js](../../frontend/src/lib/audit/taggingPlan/render.js)),
 and the `Tags` sheet carries each tag's group and value. The `.json` payload carries the same under
 `values.attributeValues` and `values.customValues`. Values are truncated at 200 characters
 (`VALUE_TRUNCATE`), which limits volume but not sensitivity — an email address or a phone number is

@@ -69,7 +69,8 @@ or the summary usually touches the tutorial.
 `bash docs/screenshots/shoot.sh` regenerates `docs/images/`. It streams an invented retail app
 through the real capture controller (`make-demo.mjs` stubs `globalThis.fetch`, everything downstream
 ships), then renders the real screens off that report with a bundled harness and shoots them in
-headless Chrome. Two rules: **no screenshot may contain client data** — hence the stub rather than a
+headless Chrome. The stream itself is `server/src/capture/golden/demoStream.js`, shared with the
+golden capture, so the screenshots and the pinned report describe the same invented app. Two rules: **no screenshot may contain client data** — hence the stub rather than a
 live server — and the window heights in `shoot.sh` are trimmed per screen, so check the PNGs after a
 screen grows.
 
@@ -179,29 +180,37 @@ server/src/
   routes/             profiles, capture, stream, values, history, updates
   controllers/        captureController (SSE), rtdsController, liveCacheController,
                       liveCaptureController, valuesController, historyController
-  capture/            captureOptions.js — stop mode, thresholds, start position, window
+  capture/            the capture rules, pure and tested without a stream:
+                      captureOptions.js (stop mode, thresholds, start position, window),
+                      reportMeta.js, coverageProgress.js, captureMessages.js,
+                      golden/ + goldenCapture.test.js (the pinned reference capture)
   live/               runLiveSse, streamRegistry, paths, readLiveCapture
   history/            liveHistory.js — list kept live-*.ndjson for History
-  rtds/               buildRtdsBody (full-type live body), liveStreamReconnect, openRtdsStream
+  rtds/               buildRtdsBody (full-type live body), liveStreamReconnect, openRtdsStream,
+                      streamBackoff (the only reconnect backoff)
   updates/            gitInfo (bounded git calls), updateState (pure decision + version
                       ordering), releaseInfo (pinned hosts, published version),
                       applyArchive (hardened download/extract/copy for git-less installs),
                       updateService (remote check, update by either route, handover)
-  audit/              the analysis engine, ported from airship-rtds-qa
-  security/, utils/, storage/, middleware/
+  audit/              the analysis engine, cut down to the five tracking types
+  security/           localApiAuth, profileSecrets, secureFs, invariants.test.js
+  utils/, storage/, middleware/
 frontend/src/
   pages/              CapturePage, LiveSetupPage, LiveMonitorPage, HistoryPage, SettingsPage
   components/         AppNav, DocumentStatus (tab title + favicon), InstallAppButton,
                       UpdateBanner, ServerRecovery, ProfileForm, ConfirmDialog,
-                      StreamFilter, DisplayFilters, VirtualStreamList, LiveMonitorHeader, …
+                      StreamFilter (+ StreamScopeFields, StreamAdvancedOptions),
+                      DisplayFilters, VirtualStreamList, LiveMonitorHeader, …
   components/capture/ CaptureForm, StopModeCard, CaptureProgressPanel
   components/summary/ CoverageSummary, CoverageCategoryCard, WarningsList, TaggingPlanDownloads
   contexts/           ProfilesContext, CaptureSessionContext, LiveStreamContext
   hooks/              useRtdsStream, useQueryParams
   lib/                coverageSummary.js, captureParams.js, tabStatus.js, streamRequestFilters.js,
-                      eventRegistry.js, streamEntries.js, installPrompt.js,
-                      serviceWorker.js, serverControl.js, updateNotice.js, audit/ (ported helpers,
-                      plus taggingPlanStyle.js — the workbook palette and its share bars)
+                      eventCatalog.js (the RTDS type catalogue — data), eventRegistry.js (how to
+                      read an event — rules), displayFilters.js, streamEntries.js,
+                      installPrompt.js, serviceWorker.js, serverControl.js, updateNotice.js,
+                      audit/ (ported helpers, taggingPlanStyle.js — the workbook palette and its
+                      share bars — and taggingPlan/ model + values + render)
   services/           apiClient + one module per API area
 ```
 
@@ -213,11 +222,25 @@ shared work sits in `prepare-app.sh` and `apply-update.mjs` instead of in each o
 
 ### Things to know before editing
 
-- **`server/src/audit/` is a port.** It is shared history with `airship-rtds-qa` and heavily
-  interdependent (`analyzeEvents.js` alone imports ~30 siblings). Fix bugs there, but avoid
-  refactors: they make it impossible to diff against the origin app. One deliberate divergence:
-  `obsolescence.js` also reports the version landscape it judged against (`obsolescence.platforms`),
-  because an empty flag list is a verdict and the workbook has to say which builds it compared.
+- **`server/src/audit/` was a port, and has been cut down to what this app runs.** It started as a
+  copy of the engine in `airship-rtds-qa`, and the rule here used to be "never refactor it, keep it
+  diffable against the origin". That rule is gone: a tracking-only capture can never reach the
+  email, messaging, OPEN, COMPLIANCE or CONTACT_CHANGE branches, nor the "analyse a NDJSON file"
+  path, so ~3,000 lines of it were unreachable and are now deleted. **Do not reintroduce them**, and
+  do not copy a fix from the origin app file-by-file — port the change, not the file.
+  `archive/full-port-v1.6.3` holds the complete port if a comparison is ever needed.
+  One earlier divergence is still there: `obsolescence.js` also reports the version landscape it
+  judged against (`obsolescence.platforms`), because an empty flag list is a verdict and the
+  workbook has to say which builds it compared.
+- **Two goldens are what make that safe, and they are the filter for any further cutting.**
+  `server/src/capture/goldenCapture.test.js` runs the real capture controller over a deterministic
+  invented-app stream (frozen clock, stubbed RTDS and GitHub) and compares the whole report;
+  `frontend/src/lib/audit/goldenTaggingPlan.test.js` turns that report into the `.json` the client
+  receives. Between them, engine to file is pinned. Rebase them deliberately —
+  `RTDS_GOLDEN_UPDATE=1 npm test` — and never to make a suite pass: the diff *is* the review.
+- **The report declares only what it measures.** `openEvents`, `emailFeedback`, `contactChange`,
+  `compliance` and `messagingFailures` used to be present and always empty; they are gone. Reports
+  saved before that still reopen from History, because every reader uses optional access.
 - **Captures are analysis-only.** `captureController.js` forces `trackingOnly` and never writes raw
   NDJSON. `report.meta.storage.sourceFileName` is a *stem*, not a file that exists — the persisted
   report and the value sidecars are keyed on it. Don't add code that tries to read it.
@@ -232,9 +255,17 @@ shared work sits in `prepare-app.sh` and `apply-update.mjs` instead of in each o
  once at startup — no scheduler, for a tool someone starts by hand — and logs only when it actually
  removed something.
 - **Only five RTDS types are ever requested** (custom events, attributes, tags, screens,
-  subscription lists). The messaging/email/OPEN branches in the engine are simply never reached.
-- **The exporter is shared with the full app.** `frontend/src/lib/audit/taggingPlanExport.js` takes
- its value fetchers by injection; wire them to `/api/values/*`, don't fork the module.
+  subscription lists), which is what `TRACKING_ONLY` in `capture/captureOptions.js` says. **The
+  catalogue of ~45 types is not the engine and stays complete**: Live stream lets a user subscribe
+  to any type and `rtdsConnectTypes.js` validates the request against `EVENT_REGISTRY`, so trimming
+  `frontend/src/lib/eventCatalog.js` or `audit/registry.js` would silently narrow what can be
+  watched — and `meta.typesCoverage`, which the delivered `.json` carries, lists them as
+  `notRequested`.
+- **The exporter is shared with the full app**, and comes in three layers:
+ `taggingPlan/model.js` (the plan as data), `values.js` (histograms, fetchers injected — wire them
+ to `/api/values/*`) and `render.js` (exceljs + download). `taggingPlanExport.js` is the entry point
+ that re-exports the public API; import from it rather than reaching inside, and don't fork the
+ module.
 - **The workbook has to import into Google Sheets**, which silently drops the features that would be
  the obvious way to decorate it: data bars, icon sets, tables. So `taggingPlanStyle.js` draws its
  bars out of block characters and every colour is a static fill — no conditional formatting anywhere.
@@ -257,12 +288,22 @@ shared work sits in `prepare-app.sh` and `apply-update.mjs` instead of in each o
   it stopped captures early enough to miss rare keys. `REALTIME_THRESHOLDS` is the only set, and the
   `rt_*` query overrides exist for tuning a single run, not for the UI to expose again. Tune the
   values there, in `capture/captureOptions.js` — the plateau margin already sits at 100k instead of
-  the engine's 250k — never in `audit/coveragePlateau.js`, which must stay diffable against the
-  origin app. The two prose copies of these numbers (README, `CaptureForm.jsx`) follow.
+  the engine's 250k — rather than in `audit/coveragePlateau.js`, so the engine keeps its own
+  defaults. The two prose copies of these numbers (README, `CaptureForm.jsx`) follow.
 
 ## Conventions
 
 - ES modules everywhere, `node --test` for tests, no test framework.
+- **Three layers, and a file belongs to one of them.** Transport (routes, SSE controllers, React
+  components) does I/O and renders; rules are pure functions with a `*.test.js` next to them
+  (`capture/captureOptions.js`, `capture/reportMeta.js`, `lib/streamRequestFilters.js`,
+  `lib/audit/taggingPlan/model.js`); data catalogues are just data (`lib/eventCatalog.js`,
+  `audit/registry.js`). A rule that needs a stream, or a component holding a rule, is in the wrong
+  layer.
+- **No file past ~400 lines except a data catalogue.** Past that, the seam is usually already
+  visible — it was in every file split so far.
+- Security-relevant behaviour gets an assertion in `server/src/security/invariants.test.js`, not a
+  paragraph.
 - Pure logic goes in a `lib/` (frontend) or dedicated module (server) with a `*.test.js` next to it;
   React components stay presentational so they need no DOM test setup.
 - Tailwind with the `airship-*` palette and the component classes in `frontend/src/index.css`
