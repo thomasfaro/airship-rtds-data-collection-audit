@@ -4,12 +4,11 @@ import { buildRtdsBody } from "../rtds/buildRtdsBody.js";
 import { openRtdsNdjsonStream } from "../rtds/openRtdsStream.js";
 import {
   buildBodyForConnect,
-  reconnectBackoffMs,
   resolveLiveEventLimit,
   resolveLiveStoreRaw,
   shouldReconnectLiveStream,
-  sleepMs,
 } from "../rtds/liveStreamReconnect.js";
+import { reconnectBackoffMs, sleepMs } from "../rtds/streamBackoff.js";
 
 // Opt-in verbose logging. Off by default so PII (channel / named_user) and
 // audience filters (the RTDS request body) never hit the logs in normal use.

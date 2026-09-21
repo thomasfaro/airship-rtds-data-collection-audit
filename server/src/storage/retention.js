@@ -3,6 +3,7 @@ import path from "node:path";
 import { storedFilesDir } from "../appPaths.js";
 import { isLiveFileLocked } from "../live/streamRegistry.js";
 import { isLiveHistoryName } from "../history/liveHistory.js";
+import { AUDIT_REPORT_SUFFIX as REPORT_SUFFIX } from "../audit/storedAuditReport.js";
 
 /**
  * Saved audits hold a client's personal data — value histograms, event samples, and the raw NDJSON
@@ -11,7 +12,6 @@ import { isLiveHistoryName } from "../history/liveHistory.js";
  */
 export const DEFAULT_RETENTION_DAYS = 30;
 
-const REPORT_SUFFIX = ".audit-report.json";
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**

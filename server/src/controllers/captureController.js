@@ -1,140 +1,36 @@
-import path from "node:path";
 import { loadProfile } from "../config.js";
 import {
   createAuditAccumulator,
   finalizeAuditAccumulatorWithProgress,
   ingestAuditLine,
 } from "../audit/analyzeEvents.js";
-import {
-  auditWindowUsesLatency,
-  buildProcessedRange,
-  formatTimeSpanMs,
-} from "../audit/auditWindow.js";
-import {
-  createCoveragePlateauStopper,
-  distinctKeyBreakdown,
-} from "../audit/coveragePlateau.js";
+import { auditWindowUsesLatency } from "../audit/auditWindow.js";
+import { createCoveragePlateauStopper } from "../audit/coveragePlateau.js";
 import { buildAuditRtdsBody, streamAuditEvents } from "../audit/streamRtdsEvents.js";
 import { createAuditRawFilePath, removeAuditRawFile } from "../audit/paths.js";
 import { persistStoredAuditReport } from "../audit/storedAuditReport.js";
-import { auditRtdsTypes, auditTypeCoverage } from "../audit/registry.js";
+import { auditRtdsTypes } from "../audit/registry.js";
 import { filterEntitledTypes } from "../audit/rtdsEntitlements.js";
 import { registerAuditSession, unregisterAuditSession } from "../audit/sessionRegistry.js";
 import { sseDataLine } from "../audit/reportJson.js";
-import { formatRtdsStreamError } from "../rtds/rtdsStreamErrors.js";
-import { REALTIME_THRESHOLDS, resolveCaptureOptions } from "../capture/captureOptions.js";
-import { runningVersion } from "../version.js";
-
-/** Data collection capture always requests the tracking-only RTDS types. */
-const TRACKING_ONLY = true;
+import {
+  REALTIME_THRESHOLDS,
+  TRACKING_ONLY,
+  resolveCaptureOptions,
+} from "../capture/captureOptions.js";
+import {
+  CAPTURE_MESSAGES,
+  analyzeStatusMessage,
+  autoStopMessage,
+  captureErrorMessage,
+  entitlementStatusMessage,
+  startStatusMessage,
+} from "../capture/captureMessages.js";
+import { buildCoverageProgress } from "../capture/coverageProgress.js";
+import { attachReportMeta } from "../capture/reportMeta.js";
 
 function sseMessage(payload) {
   return sseDataLine(payload);
-}
-
-function startStatusMessage({ stopMode, startPosition, captureWindow }) {
-  const start = startPosition === "latest" ? "LATEST" : "EARLIEST";
-  const window = auditWindowUsesLatency(captureWindow) ? `, latency ${captureWindow.label}` : "";
-  const ending =
-    stopMode === "realtime"
-      ? "will stop automatically once tracking coverage is complete"
-      : "click Stop when ready";
-  return `Capturing tracking events from RTDS (${start}${window}) — ${ending}…`;
-}
-
-/**
- * Coverage snapshot attached to every download progress event: what has been
- * discovered so far, and how far along the four plateau checks are.
- *
- * The checks are reported in both stop modes. Real-time acts on them; manual does
- * not, but they are still the only honest answer to "have I captured enough yet?",
- * which beats stopping on a hunch.
- */
-function buildCoverageProgress(acc, plateauStopper) {
-  const plateau = plateauStopper.progress(acc);
-  return {
-    keys: distinctKeyBreakdown(acc),
-    events: acc?.total ?? 0,
-    plateau: {
-      events: { current: plateau.events, target: plateau.thresholds.minEvents },
-      processedSpanMs: {
-        current: plateau.processedSpanMs,
-        target: plateau.thresholds.minProcessedSpanMs,
-      },
-      eventsSinceLastNewKey: {
-        current: plateau.eventsSinceLastNewKey,
-        target: plateau.thresholds.plateauMargin,
-      },
-      spanSinceLastNewKeyMs: {
-        current: plateau.spanSinceLastNewKeyMs,
-        target: plateau.thresholds.plateauSpanMs,
-      },
-    },
-  };
-}
-
-function captureErrorMessage(error) {
-  const formatted = formatRtdsStreamError(error, { phase: "download" });
-  return {
-    kind: "error",
-    message: formatted.message,
-    detail: formatted.detail ?? String(error),
-    causeHint: formatted.causeHint,
-  };
-}
-
-function attachReportMeta(report, { downloadResult, options, storagePath }) {
-  const { captureWindow, streamMode, stopMode, realTime, realtimeThresholds } = options;
-  const usesLatency = auditWindowUsesLatency(captureWindow);
-  report.meta.windowMs = usesLatency ? captureWindow.latencyMs : null;
-  report.meta.windowHours = usesLatency ? captureWindow.hours : null;
-  report.meta.windowLabel = usesLatency ? captureWindow.label : "no latency";
-  report.meta.streamMode = streamMode.id;
-  report.meta.startPosition = options.startPosition;
-  report.meta.stopMode = stopMode;
-  report.meta.realTime = realTime;
-  report.meta.realtimeThresholds = realtimeThresholds;
-  report.meta.request = downloadResult.request;
-  report.meta.excludedEntitlements = downloadResult.excludedEntitlements ?? [];
-  report.meta.typesRequested = downloadResult.types ?? [];
-  report.meta.taggingPlanMode = true;
-  report.meta.typesCoverage = auditTypeCoverage({ trackingOnly: TRACKING_ONLY });
-  // Stamped into the report, so a tagging plan that comes back six months later can be
-  // traced to the version that produced it.
-  report.meta.appVersion = runningVersion();
-
-  const processedRange = buildProcessedRange(
-    downloadResult.oldestProcessed ?? null,
-    downloadResult.newestProcessed ?? null,
-  );
-  report.meta.downloadHours = {
-    requestLaunchedAt: downloadResult.requestLaunchedAt ?? null,
-    stoppedManually: downloadResult.stoppedManually ?? false,
-    elapsedMs: downloadResult.elapsedMs ?? null,
-    elapsedLabel: downloadResult.elapsedLabel ?? null,
-    oldestProcessed: downloadResult.oldestProcessed ?? null,
-    newestProcessed: downloadResult.newestProcessed ?? null,
-    processedRange,
-  };
-  if (report.meta.queryContext && processedRange) {
-    report.meta.queryContext.processedRange = processedRange;
-    report.meta.queryContext.processedRangeSource = "download";
-  }
-
-  const storageName = storagePath ? path.basename(storagePath) : null;
-  report.meta.storage = {
-    ...(report.meta.storage ?? {}),
-    rawFileLines: downloadResult.linesWritten,
-    rawFileBytes: 0,
-    rawFileKept: false,
-    analysisOnly: true,
-    ...(storageName ? { sourceFileName: storageName } : {}),
-  };
-  report.meta.phaseTimings = {
-    downloadMs: downloadResult.downloadMs ?? null,
-    analyzeMs: report.meta.analyzeMs ?? null,
-  };
-  return report;
 }
 
 /**
@@ -157,11 +53,11 @@ export async function* runDataCollectionCapture(
   }
 
   if (!options.profile) {
-    yield sseMessage({ kind: "error", message: "No project selected" });
+    yield sseMessage({ kind: "error", message: CAPTURE_MESSAGES.noProfile });
     return;
   }
   if (downloadSignal?.aborted) {
-    yield sseMessage({ kind: "error", message: "Capture cancelled" });
+    yield sseMessage({ kind: "error", message: CAPTURE_MESSAGES.cancelled });
     return;
   }
 
@@ -176,6 +72,7 @@ export async function* runDataCollectionCapture(
   const { timezone, captureWindow, streamMode, excludedDeviceTypes, realTime } = options;
   const usesLatency = auditWindowUsesLatency(captureWindow);
   const latencyMs = usesLatency ? captureWindow.latencyMs : null;
+  const windowLabel = usesLatency ? captureWindow.label : "no latency";
 
   const acc = createAuditAccumulator();
   // Stem for the persisted report + value sidecars. No NDJSON is written to it.
@@ -185,11 +82,7 @@ export async function* runDataCollectionCapture(
   if (downloadAbort) {
     const registration = registerAuditSession(profile.name, downloadAbort, storagePath);
     if (!registration.ok) {
-      yield sseMessage({
-        kind: "error",
-        message:
-          "A capture is already running for this project. Stop it first or wait for it to finish.",
-      });
+      yield sseMessage({ kind: "error", message: CAPTURE_MESSAGES.alreadyRunning });
       return;
     }
     sessionRegistered = true;
@@ -211,7 +104,7 @@ export async function* runDataCollectionCapture(
       phase: "download",
       stopMode: options.stopMode,
       startPosition: options.startPosition,
-      windowLabel: usesLatency ? captureWindow.label : "no latency",
+      windowLabel,
       typesCount: auditRtdsTypes({ trackingOnly: TRACKING_ONLY }).length,
       realtimeThresholds: options.realtimeThresholds,
     });
@@ -252,7 +145,10 @@ export async function* runDataCollectionCapture(
           yield sseMessage({
             kind: "status",
             phase: "download",
-            message: `Adjusted RTDS filters (token not entitled to: ${entitlementExcluded.join(", ")}). Capturing ${step.value.typesCount} event types…`,
+            message: entitlementStatusMessage({
+              excludedTypes: entitlementExcluded,
+              typesCount: step.value.typesCount,
+            }),
             excludedTypes: entitlementExcluded,
             typesCount: step.value.typesCount,
           });
@@ -267,25 +163,26 @@ export async function* runDataCollectionCapture(
     } catch (error) {
       const aborted = error?.name === "AbortError" || downloadSignal?.aborted;
       if ((acc.total ?? 0) === 0) {
+        const failure = captureErrorMessage(error);
         yield sseMessage({
           kind: "error",
-          message: aborted
-            ? "Capture stopped before any event was analyzed"
-            : captureErrorMessage(error).message,
-          ...(aborted ? {} : { detail: captureErrorMessage(error).detail }),
+          message: aborted ? CAPTURE_MESSAGES.stoppedBeforeAnyEvent : failure.message,
+          ...(aborted ? {} : { detail: failure.detail }),
         });
         return;
       }
       // Events were already ingested, so a stop (manual or automatic) still
       // yields a usable tagging plan from the accumulator.
       if (autoStopped) {
-        const spanLabel = formatTimeSpanMs(
-          (acc.maxProcessed ?? acc.maxOccurred ?? 0) - (acc.minProcessed ?? acc.minOccurred ?? 0),
-        );
         yield sseMessage({
           kind: "status",
           phase: "download",
-          message: `Coverage complete — ${acc.total.toLocaleString("en-US")} events over ${spanLabel} of processed time, no new tracking keys. Stopping automatically.`,
+          message: autoStopMessage({
+            events: acc.total,
+            spanMs:
+              (acc.maxProcessed ?? acc.maxOccurred ?? 0) -
+              (acc.minProcessed ?? acc.minOccurred ?? 0),
+          }),
         });
       }
       const entitledTypes = filterEntitledTypes(
@@ -307,7 +204,7 @@ export async function* runDataCollectionCapture(
     }
 
     if ((downloadResult.linesWritten ?? 0) <= 0) {
-      yield sseMessage({ kind: "error", message: "No events analyzed" });
+      yield sseMessage({ kind: "error", message: CAPTURE_MESSAGES.noEvents });
       return;
     }
     downloadResult.downloadMs = Date.now() - downloadStarted;
@@ -315,7 +212,7 @@ export async function* runDataCollectionCapture(
     yield sseMessage({
       kind: "status",
       phase: "analyze",
-      message: `Building the tagging plan from ${downloadResult.linesWritten.toLocaleString("en-US")} events…`,
+      message: analyzeStatusMessage(downloadResult.linesWritten),
     });
     yield sseMessage({
       kind: "progress",
@@ -327,8 +224,8 @@ export async function* runDataCollectionCapture(
     const analyzeGen = finalizeAuditAccumulatorWithProgress(acc, {
       profileName: profile.name,
       timezone,
-      windowMs: usesLatency ? captureWindow.latencyMs : null,
-      windowLabel: usesLatency ? captureWindow.label : "no latency",
+      windowMs: latencyMs,
+      windowLabel,
       storageMeta: {
         rawFileLines: downloadResult.linesWritten,
         rawFileBytes: 0,
@@ -338,7 +235,7 @@ export async function* runDataCollectionCapture(
       auditContext: {
         streamMode: streamMode.id,
         windowMs: latencyMs,
-        windowLabel: usesLatency ? captureWindow.label : "no latency",
+        windowLabel,
         request: downloadResult.request,
         typesRequested: downloadResult.types,
         excludedEntitlements: downloadResult.excludedEntitlements ?? [],
@@ -382,14 +279,14 @@ export async function* runDataCollectionCapture(
     });
   } catch (error) {
     if (error?.name === "AbortError" || analyzeSignal?.aborted) {
-      yield sseMessage({ kind: "error", message: "Analysis cancelled" });
+      yield sseMessage({ kind: "error", message: CAPTURE_MESSAGES.analysisCancelled });
       return;
     }
     console.error("[capture] error:", error);
     removeAuditRawFile(storagePath);
     yield sseMessage({
       kind: "error",
-      message: error?.message || "Capture failed",
+      message: error?.message || CAPTURE_MESSAGES.failed,
       detail: String(error),
     });
   } finally {

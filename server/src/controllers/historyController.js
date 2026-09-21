@@ -1,15 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
 import { storedFilesDir } from "../appPaths.js";
-import { loadStoredAuditReport, removeStoredAuditReport } from "../audit/storedAuditReport.js";
+import {
+  AUDIT_REPORT_SUFFIX as REPORT_SUFFIX,
+  loadStoredAuditReport,
+  removeStoredAuditReport,
+} from "../audit/storedAuditReport.js";
 import { removeAttributeValuesSidecar } from "../audit/attributeValues.js";
 import { removeCustomPropertyValuesSidecar } from "../audit/customEventPropertyValues.js";
 import { removeEventSamplesSidecar } from "../audit/eventSamplesSidecar.js";
 import { resolveCapturePath } from "../storage/resolveCapturePath.js";
 import { isLiveFileLocked } from "../live/streamRegistry.js";
 import { isLiveHistoryName, listLiveHistoryItems } from "../history/liveHistory.js";
-
-const REPORT_SUFFIX = ".audit-report.json";
 
 /** Capture stem (`…​.ndjson`) for a saved report file name. */
 function captureNameFromReportFile(reportFileName) {

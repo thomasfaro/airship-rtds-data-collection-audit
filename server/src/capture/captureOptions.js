@@ -11,6 +11,12 @@ import {
 } from "../audit/coveragePlateau.js";
 
 /**
+ * A data collection capture only ever requests the five tracking types, whatever
+ * the query asks for. Analysis stays tracking-only and no raw NDJSON is written.
+ */
+export const TRACKING_ONLY = true;
+
+/**
  * How the capture ends.
  * - manual: runs until the user clicks Stop.
  * - realtime: also auto-stops once distinct-key coverage plateaus. Only valid

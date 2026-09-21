@@ -2,13 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { safeJsonStringify, shrinkAuditReportForTransport } from "./reportJson.js";
 
+/** Suffix of a persisted analysis, appended to the capture stem. */
+export const AUDIT_REPORT_SUFFIX = ".audit-report.json";
+
 export function storedAuditReportPath(ndjsonPath) {
   if (!ndjsonPath) return null;
   const base = String(ndjsonPath);
-  if (base.endsWith(".ndjson")) {
-    return `${base.slice(0, -".ndjson".length)}.audit-report.json`;
-  }
-  return `${base}.audit-report.json`;
+  const stem = base.endsWith(".ndjson") ? base.slice(0, -".ndjson".length) : base;
+  return `${stem}${AUDIT_REPORT_SUFFIX}`;
 }
 
 export function storedAuditReportExists(ndjsonPath) {
