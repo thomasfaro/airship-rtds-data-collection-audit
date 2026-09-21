@@ -20,64 +20,9 @@ export const AUDIT_STREAM_MODES = {
   },
 };
 
-export function resolveAuditStreamMode(query) {
-  const raw = String(query?.stream_mode ?? "earliest_manual").trim();
-  const mode = AUDIT_STREAM_MODES[raw];
-  if (!mode) {
-    throw new Error(`stream_mode must be one of: ${Object.keys(AUDIT_STREAM_MODES).join(", ")}`);
-  }
-  return mode;
-}
-
-export function queryHasWindowHours(query) {
-  const raw = query?.window_hours ?? query?.duration_hours;
-  return raw != null && String(raw).trim() !== "";
-}
-
-/**
- * Whether to run in analysis-only mode (no raw NDJSON file written).
- * Accepts analysis_only=1/true/yes (case-insensitive). Defaults to false.
- */
-export function resolveAnalysisOnly(query) {
-  const raw = query?.analysis_only ?? query?.analysisOnly;
-  if (raw == null) return false;
-  const v = String(raw).trim().toLowerCase();
-  return v === "1" || v === "true" || v === "yes" || v === "on";
-}
-
-/**
- * Real time option (data collection audit): auto-stop the RTDS capture once the
- * distinct-key coverage plateaus. Only meaningful when the client sends data in
- * real time (no daily API batch). Accepts real_time=1/true/yes/on. Defaults to false.
- */
-export function resolveRealTime(query) {
-  const raw = query?.real_time ?? query?.realTime;
-  if (raw == null) return false;
-  const v = String(raw).trim().toLowerCase();
-  return v === "1" || v === "true" || v === "yes" || v === "on";
-}
-
 /** @returns {boolean} Whether the RTDS connect body should include filter.latency */
 export function auditWindowUsesLatency(auditWindow) {
   return auditWindow?.latencyMs != null && auditWindow.latencyMs > 0;
-}
-
-export function resolveAuditLatencyMs(_streamMode, auditWindow) {
-  return auditWindowUsesLatency(auditWindow) ? auditWindow.latencyMs : null;
-}
-
-/**
- * Resolve lookback window for an audit stream.
- * EARLIEST + manual stop accepts optional window_hours to set RTDS filter.latency.
- */
-export function resolveAuditWindowForStream(streamMode, query) {
-  if (streamMode.useLatency !== false) {
-    return resolveAuditWindow(query);
-  }
-  if (streamMode.id === "earliest_manual" && queryHasWindowHours(query)) {
-    return resolveAuditWindow(query);
-  }
-  return { hours: null, latencyMs: null, label: "no latency" };
 }
 
 export function formatElapsedMs(ms) {
@@ -131,19 +76,13 @@ export function resolveAuditWindow(query) {
 }
 
 const PROCESSED_RE = /"processed"\s*:\s*"([^"]+)"/;
-const OCCURRED_RE = /"occurred"\s*:\s*"([^"]+)"/;
 
-export function extractProcessedIso(line) {
+function extractProcessedIso(line) {
   const match = String(line).match(PROCESSED_RE);
   return match ? match[1] : null;
 }
 
-export function extractOccurredIso(line) {
-  const match = String(line).match(OCCURRED_RE);
-  return match ? match[1] : null;
-}
-
-export function parseProcessedMs(line) {
+function parseProcessedMs(line) {
   const iso = extractProcessedIso(line);
   if (!iso) return null;
   const ms = Date.parse(iso);
@@ -165,7 +104,7 @@ export function msToHourKey(ms, timeZone) {
 }
 
 /** Hour buckets covering [windowStartMs, windowEndMs] in the report timezone (oldest → newest). */
-export function buildExpectedHourKeys(windowStartMs, windowEndMs, timeZone) {
+function buildExpectedHourKeys(windowStartMs, windowEndMs, timeZone) {
   const hourMs = 60 * 60 * 1000;
   const seen = new Set();
   const keys = [];
@@ -222,20 +161,6 @@ export function createDownloadProgressTracker(
   let newestProcessedMs = null;
   let linesWithProcessed = 0;
   const hoursWithEvents = new Set();
-  let lastEmittedPct = -1;
-  let lastScannedHourCount = 0;
-
-  const isAtOrAfterRequestTime = (ms) => useLatencyWindow && ms != null && ms >= windowEndMs;
-  const isBeforeWindowStart = (ms) => useLatencyWindow && ms != null && ms < windowStartMs;
-
-  const checkLine = (line) => {
-    const processedMs = parseProcessedMs(line);
-    return {
-      processedMs,
-      atOrAfterRequestTime: isAtOrAfterRequestTime(processedMs),
-      beforeWindowStart: isBeforeWindowStart(processedMs),
-    };
-  };
 
   const noteLine = (line) => {
     const processedMs = parseProcessedMs(line);
@@ -248,25 +173,6 @@ export function createDownloadProgressTracker(
       hoursWithEvents.add(key);
     }
     return true;
-  };
-
-  /**
-   * @returns {'stop'|'skip'|'ok'}
-   */
-  const ingestLine = (line) => {
-    if (isManualStop) {
-      const processedMs = parseProcessedMs(line);
-      if (processedMs != null) noteLine(line);
-      return "ok";
-    }
-    const { atOrAfterRequestTime, beforeWindowStart, processedMs } = checkLine(line);
-    if (atOrAfterRequestTime) return "stop";
-    if (beforeWindowStart) return "skip";
-    if (processedMs != null) {
-      noteLine(line);
-      return "ok";
-    }
-    return "skip";
   };
 
   const computeDownloadProgressPct = () => {
@@ -353,27 +259,11 @@ export function createDownloadProgressTracker(
     };
   };
 
-  const shouldEmit = () => {
-    if (isManualStop || !useLatencyWindow) return false;
-    const { downloadProgressPct, hoursScannedCount } = snapshot();
-    const pctFloor = Math.floor(downloadProgressPct ?? 0);
-    const lastPctFloor = Math.floor(lastEmittedPct);
-    if (pctFloor > lastPctFloor || hoursScannedCount > lastScannedHourCount) {
-      lastEmittedPct = downloadProgressPct ?? 0;
-      lastScannedHourCount = hoursScannedCount;
-      return true;
-    }
-    return false;
-  };
 
   return {
-    ingestLine,
     noteLine,
-    checkLine,
-    hasReachedRequestTime,
     snapshot,
     snapshotVolume,
-    shouldEmit,
     hoursExpected,
     windowStartMs,
     windowEndMs,
