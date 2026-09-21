@@ -1,0 +1,3393 @@
+{
+  "kind": "airship-rtds-tagging-plan",
+  "version": 1,
+  "generatedAt": "2026-07-29T09:00:00.000Z",
+  "meta": {
+    "profile": "Demo Retail EU",
+    "appVersion": "0.0.0-golden",
+    "reportGeneratedAt": "2026-07-29T09:00:00.000Z",
+    "taggingPlanMode": true,
+    "typesRequested": [
+      "ATTRIBUTE_OPERATION",
+      "CUSTOM",
+      "SCREEN_VIEWED",
+      "SUBSCRIPTION_LIST",
+      "TAG_CHANGE"
+    ],
+    "typesCoverage": {
+      "requested": [
+        "ATTRIBUTE_OPERATION",
+        "CUSTOM",
+        "SCREEN_VIEWED",
+        "SUBSCRIPTION_LIST",
+        "TAG_CHANGE"
+      ],
+      "notRequested": [
+        "CLOSE",
+        "COMPLIANCE",
+        "CONTACT_CHANGE",
+        "CONTROL",
+        "EMAIL_BOUNCE",
+        "EMAIL_CLICK",
+        "EMAIL_COMPLIANCE_BOUNCE",
+        "EMAIL_COMPLIANCE_CREATE_AND_SEND",
+        "EMAIL_COMPLIANCE_REGISTRATION",
+        "EMAIL_COMPLIANCE_UNSUBSCRIBE",
+        "EMAIL_DELAY",
+        "EMAIL_DELIVERY",
+        "EMAIL_INITIAL_OPEN",
+        "EMAIL_INJECTION",
+        "EMAIL_OPEN",
+        "EMAIL_UNSUBSCRIBE",
+        "FEATURE_FLAG_INTERACTION",
+        "FIRST_OPEN",
+        "FIRST_OPT_IN",
+        "IN_APP_BUTTON_TAP",
+        "IN_APP_EXPERIENCES",
+        "IN_APP_FORM_DISPLAY",
+        "IN_APP_FORM_RESULT",
+        "IN_APP_MESSAGE_CONTROL",
+        "IN_APP_MESSAGE_DISPLAY",
+        "IN_APP_MESSAGE_EXCLUSION",
+        "IN_APP_MESSAGE_EXPIRATION",
+        "IN_APP_MESSAGE_RESOLUTION",
+        "IN_APP_PAGER_COMPLETED",
+        "IN_APP_PAGER_SUMMARY",
+        "IN_APP_PAGE_SWIPE",
+        "IN_APP_PAGE_VIEW",
+        "LABEL_EVENT",
+        "LOCATION",
+        "MOBILE_ORIGINATED",
+        "OPEN",
+        "PUSH_BODY",
+        "RCS_READ",
+        "REGION",
+        "RICH_CONTROL",
+        "RICH_DELETE",
+        "RICH_DELIVERY",
+        "RICH_READ",
+        "SEND",
+        "SEND_ABORTED",
+        "SEND_REJECTED",
+        "SHORT_LINK_CLICK",
+        "SMS_ABORTED",
+        "SMS_API_INITIATE_OPT_IN",
+        "SMS_CARRIER_DEACTIVATION",
+        "SMS_CREATE_AND_SEND",
+        "SMS_CUSTOM_KEYWORD_RESPONSE",
+        "SMS_DELETED",
+        "SMS_DELIVERED",
+        "SMS_DISPATCHED",
+        "SMS_EXPIRED",
+        "SMS_FAILED",
+        "SMS_MOBILE_CREATE_CHANNEL",
+        "SMS_MOBILE_KEYWORD_MATCHED",
+        "SMS_MOBILE_KEYWORD_UNMATCHED",
+        "SMS_MOBILE_OPT_IN",
+        "SMS_MOBILE_OPT_OUT",
+        "SMS_MOBILE_TERMINATED_MESSAGE",
+        "SMS_OPTED_OUT",
+        "SMS_REGISTRATION",
+        "SMS_REGISTRATION_UPDATE",
+        "SMS_REJECTED",
+        "SMS_UNDELIVERABLE",
+        "SMS_UNINSTALL",
+        "SMS_UNKNOWN",
+        "SUBSCRIPTION",
+        "UNINSTALL",
+        "WEB_CLICK",
+        "WEB_SESSION"
+      ],
+      "derivedNotRequested": [
+        "EMAIL_BOUNCE",
+        "EMAIL_CLICK",
+        "EMAIL_COMPLIANCE_BOUNCE",
+        "EMAIL_COMPLIANCE_CREATE_AND_SEND",
+        "EMAIL_COMPLIANCE_REGISTRATION",
+        "EMAIL_COMPLIANCE_UNSUBSCRIBE",
+        "EMAIL_DELAY",
+        "EMAIL_DELIVERY",
+        "EMAIL_INITIAL_OPEN",
+        "EMAIL_INJECTION",
+        "EMAIL_OPEN",
+        "EMAIL_UNSUBSCRIBE",
+        "RCS_READ",
+        "SMS_ABORTED",
+        "SMS_API_INITIATE_OPT_IN",
+        "SMS_CARRIER_DEACTIVATION",
+        "SMS_CREATE_AND_SEND",
+        "SMS_CUSTOM_KEYWORD_RESPONSE",
+        "SMS_DELETED",
+        "SMS_DELIVERED",
+        "SMS_DISPATCHED",
+        "SMS_EXPIRED",
+        "SMS_FAILED",
+        "SMS_MOBILE_CREATE_CHANNEL",
+        "SMS_MOBILE_KEYWORD_MATCHED",
+        "SMS_MOBILE_KEYWORD_UNMATCHED",
+        "SMS_MOBILE_OPT_IN",
+        "SMS_MOBILE_OPT_OUT",
+        "SMS_MOBILE_TERMINATED_MESSAGE",
+        "SMS_OPTED_OUT",
+        "SMS_REGISTRATION",
+        "SMS_REGISTRATION_UPDATE",
+        "SMS_REJECTED",
+        "SMS_UNDELIVERABLE",
+        "SMS_UNINSTALL",
+        "SMS_UNKNOWN"
+      ],
+      "rtdsNotRequested": [
+        "CLOSE",
+        "COMPLIANCE",
+        "CONTACT_CHANGE",
+        "CONTROL",
+        "FEATURE_FLAG_INTERACTION",
+        "FIRST_OPEN",
+        "FIRST_OPT_IN",
+        "IN_APP_BUTTON_TAP",
+        "IN_APP_EXPERIENCES",
+        "IN_APP_FORM_DISPLAY",
+        "IN_APP_FORM_RESULT",
+        "IN_APP_MESSAGE_CONTROL",
+        "IN_APP_MESSAGE_DISPLAY",
+        "IN_APP_MESSAGE_EXCLUSION",
+        "IN_APP_MESSAGE_EXPIRATION",
+        "IN_APP_MESSAGE_RESOLUTION",
+        "IN_APP_PAGER_COMPLETED",
+        "IN_APP_PAGER_SUMMARY",
+        "IN_APP_PAGE_SWIPE",
+        "IN_APP_PAGE_VIEW",
+        "LABEL_EVENT",
+        "LOCATION",
+        "MOBILE_ORIGINATED",
+        "OPEN",
+        "PUSH_BODY",
+        "REGION",
+        "RICH_CONTROL",
+        "RICH_DELETE",
+        "RICH_DELIVERY",
+        "RICH_READ",
+        "SEND",
+        "SEND_ABORTED",
+        "SEND_REJECTED",
+        "SHORT_LINK_CLICK",
+        "SUBSCRIPTION",
+        "UNINSTALL",
+        "WEB_CLICK",
+        "WEB_SESSION"
+      ]
+    },
+    "window": {
+      "streamMode": "earliest_manual",
+      "windowHours": null,
+      "windowLabel": "no latency"
+    },
+    "platforms": [
+      "iOS",
+      "Android",
+      "Web"
+    ],
+    "scopeId": "baseline"
+  },
+  "model": {
+    "platforms": [
+      "iOS",
+      "Android",
+      "Web"
+    ],
+    "dataSheets": [
+      {
+        "name": "Analyse scope",
+        "infoBlock": {
+          "title": "Capture summary",
+          "rows": [
+            {
+              "label": "Duration analyzed",
+              "value": "1h 59m"
+            },
+            {
+              "label": "Processed from",
+              "value": "28 Jul 2026, 08:00"
+            },
+            {
+              "label": "Processed to",
+              "value": "28 Jul 2026, 09:59"
+            },
+            {
+              "label": "Timezone",
+              "value": "Europe/Paris"
+            },
+            {
+              "label": "Stream mode",
+              "value": "EARLIEST — manual stop"
+            },
+            {
+              "label": "Total events in scope",
+              "value": 10000
+            },
+            {
+              "label": "Custom events tracked",
+              "value": 14
+            },
+            {
+              "label": "Attributes tracked",
+              "value": 9
+            },
+            {
+              "label": "Tags tracked",
+              "value": 8
+            },
+            {
+              "label": "Subscription lists tracked",
+              "value": 4
+            },
+            {
+              "label": "Screens tracked",
+              "value": 8
+            },
+            {
+              "label": "Absent from latest version",
+              "value": 2
+            },
+            {
+              "label": "Platform mismatches",
+              "value": 11
+            }
+          ]
+        },
+        "note": "Event volume by platform (rows) and event type (columns). Blank cells mean no events of that type were seen on the platform.",
+        "columns": [
+          {
+            "key": "platform",
+            "label": "Platform (device_type)",
+            "type": "text",
+            "width": 26
+          },
+          {
+            "key": "total",
+            "label": "Total events",
+            "type": "int",
+            "width": 16
+          },
+          {
+            "key": "share",
+            "label": "% of events",
+            "type": "pct",
+            "width": 12,
+            "bar": true
+          },
+          {
+            "key": "et_0",
+            "label": "CUSTOM",
+            "type": "int",
+            "width": 16
+          },
+          {
+            "key": "et_1",
+            "label": "SCREEN_VIEWED",
+            "type": "int",
+            "width": 16
+          },
+          {
+            "key": "et_2",
+            "label": "ATTRIBUTE_OPERATION",
+            "type": "int",
+            "width": 16
+          },
+          {
+            "key": "et_3",
+            "label": "TAG_CHANGE",
+            "type": "int",
+            "width": 16
+          },
+          {
+            "key": "et_4",
+            "label": "SUBSCRIPTION_LIST",
+            "type": "int",
+            "width": 16
+          }
+        ],
+        "rows": [
+          {
+            "platform": "iOS",
+            "total": 5447,
+            "et_0": 2586,
+            "et_1": 1587,
+            "et_2": 715,
+            "et_3": 362,
+            "et_4": 197,
+            "share": 0.5447
+          },
+          {
+            "platform": "Android",
+            "total": 4207,
+            "et_0": 2064,
+            "et_1": 1206,
+            "et_2": 466,
+            "et_3": 300,
+            "et_4": 171,
+            "share": 0.4207
+          },
+          {
+            "platform": "Web",
+            "total": 346,
+            "et_0": 140,
+            "et_1": 114,
+            "et_2": 35,
+            "et_3": 34,
+            "et_4": 23,
+            "share": 0.0346
+          },
+          {
+            "platform": "Total",
+            "total": 10000,
+            "__total": true,
+            "et_0": 4790,
+            "et_1": 2907,
+            "et_2": 1216,
+            "et_3": 696,
+            "et_4": 391
+          }
+        ]
+      },
+      {
+        "name": "App Versions",
+        "note": "App versions carried by the tracking events in the capture window: 10,000 of 10,000 events on device channels. SDK version is ua_sdk_version on the same device event. Events with no app version are absent from this sheet: API-fed data, which carries no device, and web channels.",
+        "columns": [
+          {
+            "key": "os",
+            "label": "OS",
+            "type": "text",
+            "width": 12
+          },
+          {
+            "key": "appVersion",
+            "label": "App version",
+            "type": "text",
+            "width": 18
+          },
+          {
+            "key": "sdkVersion",
+            "label": "SDK version",
+            "type": "text",
+            "width": 18
+          },
+          {
+            "key": "eventCount",
+            "label": "Tracking events",
+            "type": "int",
+            "width": 16
+          },
+          {
+            "key": "pctOfOs",
+            "label": "% of OS events",
+            "type": "pct",
+            "width": 16,
+            "bar": true
+          },
+          {
+            "key": "pctOfAppVersion",
+            "label": "% of app version",
+            "type": "pct",
+            "width": 18
+          }
+        ],
+        "rows": [
+          {
+            "os": "iOS",
+            "appVersion": "3.2.1",
+            "sdkVersion": "—",
+            "eventCount": 3433,
+            "pctOfOs": 0.6302551863411052,
+            "pctOfAppVersion": 1
+          },
+          {
+            "os": "Android",
+            "appVersion": "3.2.1",
+            "sdkVersion": "—",
+            "eventCount": 2550,
+            "pctOfOs": 0.6061326360827193,
+            "pctOfAppVersion": 1
+          },
+          {
+            "os": "iOS",
+            "appVersion": "3.2.0",
+            "sdkVersion": "—",
+            "eventCount": 1244,
+            "pctOfOs": 0.22838259592436203,
+            "pctOfAppVersion": 1
+          },
+          {
+            "os": "Android",
+            "appVersion": "3.2.0",
+            "sdkVersion": "—",
+            "eventCount": 1136,
+            "pctOfOs": 0.2700261468980271,
+            "pctOfAppVersion": 1
+          },
+          {
+            "os": "iOS",
+            "appVersion": "3.1.0",
+            "sdkVersion": "—",
+            "eventCount": 627,
+            "pctOfOs": 0.11510923444097669,
+            "pctOfAppVersion": 1
+          },
+          {
+            "os": "Android",
+            "appVersion": "3.1.0",
+            "sdkVersion": "—",
+            "eventCount": 408,
+            "pctOfOs": 0.09698122177323508,
+            "pctOfAppVersion": 1
+          },
+          {
+            "os": "Web",
+            "appVersion": "3.2.1",
+            "sdkVersion": "—",
+            "eventCount": 244,
+            "pctOfOs": 0.7052023121387283,
+            "pctOfAppVersion": 1
+          },
+          {
+            "os": "iOS",
+            "appVersion": "2.9.4",
+            "sdkVersion": "—",
+            "eventCount": 143,
+            "pctOfOs": 0.026252983293556086,
+            "pctOfAppVersion": 1
+          },
+          {
+            "os": "Android",
+            "appVersion": "2.9.4",
+            "sdkVersion": "—",
+            "eventCount": 113,
+            "pctOfOs": 0.02685999524601854,
+            "pctOfAppVersion": 1
+          },
+          {
+            "os": "Web",
+            "appVersion": "3.2.0",
+            "sdkVersion": "—",
+            "eventCount": 76,
+            "pctOfOs": 0.21965317919075145,
+            "pctOfAppVersion": 1
+          },
+          {
+            "os": "Web",
+            "appVersion": "3.1.0",
+            "sdkVersion": "—",
+            "eventCount": 26,
+            "pctOfOs": 0.07514450867052024,
+            "pctOfAppVersion": 1
+          }
+        ]
+      },
+      {
+        "name": "Absent from latest version",
+        "note": "Likely no longer tracked in the latest app build — Custom events: 2. Only SDK (on-device) data carries app versions, so API-only data is never flagged.",
+        "columns": [
+          {
+            "key": "name",
+            "label": "Name / Key",
+            "type": "text",
+            "width": 34
+          },
+          {
+            "key": "platform",
+            "label": "Platform",
+            "type": "text",
+            "width": 14
+          },
+          {
+            "key": "source",
+            "label": "Source",
+            "type": "text",
+            "width": 10
+          },
+          {
+            "key": "volume",
+            "label": "Volume",
+            "type": "int",
+            "width": 12
+          },
+          {
+            "key": "maxVersion",
+            "label": "Last app version seen",
+            "type": "text",
+            "width": 20
+          },
+          {
+            "key": "platformMax",
+            "label": "Current app version",
+            "type": "text",
+            "width": 20
+          },
+          {
+            "key": "lastSeen",
+            "label": "Last seen (processed)",
+            "type": "text",
+            "width": 26
+          },
+          {
+            "key": "reason",
+            "label": "Reason",
+            "type": "text",
+            "width": 70,
+            "wrap": true
+          }
+        ],
+        "rows": [
+          {
+            "__section": "Custom events"
+          },
+          {
+            "name": "legacy_wallet_opened",
+            "platform": "iOS",
+            "source": "SDK",
+            "volume": 37,
+            "maxVersion": "2.9.4",
+            "platformMax": "3.2.1",
+            "lastSeen": "2026-07-28T07:56:48.480Z",
+            "reason": "Last seen on app 2.9.4 (IOS); platform now at 3.2.1 and not present in the latest 3 version(s).",
+            "__obsolete": true
+          },
+          {
+            "name": "legacy_wallet_opened",
+            "platform": "Android",
+            "source": "SDK",
+            "volume": 25,
+            "maxVersion": "2.9.4",
+            "platformMax": "3.2.1",
+            "lastSeen": "2026-07-28T07:55:48.720Z",
+            "reason": "Last seen on app 2.9.4 (IOS); platform now at 3.2.1 and not present in the latest 3 version(s).",
+            "__obsolete": true
+          }
+        ],
+        "flagRows": false
+      },
+      {
+        "name": "Mismatches",
+        "note": "Cross-platform inconsistencies already flagged by the audit: presence gaps between platforms and value/property differences (event properties, attribute value shapes, casing, email properties). SDK version issues are reported separately.",
+        "columns": [
+          {
+            "key": "dataType",
+            "label": "Data type",
+            "type": "text",
+            "width": 18
+          },
+          {
+            "key": "issue",
+            "label": "Issue",
+            "type": "text",
+            "width": 26
+          },
+          {
+            "key": "name",
+            "label": "Name / Key",
+            "type": "text",
+            "width": 34
+          },
+          {
+            "key": "source",
+            "label": "Source",
+            "type": "text",
+            "width": 12
+          },
+          {
+            "key": "present",
+            "label": "Present platforms",
+            "type": "text",
+            "width": 20
+          },
+          {
+            "key": "missing",
+            "label": "Missing platforms",
+            "type": "text",
+            "width": 20
+          },
+          {
+            "key": "details",
+            "label": "Details",
+            "type": "text",
+            "width": 50,
+            "wrap": true
+          },
+          {
+            "key": "message",
+            "label": "Message",
+            "type": "text",
+            "width": 70,
+            "wrap": true
+          }
+        ],
+        "rows": [
+          {
+            "__section": "Missing on platform"
+          },
+          {
+            "dataType": "Custom events",
+            "issue": "Custom event · platform",
+            "name": "wishlist_added",
+            "source": "SDK",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "details": "",
+            "message": "Custom event \"wishlist_added\" (SDK): present on iOS, Android only — not on Web (331 hits).",
+            "__mismatch": true
+          },
+          {
+            "dataType": "Custom events",
+            "issue": "Custom event · platform",
+            "name": "delivery_tracked",
+            "source": "SDK",
+            "present": "Android, iOS",
+            "missing": "Web",
+            "details": "",
+            "message": "Custom event \"delivery_tracked\" (SDK): present on Android, iOS only — not on Web (132 hits).",
+            "__mismatch": true
+          },
+          {
+            "dataType": "Custom events",
+            "issue": "Custom event · platform",
+            "name": "size_guide_opened",
+            "source": "SDK",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "details": "",
+            "message": "Custom event \"size_guide_opened\" (SDK): present on iOS, Android only — not on Web (72 hits).",
+            "__mismatch": true
+          },
+          {
+            "dataType": "Custom events",
+            "issue": "Custom event · platform",
+            "name": "legacy_wallet_opened",
+            "source": "SDK",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "details": "",
+            "message": "Custom event \"legacy_wallet_opened\" (SDK): present on iOS, Android only — not on Web (62 hits).",
+            "__mismatch": true
+          },
+          {
+            "dataType": "Screen views",
+            "issue": "Screen · platform",
+            "name": "store_locator",
+            "source": "",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "details": "",
+            "message": "Screen \"store_locator\": SCREEN_VIEWED on iOS, Android only — not on Web (143 views).",
+            "__mismatch": true
+          },
+          {
+            "dataType": "Screen views",
+            "issue": "Screen · platform",
+            "name": "order_history",
+            "source": "",
+            "present": "Android, iOS",
+            "missing": "Web",
+            "details": "",
+            "message": "Screen \"order_history\": SCREEN_VIEWED on Android, iOS only — not on Web (70 views).",
+            "__mismatch": true
+          },
+          {
+            "dataType": "Attributes",
+            "issue": "Attribute · platform gap",
+            "name": "last_order_value",
+            "source": "",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "details": "",
+            "message": "Attributes: \"last_order_value\" has operations on IOS, ANDROID only — not on WEB (125 ops).",
+            "__mismatch": true
+          },
+          {
+            "dataType": "Attributes",
+            "issue": "Attribute · platform gap",
+            "name": "favourite_category",
+            "source": "",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "details": "",
+            "message": "Attributes: \"favourite_category\" has operations on IOS, ANDROID only — not on WEB (118 ops).",
+            "__mismatch": true
+          },
+          {
+            "dataType": "Attributes",
+            "issue": "Attribute · platform gap",
+            "name": "city",
+            "source": "",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "details": "",
+            "message": "Attributes: \"city\" has operations on IOS, ANDROID only — not on WEB (109 ops).",
+            "__mismatch": true
+          },
+          {
+            "dataType": "Attributes",
+            "issue": "Attribute · platform gap",
+            "name": "birthdate",
+            "source": "",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "details": "",
+            "message": "Attributes: \"birthdate\" has operations on IOS, ANDROID only — not on WEB (104 ops).",
+            "__mismatch": true
+          },
+          {
+            "dataType": "Custom events",
+            "issue": "Custom event · platform",
+            "name": "android_widget_tapped",
+            "source": "SDK",
+            "present": "Android",
+            "missing": "iOS, Web",
+            "details": "",
+            "message": "Custom event \"android_widget_tapped\" (SDK): present on Android only — not on iOS, Web (83 hits).",
+            "__mismatch": true
+          }
+        ],
+        "flagRows": false
+      },
+      {
+        "name": "Custom Events",
+        "columns": [
+          {
+            "key": "name",
+            "label": "Name",
+            "type": "text",
+            "width": 34
+          },
+          {
+            "key": "source",
+            "label": "Source",
+            "type": "text",
+            "width": 14
+          },
+          {
+            "key": "total",
+            "label": "Total",
+            "type": "int",
+            "width": 12
+          },
+          {
+            "key": "share",
+            "label": "% of events",
+            "type": "pct",
+            "width": 12,
+            "bar": true
+          },
+          {
+            "key": "plat_iOS",
+            "label": "iOS",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "plat_Android",
+            "label": "Android",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "plat_Web",
+            "label": "Web",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "eventValues",
+            "label": "Event value samples",
+            "type": "text",
+            "width": 40,
+            "wrap": true
+          },
+          {
+            "key": "properties",
+            "label": "Properties",
+            "type": "text",
+            "width": 40,
+            "wrap": true
+          },
+          {
+            "key": "propSamples",
+            "label": "Property sample values",
+            "type": "text",
+            "width": 70,
+            "wrap": true
+          },
+          {
+            "key": "present",
+            "label": "Present platforms",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "missing",
+            "label": "Missing platforms",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "mismatch",
+            "label": "Platform mismatch",
+            "type": "text",
+            "width": 16,
+            "flag": "danger"
+          },
+          {
+            "key": "versionScope",
+            "label": "Version scope",
+            "type": "text",
+            "width": 28
+          },
+          {
+            "key": "obsMaxVersion",
+            "label": "Max app version seen",
+            "type": "text",
+            "width": 18
+          },
+          {
+            "key": "obsFlag",
+            "label": "Potentially obsolete",
+            "type": "text",
+            "width": 22,
+            "flag": "warn"
+          }
+        ],
+        "rows": [
+          {
+            "name": "product_viewed",
+            "source": "SDK",
+            "total": 1304,
+            "plat_iOS": 707,
+            "plat_Android": 555,
+            "plat_Web": 42,
+            "eventValues": "",
+            "properties": "category, currency, price, sku",
+            "propSamples": "category: category-value-1, category-value-3, category-value-2\ncurrency: currency-value-2, currency-value-1, currency-value-3\nprice: price-value-1, price-value-2, price-value-3\nsku: sku-value-1, sku-value-3, sku-value-2",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.2722338204592902
+          },
+          {
+            "name": "add_to_cart",
+            "source": "SDK",
+            "total": 803,
+            "plat_iOS": 466,
+            "plat_Android": 314,
+            "plat_Web": 23,
+            "eventValues": "",
+            "properties": "currency, price, quantity, sku",
+            "propSamples": "currency: currency-value-3, currency-value-2, currency-value-1\nprice: price-value-3, price-value-1, price-value-2\nquantity: quantity-value-1, quantity-value-2, quantity-value-3\nsku: sku-value-3, sku-value-1, sku-value-2",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.16764091858037578
+          },
+          {
+            "name": "search_performed",
+            "source": "SDK",
+            "total": 691,
+            "plat_iOS": 373,
+            "plat_Android": 290,
+            "plat_Web": 28,
+            "eventValues": "",
+            "properties": "results, term",
+            "propSamples": "results: results-value-2, results-value-1, results-value-3\nterm: term-value-2, term-value-3, term-value-1",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.144258872651357
+          },
+          {
+            "name": "checkout_started",
+            "source": "SDK",
+            "total": 383,
+            "plat_iOS": 206,
+            "plat_Android": 165,
+            "plat_Web": 12,
+            "eventValues": "",
+            "properties": "cart_value, currency, items",
+            "propSamples": "cart_value: cart_value-value-2, cart_value-value-3, cart_value-value-1\ncurrency: currency-value-2, currency-value-1, currency-value-3\nitems: items-value-2, items-value-1, items-value-3",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.07995824634655532
+          },
+          {
+            "name": "wishlist_added",
+            "source": "SDK",
+            "total": 331,
+            "plat_iOS": 203,
+            "plat_Android": 128,
+            "plat_Web": null,
+            "eventValues": "",
+            "properties": "list, sku",
+            "propSamples": "list: list-value-2, list-value-3, list-value-1\nsku: sku-value-3, sku-value-2, sku-value-1",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.06910229645093946
+          },
+          {
+            "name": "promo_applied",
+            "source": "SDK",
+            "total": 272,
+            "plat_iOS": 131,
+            "plat_Android": 129,
+            "plat_Web": 12,
+            "eventValues": "",
+            "properties": "code, discount",
+            "propSamples": "code: code-value-1, code-value-3, code-value-2\ndiscount: discount-value-3, discount-value-2, discount-value-1",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.056784968684759914
+          },
+          {
+            "name": "purchase",
+            "source": "SDK",
+            "total": 227,
+            "plat_iOS": 129,
+            "plat_Android": 91,
+            "plat_Web": 7,
+            "eventValues": "value-value-1, value-value-2, value-value-3",
+            "properties": "currency, items, order_id, payment",
+            "propSamples": "currency: currency-value-3, currency-value-2, currency-value-1\nitems: items-value-2, items-value-3, items-value-1\norder_id: order_id-value-1, order_id-value-3, order_id-value-2\npayment: payment-value-2, payment-value-1, payment-value-3",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.04739039665970773
+          },
+          {
+            "name": "store_locator_used",
+            "source": "SDK",
+            "total": 173,
+            "plat_iOS": 96,
+            "plat_Android": 73,
+            "plat_Web": 4,
+            "eventValues": "",
+            "properties": "city, results",
+            "propSamples": "city: city-value-2, city-value-1, city-value-3\nresults: results-value-3, results-value-2, results-value-1",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.0361169102296451
+          },
+          {
+            "name": "loyalty_card_scanned",
+            "source": "SDK",
+            "total": 136,
+            "plat_iOS": 75,
+            "plat_Android": 57,
+            "plat_Web": 4,
+            "eventValues": "",
+            "properties": "store_id",
+            "propSamples": "store_id: store_id-value-3, store_id-value-2, store_id-value-1",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.028392484342379957
+          },
+          {
+            "name": "delivery_tracked",
+            "source": "SDK",
+            "total": 132,
+            "plat_iOS": 65,
+            "plat_Android": 67,
+            "plat_Web": null,
+            "eventValues": "",
+            "properties": "carrier, order_id",
+            "propSamples": "carrier: carrier-value-1, carrier-value-2, carrier-value-3\norder_id: order_id-value-2, order_id-value-3, order_id-value-1",
+            "present": "Android, iOS",
+            "missing": "Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.02755741127348643
+          },
+          {
+            "name": "review_submitted",
+            "source": "SDK",
+            "total": 121,
+            "plat_iOS": 60,
+            "plat_Android": 53,
+            "plat_Web": 8,
+            "eventValues": "",
+            "properties": "rating, sku",
+            "propSamples": "rating: rating-value-1, rating-value-2, rating-value-3\nsku: sku-value-3, sku-value-2, sku-value-1",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.025260960334029227
+          },
+          {
+            "name": "android_widget_tapped",
+            "source": "SDK",
+            "total": 83,
+            "plat_iOS": null,
+            "plat_Android": 83,
+            "plat_Web": null,
+            "eventValues": "",
+            "properties": "widget",
+            "propSamples": "widget: widget-value-3, widget-value-1, widget-value-2",
+            "present": "Android",
+            "missing": "iOS, Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.01732776617954071
+          },
+          {
+            "name": "size_guide_opened",
+            "source": "SDK",
+            "total": 72,
+            "plat_iOS": 38,
+            "plat_Android": 34,
+            "plat_Web": null,
+            "eventValues": "",
+            "properties": "category",
+            "propSamples": "category: category-value-3, category-value-2, category-value-1",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.015031315240083507
+          },
+          {
+            "name": "legacy_wallet_opened",
+            "source": "SDK",
+            "total": 62,
+            "plat_iOS": 37,
+            "plat_Android": 25,
+            "plat_Web": null,
+            "eventValues": "",
+            "properties": "source",
+            "propSamples": "source: source-value-2, source-value-1, source-value-3",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK · latest app 2.9.4",
+            "__versionScope": {
+              "maxAppVersion": "2.9.4",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 2.9.4",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "2.9.4",
+            "obsFlag": "Yes",
+            "__obsolete": true,
+            "share": 0.012943632567849687
+          }
+        ]
+      },
+      {
+        "name": "Attributes",
+        "columns": [
+          {
+            "key": "key",
+            "label": "Key",
+            "type": "text",
+            "width": 30
+          },
+          {
+            "key": "normalized",
+            "label": "Normalized",
+            "type": "text",
+            "width": 30
+          },
+          {
+            "key": "total",
+            "label": "Total ops",
+            "type": "int",
+            "width": 12
+          },
+          {
+            "key": "share",
+            "label": "% of ops",
+            "type": "pct",
+            "width": 12,
+            "bar": true
+          },
+          {
+            "key": "actions",
+            "label": "Actions",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "sources",
+            "label": "Sources",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "plat_iOS",
+            "label": "iOS",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "plat_Android",
+            "label": "Android",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "plat_Web",
+            "label": "Web",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "distinctValues",
+            "label": "Distinct values",
+            "type": "int",
+            "width": 16
+          },
+          {
+            "key": "capped",
+            "label": "Values capped",
+            "type": "text",
+            "width": 16,
+            "flag": "warn"
+          },
+          {
+            "key": "sampleValues",
+            "label": "Sample values",
+            "type": "text",
+            "width": 60,
+            "wrap": true
+          },
+          {
+            "key": "present",
+            "label": "Present platforms",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "missing",
+            "label": "Missing platforms",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "mismatch",
+            "label": "Platform mismatch",
+            "type": "text",
+            "width": 16,
+            "flag": "danger"
+          },
+          {
+            "key": "versionScope",
+            "label": "Version scope",
+            "type": "text",
+            "width": 28
+          },
+          {
+            "key": "obsMaxVersion",
+            "label": "Max app version seen",
+            "type": "text",
+            "width": 18
+          },
+          {
+            "key": "obsFlag",
+            "label": "Potentially obsolete",
+            "type": "text",
+            "width": 22,
+            "flag": "warn"
+          }
+        ],
+        "rows": [
+          {
+            "key": "loyalty_tier",
+            "normalized": "loyalty_tier",
+            "total": 139,
+            "actions": "set: 139",
+            "sources": "SDK: 91, API: 48",
+            "plat_iOS": 68,
+            "plat_Android": 68,
+            "plat_Web": 3,
+            "distinctValues": 1,
+            "capped": "",
+            "sampleValues": "loyalty_tier-value-3, loyalty_tier-value-1, loyalty_tier-value-2",
+            "present": "Android, iOS, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK (latest app 3.2.1) + API",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "mixed",
+              "label": "SDK (latest app 3.2.1) + API",
+              "hasSdk": true,
+              "hasApi": true
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.13076199435559738
+          },
+          {
+            "key": "first_name",
+            "normalized": "first_name",
+            "total": 126,
+            "actions": "set: 126",
+            "sources": "SDK: 86, API: 40",
+            "plat_iOS": 68,
+            "plat_Android": 54,
+            "plat_Web": 4,
+            "distinctValues": 1,
+            "capped": "",
+            "sampleValues": "first_name-value-2, first_name-value-3, first_name-value-1",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK (latest app 3.2.1) + API",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "mixed",
+              "label": "SDK (latest app 3.2.1) + API",
+              "hasSdk": true,
+              "hasApi": true
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.11853245531514581
+          },
+          {
+            "key": "last_order_value",
+            "normalized": "last_order_value",
+            "total": 125,
+            "actions": "set: 125",
+            "sources": "SDK: 77, API: 48",
+            "plat_iOS": 74,
+            "plat_Android": 51,
+            "plat_Web": null,
+            "distinctValues": 1,
+            "capped": "",
+            "sampleValues": "last_order_value-value-1, last_order_value-value-3, last_order_value-value-2",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK (latest app 3.2.1) + API",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "mixed",
+              "label": "SDK (latest app 3.2.1) + API",
+              "hasSdk": true,
+              "hasApi": true
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.11759172154280338
+          },
+          {
+            "key": "newsletter_optin",
+            "normalized": "newsletter_optin",
+            "total": 119,
+            "actions": "set: 119",
+            "sources": "SDK: 81, API: 38",
+            "plat_iOS": 71,
+            "plat_Android": 40,
+            "plat_Web": 8,
+            "distinctValues": 1,
+            "capped": "",
+            "sampleValues": "newsletter_optin-value-1, newsletter_optin-value-2, newsletter_optin-value-3",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK (latest app 3.2.1) + API",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "mixed",
+              "label": "SDK (latest app 3.2.1) + API",
+              "hasSdk": true,
+              "hasApi": true
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.11194731890874883
+          },
+          {
+            "key": "favourite_category",
+            "normalized": "favourite_category",
+            "total": 118,
+            "actions": "set: 118",
+            "sources": "SDK: 79, API: 39",
+            "plat_iOS": 72,
+            "plat_Android": 46,
+            "plat_Web": null,
+            "distinctValues": 1,
+            "capped": "",
+            "sampleValues": "favourite_category-value-2, favourite_category-value-1, favourite_category-value-3",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK (latest app 3.2.1) + API",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "mixed",
+              "label": "SDK (latest app 3.2.1) + API",
+              "hasSdk": true,
+              "hasApi": true
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.11100658513640639
+          },
+          {
+            "key": "preferred_store",
+            "normalized": "preferred_store",
+            "total": 114,
+            "actions": "set: 114",
+            "sources": "SDK: 74, API: 40",
+            "plat_iOS": 64,
+            "plat_Android": 46,
+            "plat_Web": 4,
+            "distinctValues": 1,
+            "capped": "",
+            "sampleValues": "preferred_store-value-2, preferred_store-value-1, preferred_store-value-3",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK (latest app 3.2.1) + API",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "mixed",
+              "label": "SDK (latest app 3.2.1) + API",
+              "hasSdk": true,
+              "hasApi": true
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.10724365004703669
+          },
+          {
+            "key": "city",
+            "normalized": "city",
+            "total": 109,
+            "actions": "set: 109",
+            "sources": "SDK: 71, API: 38",
+            "plat_iOS": 62,
+            "plat_Android": 47,
+            "plat_Web": null,
+            "distinctValues": 1,
+            "capped": "",
+            "sampleValues": "city-value-3, city-value-2, city-value-1",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK (latest app 3.2.1) + API",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "mixed",
+              "label": "SDK (latest app 3.2.1) + API",
+              "hasSdk": true,
+              "hasApi": true
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.10253998118532455
+          },
+          {
+            "key": "shoe_size",
+            "normalized": "shoe_size",
+            "total": 109,
+            "actions": "set: 109",
+            "sources": "SDK: 79, API: 30",
+            "plat_iOS": 65,
+            "plat_Android": 32,
+            "plat_Web": 12,
+            "distinctValues": 1,
+            "capped": "",
+            "sampleValues": "shoe_size-value-1, shoe_size-value-2, shoe_size-value-3",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK (latest app 3.2.1) + API",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "mixed",
+              "label": "SDK (latest app 3.2.1) + API",
+              "hasSdk": true,
+              "hasApi": true
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.10253998118532455
+          },
+          {
+            "key": "birthdate",
+            "normalized": "birthdate",
+            "total": 104,
+            "actions": "set: 104",
+            "sources": "SDK: 56, API: 48",
+            "plat_iOS": 80,
+            "plat_Android": 24,
+            "plat_Web": null,
+            "distinctValues": 1,
+            "capped": "",
+            "sampleValues": "birthdate-value-2, birthdate-value-3, birthdate-value-1",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK (latest app 3.2.1) + API",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "mixed",
+              "label": "SDK (latest app 3.2.1) + API",
+              "hasSdk": true,
+              "hasApi": true
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.09783631232361242
+          }
+        ]
+      },
+      {
+        "name": "Tags",
+        "columns": [
+          {
+            "key": "key",
+            "label": "Tag (group:value)",
+            "type": "text",
+            "width": 34
+          },
+          {
+            "key": "group",
+            "label": "Group",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "value",
+            "label": "Value",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "added",
+            "label": "Added",
+            "type": "int",
+            "width": 12
+          },
+          {
+            "key": "removed",
+            "label": "Removed",
+            "type": "int",
+            "width": 12
+          },
+          {
+            "key": "net",
+            "label": "Net",
+            "type": "int",
+            "width": 12
+          },
+          {
+            "key": "share",
+            "label": "% of changes",
+            "type": "pct",
+            "width": 12,
+            "bar": true
+          },
+          {
+            "key": "versionScope",
+            "label": "Version scope",
+            "type": "text",
+            "width": 28
+          },
+          {
+            "key": "obsMaxVersion",
+            "label": "Max app version seen",
+            "type": "text",
+            "width": 18
+          },
+          {
+            "key": "obsFlag",
+            "label": "Potentially obsolete",
+            "type": "text",
+            "width": 22,
+            "flag": "warn"
+          }
+        ],
+        "rows": [
+          {
+            "key": "device:sneakers_lover",
+            "group": "device",
+            "value": "sneakers_lover",
+            "added": 104,
+            "removed": 19,
+            "net": 85,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.17672413793103448
+          },
+          {
+            "key": "device:vip",
+            "group": "device",
+            "value": "vip",
+            "added": 102,
+            "removed": 17,
+            "net": 85,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.17097701149425287
+          },
+          {
+            "key": "device:newsletter",
+            "group": "device",
+            "value": "newsletter",
+            "added": 83,
+            "removed": 17,
+            "net": 66,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.14367816091954022
+          },
+          {
+            "key": "device:push_optin",
+            "group": "device",
+            "value": "push_optin",
+            "added": 89,
+            "removed": 8,
+            "net": 81,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.13936781609195403
+          },
+          {
+            "key": "device:loyalty_member",
+            "group": "device",
+            "value": "loyalty_member",
+            "added": 78,
+            "removed": 16,
+            "net": 62,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.13505747126436782
+          },
+          {
+            "key": "device:cart_abandoner",
+            "group": "device",
+            "value": "cart_abandoner",
+            "added": 58,
+            "removed": 13,
+            "net": 45,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.10201149425287356
+          },
+          {
+            "key": "device:beta_tester",
+            "group": "device",
+            "value": "beta_tester",
+            "added": 45,
+            "removed": 8,
+            "net": 37,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.07614942528735633
+          },
+          {
+            "key": "device:store_lyon",
+            "group": "device",
+            "value": "store_lyon",
+            "added": 32,
+            "removed": 7,
+            "net": 25,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.05603448275862069
+          }
+        ]
+      },
+      {
+        "name": "Subscription Lists",
+        "note": null,
+        "columns": [
+          {
+            "key": "listId",
+            "label": "List ID",
+            "type": "text",
+            "width": 34
+          },
+          {
+            "key": "subscribe",
+            "label": "Subscribe",
+            "type": "int",
+            "width": 12
+          },
+          {
+            "key": "unsubscribe",
+            "label": "Unsubscribe",
+            "type": "int",
+            "width": 12
+          },
+          {
+            "key": "net",
+            "label": "Net",
+            "type": "int",
+            "width": 12
+          },
+          {
+            "key": "share",
+            "label": "% of changes",
+            "type": "pct",
+            "width": 12,
+            "bar": true
+          },
+          {
+            "key": "plat_iOS",
+            "label": "iOS",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "plat_Android",
+            "label": "Android",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "plat_Web",
+            "label": "Web",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "scopes",
+            "label": "Scopes",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "source",
+            "label": "Source",
+            "type": "text",
+            "width": 14
+          },
+          {
+            "key": "present",
+            "label": "Present platforms",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "missing",
+            "label": "Missing platforms",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "mismatch",
+            "label": "Platform mismatch",
+            "type": "text",
+            "width": 16,
+            "flag": "danger"
+          },
+          {
+            "key": "versionScope",
+            "label": "Version scope",
+            "type": "text",
+            "width": 28
+          },
+          {
+            "key": "obsMaxVersion",
+            "label": "Max app version seen",
+            "type": "text",
+            "width": 18
+          },
+          {
+            "key": "obsFlag",
+            "label": "Potentially obsolete",
+            "type": "text",
+            "width": 22,
+            "flag": "warn"
+          }
+        ],
+        "rows": [
+          {
+            "listId": "promotions",
+            "subscribe": 136,
+            "unsubscribe": 15,
+            "net": 121,
+            "plat_iOS": 66,
+            "plat_Android": 73,
+            "plat_Web": 12,
+            "scopes": "app: 151",
+            "source": "SDK",
+            "present": "Android, iOS, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.38618925831202044
+          },
+          {
+            "listId": "back_in_stock",
+            "subscribe": 80,
+            "unsubscribe": 13,
+            "net": 67,
+            "plat_iOS": 46,
+            "plat_Android": 44,
+            "plat_Web": 3,
+            "scopes": "app: 93",
+            "source": "SDK",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.23785166240409208
+          },
+          {
+            "listId": "new_arrivals",
+            "subscribe": 75,
+            "unsubscribe": 7,
+            "net": 68,
+            "plat_iOS": 51,
+            "plat_Android": 31,
+            "plat_Web": null,
+            "scopes": "app: 82",
+            "source": "SDK",
+            "present": "iOS, Android",
+            "missing": "Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.20971867007672634
+          },
+          {
+            "listId": "store_events",
+            "subscribe": 53,
+            "unsubscribe": 12,
+            "net": 41,
+            "plat_iOS": 34,
+            "plat_Android": 23,
+            "plat_Web": 8,
+            "scopes": "app: 65",
+            "source": "SDK",
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.16624040920716113
+          }
+        ]
+      },
+      {
+        "name": "Screens",
+        "columns": [
+          {
+            "key": "name",
+            "label": "Screen",
+            "type": "text",
+            "width": 34
+          },
+          {
+            "key": "total",
+            "label": "Total",
+            "type": "int",
+            "width": 12
+          },
+          {
+            "key": "share",
+            "label": "% of views",
+            "type": "pct",
+            "width": 12,
+            "bar": true
+          },
+          {
+            "key": "plat_iOS",
+            "label": "iOS",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "plat_Android",
+            "label": "Android",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "plat_Web",
+            "label": "Web",
+            "type": "int",
+            "width": 11
+          },
+          {
+            "key": "present",
+            "label": "Present platforms",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "missing",
+            "label": "Missing platforms",
+            "type": "text",
+            "width": 22
+          },
+          {
+            "key": "mismatch",
+            "label": "Platform mismatch",
+            "type": "text",
+            "width": 16,
+            "flag": "danger"
+          },
+          {
+            "key": "versionScope",
+            "label": "Version scope",
+            "type": "text",
+            "width": 28
+          },
+          {
+            "key": "obsMaxVersion",
+            "label": "Max app version seen",
+            "type": "text",
+            "width": 18
+          },
+          {
+            "key": "obsFlag",
+            "label": "Potentially obsolete",
+            "type": "text",
+            "width": 22,
+            "flag": "warn"
+          }
+        ],
+        "rows": [
+          {
+            "name": "home",
+            "total": 843,
+            "plat_iOS": 481,
+            "plat_Android": 311,
+            "plat_Web": 51,
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.2899896800825593
+          },
+          {
+            "name": "product_detail",
+            "total": 648,
+            "plat_iOS": 360,
+            "plat_Android": 264,
+            "plat_Web": 24,
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.22291021671826625
+          },
+          {
+            "name": "category_list",
+            "total": 373,
+            "plat_iOS": 181,
+            "plat_Android": 172,
+            "plat_Web": 20,
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.1283109735122119
+          },
+          {
+            "name": "cart",
+            "total": 295,
+            "plat_iOS": 184,
+            "plat_Android": 103,
+            "plat_Web": 8,
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.10147918816649466
+          },
+          {
+            "name": "checkout",
+            "total": 294,
+            "plat_iOS": 149,
+            "plat_Android": 142,
+            "plat_Web": 3,
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.10113519091847266
+          },
+          {
+            "name": "account",
+            "total": 241,
+            "plat_iOS": 119,
+            "plat_Android": 114,
+            "plat_Web": 8,
+            "present": "iOS, Android, Web",
+            "missing": "",
+            "mismatch": "No",
+            "__mismatch": false,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.08290333677330582
+          },
+          {
+            "name": "store_locator",
+            "total": 143,
+            "plat_iOS": 82,
+            "plat_Android": 61,
+            "plat_Web": null,
+            "present": "iOS, Android",
+            "missing": "Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.04919160646714826
+          },
+          {
+            "name": "order_history",
+            "total": 70,
+            "plat_iOS": 31,
+            "plat_Android": 39,
+            "plat_Web": null,
+            "present": "Android, iOS",
+            "missing": "Web",
+            "mismatch": "Yes",
+            "__mismatch": true,
+            "versionScope": "SDK · latest app 3.2.1",
+            "__versionScope": {
+              "maxAppVersion": "3.2.1",
+              "sourceScope": "sdk",
+              "label": "SDK · latest app 3.2.1",
+              "hasSdk": true,
+              "hasApi": false
+            },
+            "obsMaxVersion": "",
+            "obsFlag": "No",
+            "__obsolete": false,
+            "share": 0.024079807361541108
+          }
+        ]
+      }
+    ]
+  },
+  "values": {
+    "available": true,
+    "truncated": false,
+    "attributeValues": [
+      {
+        "key": "shoe_size",
+        "value": "shoe_size-value-1",
+        "count": 499,
+        "deviceTypes": "IOS: 19, ANDROID: 24",
+        "capped": ""
+      },
+      {
+        "key": "last_order_value",
+        "value": "last_order_value-value-1",
+        "count": 483,
+        "deviceTypes": "IOS: 3, ANDROID: 8",
+        "capped": ""
+      },
+      {
+        "key": "shoe_size",
+        "value": "shoe_size-value-2",
+        "count": 439,
+        "deviceTypes": "IOS: 19, ANDROID: 24",
+        "capped": ""
+      },
+      {
+        "key": "city",
+        "value": "city-value-3",
+        "count": 417,
+        "deviceTypes": "IOS: 39, ANDROID: 19",
+        "capped": ""
+      },
+      {
+        "key": "newsletter_optin",
+        "value": "newsletter_optin-value-1",
+        "count": 378,
+        "deviceTypes": "IOS: 38, ANDROID: 3",
+        "capped": ""
+      },
+      {
+        "key": "newsletter_optin",
+        "value": "newsletter_optin-value-2",
+        "count": 361,
+        "deviceTypes": "IOS: 38, ANDROID: 3",
+        "capped": ""
+      },
+      {
+        "key": "favourite_category",
+        "value": "favourite_category-value-2",
+        "count": 357,
+        "deviceTypes": "IOS: 8, ANDROID: 23",
+        "capped": ""
+      },
+      {
+        "key": "preferred_store",
+        "value": "preferred_store-value-2",
+        "count": 357,
+        "deviceTypes": "IOS: 1, ANDROID: 16",
+        "capped": ""
+      },
+      {
+        "key": "favourite_category",
+        "value": "favourite_category-value-1",
+        "count": 348,
+        "deviceTypes": "IOS: 8, ANDROID: 23",
+        "capped": ""
+      },
+      {
+        "key": "preferred_store",
+        "value": "preferred_store-value-1",
+        "count": 341,
+        "deviceTypes": "IOS: 1, ANDROID: 16",
+        "capped": ""
+      },
+      {
+        "key": "birthdate",
+        "value": "birthdate-value-2",
+        "count": 326,
+        "deviceTypes": "IOS: 35, ANDROID: 20",
+        "capped": ""
+      },
+      {
+        "key": "city",
+        "value": "city-value-2",
+        "count": 316,
+        "deviceTypes": "IOS: 39, ANDROID: 19",
+        "capped": ""
+      },
+      {
+        "key": "first_name",
+        "value": "first_name-value-2",
+        "count": 314,
+        "deviceTypes": "IOS: 22, ANDROID: 2",
+        "capped": ""
+      },
+      {
+        "key": "newsletter_optin",
+        "value": "newsletter_optin-value-3",
+        "count": 297,
+        "deviceTypes": "IOS: 38, ANDROID: 3",
+        "capped": ""
+      },
+      {
+        "key": "preferred_store",
+        "value": "preferred_store-value-3",
+        "count": 297,
+        "deviceTypes": "IOS: 1, ANDROID: 16",
+        "capped": ""
+      },
+      {
+        "key": "birthdate",
+        "value": "birthdate-value-3",
+        "count": 293,
+        "deviceTypes": "IOS: 35, ANDROID: 20",
+        "capped": ""
+      },
+      {
+        "key": "shoe_size",
+        "value": "shoe_size-value-3",
+        "count": 245,
+        "deviceTypes": "IOS: 19, ANDROID: 24",
+        "capped": ""
+      },
+      {
+        "key": "first_name",
+        "value": "first_name-value-3",
+        "count": 229,
+        "deviceTypes": "IOS: 22, ANDROID: 2",
+        "capped": ""
+      },
+      {
+        "key": "loyalty_tier",
+        "value": "loyalty_tier-value-3",
+        "count": 200,
+        "deviceTypes": "IOS: 7, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "key": "last_order_value",
+        "value": "last_order_value-value-3",
+        "count": 198,
+        "deviceTypes": "IOS: 3, ANDROID: 8",
+        "capped": ""
+      },
+      {
+        "key": "loyalty_tier",
+        "value": "loyalty_tier-value-1",
+        "count": 147,
+        "deviceTypes": "IOS: 7, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "key": "favourite_category",
+        "value": "favourite_category-value-3",
+        "count": 109,
+        "deviceTypes": "IOS: 8, ANDROID: 23",
+        "capped": ""
+      },
+      {
+        "key": "birthdate",
+        "value": "birthdate-value-1",
+        "count": 95,
+        "deviceTypes": "IOS: 35, ANDROID: 20",
+        "capped": ""
+      },
+      {
+        "key": "loyalty_tier",
+        "value": "loyalty_tier-value-2",
+        "count": 82,
+        "deviceTypes": "IOS: 7, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "key": "last_order_value",
+        "value": "last_order_value-value-2",
+        "count": 62,
+        "deviceTypes": "IOS: 3, ANDROID: 8",
+        "capped": ""
+      },
+      {
+        "key": "city",
+        "value": "city-value-1",
+        "count": 19,
+        "deviceTypes": "IOS: 39, ANDROID: 19",
+        "capped": ""
+      },
+      {
+        "key": "first_name",
+        "value": "first_name-value-1",
+        "count": 2,
+        "deviceTypes": "IOS: 22, ANDROID: 2",
+        "capped": ""
+      }
+    ],
+    "customValues": [
+      {
+        "event": "promo_applied",
+        "source": "SDK",
+        "property": "discount",
+        "value": "discount-value-3",
+        "count": 497,
+        "deviceTypes": "IOS: 6, ANDROID: 21",
+        "capped": ""
+      },
+      {
+        "event": "store_locator_used",
+        "source": "SDK",
+        "property": "results",
+        "value": "results-value-3",
+        "count": 496,
+        "deviceTypes": "IOS: 36, ANDROID: 21",
+        "capped": ""
+      },
+      {
+        "event": "size_guide_opened",
+        "source": "SDK",
+        "property": "category",
+        "value": "category-value-3",
+        "count": 495,
+        "deviceTypes": "IOS: 30, ANDROID: 25",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-3",
+        "count": 492,
+        "deviceTypes": "IOS: 37, ANDROID: 17",
+        "capped": ""
+      },
+      {
+        "event": "checkout_started",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-2",
+        "count": 489,
+        "deviceTypes": "IOS: 17, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-1",
+        "count": 487,
+        "deviceTypes": "IOS: 27, ANDROID: 12",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "payment",
+        "value": "payment-value-2",
+        "count": 485,
+        "deviceTypes": "IOS: 25, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-2",
+        "count": 475,
+        "deviceTypes": "IOS: 29, ANDROID: 14",
+        "capped": ""
+      },
+      {
+        "event": "checkout_started",
+        "source": "SDK",
+        "property": "items",
+        "value": "items-value-2",
+        "count": 469,
+        "deviceTypes": "IOS: 18, ANDROID: 13",
+        "capped": ""
+      },
+      {
+        "event": "promo_applied",
+        "source": "SDK",
+        "property": "discount",
+        "value": "discount-value-2",
+        "count": 457,
+        "deviceTypes": "IOS: 6, ANDROID: 21",
+        "capped": ""
+      },
+      {
+        "event": "store_locator_used",
+        "source": "SDK",
+        "property": "results",
+        "value": "results-value-2",
+        "count": 451,
+        "deviceTypes": "IOS: 36, ANDROID: 21",
+        "capped": ""
+      },
+      {
+        "event": "size_guide_opened",
+        "source": "SDK",
+        "property": "category",
+        "value": "category-value-2",
+        "count": 445,
+        "deviceTypes": "IOS: 30, ANDROID: 25",
+        "capped": ""
+      },
+      {
+        "event": "search_performed",
+        "source": "SDK",
+        "property": "term",
+        "value": "term-value-2",
+        "count": 444,
+        "deviceTypes": "IOS: 19, ANDROID: 14",
+        "capped": ""
+      },
+      {
+        "event": "promo_applied",
+        "source": "SDK",
+        "property": "code",
+        "value": "code-value-1",
+        "count": 430,
+        "deviceTypes": "IOS: 10, ANDROID: 5",
+        "capped": ""
+      },
+      {
+        "event": "search_performed",
+        "source": "SDK",
+        "property": "results",
+        "value": "results-value-2",
+        "count": 428,
+        "deviceTypes": "IOS: 9, ANDROID: 9",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "order_id",
+        "value": "order_id-value-1",
+        "count": 427,
+        "deviceTypes": "IOS: 27, ANDROID: 2",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-3",
+        "count": 426,
+        "deviceTypes": "IOS: 16, ANDROID: 11",
+        "capped": ""
+      },
+      {
+        "event": "store_locator_used",
+        "source": "SDK",
+        "property": "city",
+        "value": "city-value-2",
+        "count": 424,
+        "deviceTypes": "IOS: 23, ANDROID: 8",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-2",
+        "count": 416,
+        "deviceTypes": "IOS: 37, ANDROID: 17",
+        "capped": ""
+      },
+      {
+        "event": "legacy_wallet_opened",
+        "source": "SDK",
+        "property": "source",
+        "value": "source-value-2",
+        "count": 416,
+        "deviceTypes": "IOS: 34, ANDROID: 14",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-3",
+        "count": 409,
+        "deviceTypes": "IOS: 27, ANDROID: 12",
+        "capped": ""
+      },
+      {
+        "event": "search_performed",
+        "source": "SDK",
+        "property": "results",
+        "value": "results-value-1",
+        "count": 409,
+        "deviceTypes": "IOS: 9, ANDROID: 9",
+        "capped": ""
+      },
+      {
+        "event": "promo_applied",
+        "source": "SDK",
+        "property": "code",
+        "value": "code-value-3",
+        "count": 408,
+        "deviceTypes": "IOS: 10, ANDROID: 5",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "price",
+        "value": "price-value-3",
+        "count": 406,
+        "deviceTypes": "IOS: 31, ANDROID: 6",
+        "capped": ""
+      },
+      {
+        "event": "checkout_started",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-1",
+        "count": 397,
+        "deviceTypes": "IOS: 17, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "items",
+        "value": "items-value-2",
+        "count": 396,
+        "deviceTypes": "IOS: 35, ANDROID: 5",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-2",
+        "count": 393,
+        "deviceTypes": "IOS: 16, ANDROID: 11",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "category",
+        "value": "category-value-1",
+        "count": 390,
+        "deviceTypes": "IOS: 10, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "store_locator_used",
+        "source": "SDK",
+        "property": "city",
+        "value": "city-value-1",
+        "count": 383,
+        "deviceTypes": "IOS: 23, ANDROID: 8",
+        "capped": ""
+      },
+      {
+        "event": "android_widget_tapped",
+        "source": "SDK",
+        "property": "widget",
+        "value": "widget-value-3",
+        "count": 381,
+        "deviceTypes": "IOS: 15, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "checkout_started",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-3",
+        "count": 376,
+        "deviceTypes": "IOS: 17, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "payment",
+        "value": "payment-value-1",
+        "count": 365,
+        "deviceTypes": "IOS: 25, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "value",
+        "value": "value-value-1",
+        "count": 360,
+        "deviceTypes": "IOS: 20, ANDROID: 10",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "order_id",
+        "value": "order_id-value-3",
+        "count": 353,
+        "deviceTypes": "IOS: 27, ANDROID: 2",
+        "capped": ""
+      },
+      {
+        "event": "loyalty_card_scanned",
+        "source": "SDK",
+        "property": "store_id",
+        "value": "store_id-value-3",
+        "count": 341,
+        "deviceTypes": "IOS: 39, ANDROID: 4",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "price",
+        "value": "price-value-1",
+        "count": 331,
+        "deviceTypes": "IOS: 31, ANDROID: 6",
+        "capped": ""
+      },
+      {
+        "event": "wishlist_added",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-3",
+        "count": 331,
+        "deviceTypes": "IOS: 5, ANDROID: 20",
+        "capped": ""
+      },
+      {
+        "event": "checkout_started",
+        "source": "SDK",
+        "property": "cart_value",
+        "value": "cart_value-value-2",
+        "count": 329,
+        "deviceTypes": "IOS: 18, ANDROID: 18",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "price",
+        "value": "price-value-1",
+        "count": 327,
+        "deviceTypes": "IOS: 7, ANDROID: 2",
+        "capped": ""
+      },
+      {
+        "event": "delivery_tracked",
+        "source": "SDK",
+        "property": "carrier",
+        "value": "carrier-value-1",
+        "count": 321,
+        "deviceTypes": "IOS: 1, ANDROID: 21",
+        "capped": ""
+      },
+      {
+        "event": "wishlist_added",
+        "source": "SDK",
+        "property": "list",
+        "value": "list-value-2",
+        "count": 318,
+        "deviceTypes": "IOS: 16, ANDROID: 11",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-1",
+        "count": 317,
+        "deviceTypes": "IOS: 37, ANDROID: 17",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "quantity",
+        "value": "quantity-value-1",
+        "count": 315,
+        "deviceTypes": "IOS: 15, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "legacy_wallet_opened",
+        "source": "SDK",
+        "property": "source",
+        "value": "source-value-1",
+        "count": 314,
+        "deviceTypes": "IOS: 34, ANDROID: 14",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "order_id",
+        "value": "order_id-value-2",
+        "count": 305,
+        "deviceTypes": "IOS: 27, ANDROID: 2",
+        "capped": ""
+      },
+      {
+        "event": "wishlist_added",
+        "source": "SDK",
+        "property": "list",
+        "value": "list-value-3",
+        "count": 292,
+        "deviceTypes": "IOS: 16, ANDROID: 11",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-1",
+        "count": 289,
+        "deviceTypes": "IOS: 29, ANDROID: 14",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-3",
+        "count": 270,
+        "deviceTypes": "IOS: 27, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "event": "delivery_tracked",
+        "source": "SDK",
+        "property": "order_id",
+        "value": "order_id-value-2",
+        "count": 253,
+        "deviceTypes": "IOS: 13, ANDROID: 13",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-2",
+        "count": 250,
+        "deviceTypes": "IOS: 27, ANDROID: 12",
+        "capped": ""
+      },
+      {
+        "event": "search_performed",
+        "source": "SDK",
+        "property": "results",
+        "value": "results-value-3",
+        "count": 243,
+        "deviceTypes": "IOS: 9, ANDROID: 9",
+        "capped": ""
+      },
+      {
+        "event": "promo_applied",
+        "source": "SDK",
+        "property": "code",
+        "value": "code-value-2",
+        "count": 243,
+        "deviceTypes": "IOS: 10, ANDROID: 5",
+        "capped": ""
+      },
+      {
+        "event": "store_locator_used",
+        "source": "SDK",
+        "property": "city",
+        "value": "city-value-3",
+        "count": 243,
+        "deviceTypes": "IOS: 23, ANDROID: 8",
+        "capped": ""
+      },
+      {
+        "event": "checkout_started",
+        "source": "SDK",
+        "property": "items",
+        "value": "items-value-1",
+        "count": 238,
+        "deviceTypes": "IOS: 18, ANDROID: 13",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "value",
+        "value": "value-value-2",
+        "count": 234,
+        "deviceTypes": "IOS: 20, ANDROID: 10",
+        "capped": ""
+      },
+      {
+        "event": "checkout_started",
+        "source": "SDK",
+        "property": "cart_value",
+        "value": "cart_value-value-3",
+        "count": 231,
+        "deviceTypes": "IOS: 18, ANDROID: 18",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "price",
+        "value": "price-value-2",
+        "count": 230,
+        "deviceTypes": "IOS: 31, ANDROID: 6",
+        "capped": ""
+      },
+      {
+        "event": "review_submitted",
+        "source": "SDK",
+        "property": "rating",
+        "value": "rating-value-1",
+        "count": 229,
+        "deviceTypes": "IOS: 9, ANDROID: 4",
+        "capped": ""
+      },
+      {
+        "event": "android_widget_tapped",
+        "source": "SDK",
+        "property": "widget",
+        "value": "widget-value-1",
+        "count": 215,
+        "deviceTypes": "IOS: 15, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "loyalty_card_scanned",
+        "source": "SDK",
+        "property": "store_id",
+        "value": "store_id-value-2",
+        "count": 211,
+        "deviceTypes": "IOS: 39, ANDROID: 4",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "payment",
+        "value": "payment-value-3",
+        "count": 188,
+        "deviceTypes": "IOS: 25, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "checkout_started",
+        "source": "SDK",
+        "property": "items",
+        "value": "items-value-3",
+        "count": 186,
+        "deviceTypes": "IOS: 18, ANDROID: 13",
+        "capped": ""
+      },
+      {
+        "event": "loyalty_card_scanned",
+        "source": "SDK",
+        "property": "store_id",
+        "value": "store_id-value-1",
+        "count": 179,
+        "deviceTypes": "IOS: 39, ANDROID: 4",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "items",
+        "value": "items-value-3",
+        "count": 177,
+        "deviceTypes": "IOS: 35, ANDROID: 5",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "price",
+        "value": "price-value-2",
+        "count": 167,
+        "deviceTypes": "IOS: 7, ANDROID: 2",
+        "capped": ""
+      },
+      {
+        "event": "delivery_tracked",
+        "source": "SDK",
+        "property": "carrier",
+        "value": "carrier-value-2",
+        "count": 167,
+        "deviceTypes": "IOS: 1, ANDROID: 21",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "items",
+        "value": "items-value-1",
+        "count": 155,
+        "deviceTypes": "IOS: 35, ANDROID: 5",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "price",
+        "value": "price-value-3",
+        "count": 148,
+        "deviceTypes": "IOS: 7, ANDROID: 2",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-1",
+        "count": 147,
+        "deviceTypes": "IOS: 27, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "event": "promo_applied",
+        "source": "SDK",
+        "property": "discount",
+        "value": "discount-value-1",
+        "count": 146,
+        "deviceTypes": "IOS: 6, ANDROID: 21",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-2",
+        "count": 145,
+        "deviceTypes": "IOS: 27, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "category",
+        "value": "category-value-3",
+        "count": 141,
+        "deviceTypes": "IOS: 10, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-1",
+        "count": 136,
+        "deviceTypes": "IOS: 16, ANDROID: 11",
+        "capped": ""
+      },
+      {
+        "event": "wishlist_added",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-2",
+        "count": 132,
+        "deviceTypes": "IOS: 5, ANDROID: 20",
+        "capped": ""
+      },
+      {
+        "event": "search_performed",
+        "source": "SDK",
+        "property": "term",
+        "value": "term-value-3",
+        "count": 120,
+        "deviceTypes": "IOS: 19, ANDROID: 14",
+        "capped": ""
+      },
+      {
+        "event": "checkout_started",
+        "source": "SDK",
+        "property": "cart_value",
+        "value": "cart_value-value-1",
+        "count": 118,
+        "deviceTypes": "IOS: 18, ANDROID: 18",
+        "capped": ""
+      },
+      {
+        "event": "legacy_wallet_opened",
+        "source": "SDK",
+        "property": "source",
+        "value": "source-value-3",
+        "count": 117,
+        "deviceTypes": "IOS: 34, ANDROID: 14",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "category",
+        "value": "category-value-2",
+        "count": 113,
+        "deviceTypes": "IOS: 10, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "quantity",
+        "value": "quantity-value-2",
+        "count": 103,
+        "deviceTypes": "IOS: 15, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "store_locator_used",
+        "source": "SDK",
+        "property": "results",
+        "value": "results-value-1",
+        "count": 96,
+        "deviceTypes": "IOS: 36, ANDROID: 21",
+        "capped": ""
+      },
+      {
+        "event": "delivery_tracked",
+        "source": "SDK",
+        "property": "order_id",
+        "value": "order_id-value-3",
+        "count": 96,
+        "deviceTypes": "IOS: 13, ANDROID: 13",
+        "capped": ""
+      },
+      {
+        "event": "review_submitted",
+        "source": "SDK",
+        "property": "rating",
+        "value": "rating-value-2",
+        "count": 93,
+        "deviceTypes": "IOS: 9, ANDROID: 4",
+        "capped": ""
+      },
+      {
+        "event": "add_to_cart",
+        "source": "SDK",
+        "property": "quantity",
+        "value": "quantity-value-3",
+        "count": 78,
+        "deviceTypes": "IOS: 15, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "review_submitted",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-3",
+        "count": 74,
+        "deviceTypes": "IOS: 27, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "event": "review_submitted",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-2",
+        "count": 70,
+        "deviceTypes": "IOS: 27, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "event": "product_viewed",
+        "source": "SDK",
+        "property": "currency",
+        "value": "currency-value-3",
+        "count": 62,
+        "deviceTypes": "IOS: 29, ANDROID: 14",
+        "capped": ""
+      },
+      {
+        "event": "size_guide_opened",
+        "source": "SDK",
+        "property": "category",
+        "value": "category-value-1",
+        "count": 50,
+        "deviceTypes": "IOS: 30, ANDROID: 25",
+        "capped": ""
+      },
+      {
+        "event": "review_submitted",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-1",
+        "count": 47,
+        "deviceTypes": "IOS: 27, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "event": "wishlist_added",
+        "source": "SDK",
+        "property": "sku",
+        "value": "sku-value-1",
+        "count": 45,
+        "deviceTypes": "IOS: 5, ANDROID: 20",
+        "capped": ""
+      },
+      {
+        "event": "search_performed",
+        "source": "SDK",
+        "property": "term",
+        "value": "term-value-1",
+        "count": 39,
+        "deviceTypes": "IOS: 19, ANDROID: 14",
+        "capped": ""
+      },
+      {
+        "event": "wishlist_added",
+        "source": "SDK",
+        "property": "list",
+        "value": "list-value-1",
+        "count": 36,
+        "deviceTypes": "IOS: 16, ANDROID: 11",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "value",
+        "value": "value-value-3",
+        "count": 32,
+        "deviceTypes": "IOS: 20, ANDROID: 10",
+        "capped": ""
+      },
+      {
+        "event": "android_widget_tapped",
+        "source": "SDK",
+        "property": "widget",
+        "value": "widget-value-2",
+        "count": 28,
+        "deviceTypes": "IOS: 15, ANDROID: 15",
+        "capped": ""
+      },
+      {
+        "event": "delivery_tracked",
+        "source": "SDK",
+        "property": "carrier",
+        "value": "carrier-value-3",
+        "count": 23,
+        "deviceTypes": "IOS: 1, ANDROID: 21",
+        "capped": ""
+      },
+      {
+        "event": "review_submitted",
+        "source": "SDK",
+        "property": "rating",
+        "value": "rating-value-3",
+        "count": 14,
+        "deviceTypes": "IOS: 9, ANDROID: 4",
+        "capped": ""
+      },
+      {
+        "event": "delivery_tracked",
+        "source": "SDK",
+        "property": "order_id",
+        "value": "order_id-value-1",
+        "count": 13,
+        "deviceTypes": "IOS: 13, ANDROID: 13",
+        "capped": ""
+      }
+    ]
+  }
+}
