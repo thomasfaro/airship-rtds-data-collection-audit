@@ -2,7 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   liveStreamFilters,
+  profileSelectOptions,
   streamParamsFromFilters,
+  streamTypesSummary,
 } from "./streamRequestFilters.js";
 
 test("liveStreamFilters keeps EARLIEST and drops unknown types", () => {
@@ -37,4 +39,31 @@ test("streamParamsFromFilters omits limit when no_limit is set", () => {
     limit: "500",
   });
   assert.equal(params.get("limit"), null);
+});
+
+test("the type summary says 'all types' rather than zero", () => {
+  assert.equal(streamTypesSummary(""), "all types (default)");
+  assert.equal(streamTypesSummary(" , "), "all types (default)");
+  assert.equal(streamTypesSummary("CUSTOM,OPEN"), "2 selected");
+});
+
+test("a project that cannot be used is offered with the reason, not hidden", () => {
+  const options = profileSelectOptions({
+    profileItems: [
+      { name: "Ready", has_token: true, decrypt_failed: false },
+      { name: "No token", has_token: false, decrypt_failed: false },
+      { name: "Broken", has_token: true, decrypt_failed: true },
+    ],
+  });
+  assert.deepEqual(options, [
+    { name: "Ready", disabled: false, hint: "" },
+    { name: "No token", disabled: true, hint: "missing token" },
+    { name: "Broken", disabled: true, hint: "token unreadable" },
+  ]);
+});
+
+test("plain project names are all selectable", () => {
+  assert.deepEqual(profileSelectOptions({ profiles: ["Demo"] }), [
+    { name: "Demo", disabled: false, hint: "" },
+  ]);
 });

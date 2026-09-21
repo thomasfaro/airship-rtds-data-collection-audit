@@ -52,6 +52,28 @@ export function deviceTypesToCsv(types) {
   return Array.from(new Set(types.map((t) => t.toLowerCase()))).join(",");
 }
 
+/** What the checkbox list shows: which are ticked, and the state of the "all" box. */
+export function deviceTypeSelection(csv) {
+  const selected = new Set(parseDeviceTypesCsv(csv));
+  return {
+    selected,
+    all: selected.size === DEVICE_TYPES.length,
+    some: selected.size > 0 && selected.size !== DEVICE_TYPES.length,
+  };
+}
+
+export function toggleDeviceTypeCsv(csv, value) {
+  const next = new Set(parseDeviceTypesCsv(csv));
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
+  return deviceTypesToCsv(Array.from(next));
+}
+
+/** Every device type, or none — an empty CSV means the stream is not filtered. */
+export function allDeviceTypesCsv(checked) {
+  return checked ? deviceTypesToCsv(DEVICE_TYPES.map((item) => item.value)) : "";
+}
+
 /** Human label for `device.device_type` on RTDS event payloads (uppercase API values). */
 export function formatEventDeviceTypeLabel(deviceType) {
   if (!deviceType) return "";

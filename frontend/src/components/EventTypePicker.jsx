@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { categoriesForType, marketerHelpForType } from "../lib/eventRegistry.js";
+import { categoriesForType, marketerHelpForType } from "../lib/eventCatalog.js";
 
 function parseTypesCsv(csv) {
   return new Set(

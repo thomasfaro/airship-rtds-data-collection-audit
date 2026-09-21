@@ -7,7 +7,8 @@ import StreamTimeline from "../components/StreamTimeline.jsx";
 import { VirtualStreamList } from "../components/VirtualStreamList.jsx";
 import { DEFAULT_TIMEZONE, useLiveStream } from "../contexts/LiveStreamContext.jsx";
 import { APP_ROUTES } from "../lib/appNav.js";
-import { allEventTypeOptions, EMPTY_DISPLAY_FILTERS } from "../lib/eventRegistry.js";
+import { EMPTY_DISPLAY_FILTERS } from "../lib/displayFilters.js";
+import { allEventTypeOptions } from "../lib/eventRegistry.js";
 
 export default function LiveMonitorPage() {
   const listRef = useRef(null);

@@ -4,8 +4,8 @@ import {
   EMPTY_DISPLAY_FILTERS,
   displayFiltersFromState,
   matchesDisplayFilters,
-  streamRtdsEventTypeOptions,
-} from "../lib/eventRegistry.js";
+} from "../lib/displayFilters.js";
+import { streamRtdsEventTypeOptions } from "../lib/eventRegistry.js";
 import { liveStreamFilters } from "../lib/streamRequestFilters.js";
 import { useRtdsStream } from "../hooks/useRtdsStream.js";
 import { sortEntriesChronologically } from "../lib/streamEntries.js";

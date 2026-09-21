@@ -1,5 +1,5 @@
 import EventTypePicker from "./EventTypePicker.jsx";
-import { EVENT_GROUPS } from "../lib/eventRegistry.js";
+import { EVENT_GROUPS } from "../lib/eventCatalog.js";
 
 const inputClass = "input-field !mt-1 !py-2 text-sm";
 const labelClass = "block text-xs font-semibold text-airship-navy";

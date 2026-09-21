@@ -4,6 +4,7 @@ import {
   addAudienceValues,
   AUDIENCE_FILTER_FIELDS,
   parseAudienceInput,
+  parseAudienceInputForField,
   removeAudienceValue,
   splitAudienceValues,
 } from "./streamAudienceFilters.js";
@@ -57,4 +58,10 @@ test("removeAudienceValue takes out only the value asked for", () => {
   const csv = `${CHANNEL_A},${CHANNEL_B}`;
   assert.equal(removeAudienceValue(csv, CHANNEL_A), CHANNEL_B);
   assert.equal(removeAudienceValue(csv, "not-in-the-list"), csv);
+});
+
+test("a field's own separators decide how its input splits", () => {
+  assert.deepEqual(parseAudienceInputForField("push_id", "a b,c"), ["a", "b", "c"]);
+  assert.deepEqual(parseAudienceInputForField("named_user", "alice bob"), ["alice bob"]);
+  assert.deepEqual(parseAudienceInputForField("not_a_field", "a,b"), ["a", "b"]);
 });

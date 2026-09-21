@@ -32,6 +32,14 @@ export function parseAudienceInput(input, { spaceSeparable = false } = {}) {
     .filter(Boolean);
 }
 
+/** Parse what the user typed into an audience field, using that field's own rules. */
+export function parseAudienceInputForField(key, input) {
+  return parseAudienceInput(
+    input,
+    AUDIENCE_FILTER_FIELDS.find((item) => item.key === key),
+  );
+}
+
 export function joinAudienceValues(values) {
   return [...new Set(values.map((item) => String(item).trim()).filter(Boolean))].join(",");
 }

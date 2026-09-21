@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { formatEventDeviceTypeLabel } from "../lib/deviceTypes.js";
+import { derivedEventSourceDescription } from "../lib/eventCatalog.js";
 import {
-  derivedEventSourceDescription,
   effectiveEventType,
   eventHighlightsNarrative,
   eventIdentityFields,
