@@ -440,24 +440,6 @@
     "deviceTypesTotal": 3,
     "deviceTypesCapped": false
   },
-  "openEvents": {
-    "total": 0,
-    "withTriggeringPush": 0,
-    "withLastDelivered": 0,
-    "pctTriggeringPush": 0,
-    "pctLastDelivered": 0,
-    "fieldHelp": {
-      "triggering_push": "Push notification that directly caused the app open (attribution). Contains push_id, campaign categories, and delivery time.",
-      "last_delivered": "Most recent push delivered to the device before this event. Used for session context and last-touch messaging attribution."
-    },
-    "byPlatform": [],
-    "platformGapWarning": null,
-    "byAppVersion": [],
-    "sampleKpiIds": {
-      "lastDelivered": "open.last_delivered",
-      "triggeringPush": "open.triggering_push"
-    }
-  },
   "screenViewed": {
     "total": 2907,
     "uniqueScreens": 8,
@@ -1074,34 +1056,6 @@
         }
       }
     ]
-  },
-  "contactChange": {
-    "total": 0,
-    "description": "Contact lifecycle events: ASSOCIATION (channel or named user linked to a contact), DISSOCIATION (unlinked), or UNINSTALL.",
-    "byChangeType": [],
-    "byDeviceType": [],
-    "sources": {
-      "total": 0,
-      "breakdown": []
-    }
-  },
-  "compliance": {
-    "total": 0,
-    "description": "Compliance and registration events: email/SMS opt-in and opt-out, registrations, keyword flows, and related channel compliance signals (body.event_type).",
-    "byEventType": [],
-    "byDeviceType": [],
-    "sources": {
-      "total": 0,
-      "breakdown": []
-    },
-    "emailOptOut": {
-      "total": 0,
-      "optOutTotal": 0,
-      "description": "Email opt-out and registration signals from COMPLIANCE events on EMAIL channels (body.event_type=registration), split by registration_type (unsubscribe, open_tracking_opt_out, opt_out, opt_in, ...) and message_type (commercial vs transactional).",
-      "byRegistrationType": [],
-      "byMessageType": [],
-      "matrix": []
-    }
   },
   "sdkVersions": [
     {
@@ -4442,16 +4396,6 @@
       }
     ]
   },
-  "messagingFailures": {
-    "sendAborted": {
-      "total": 0,
-      "byReason": []
-    },
-    "sendRejected": {
-      "total": 0,
-      "byReason": []
-    }
-  },
   "audience": {
     "uniqueChannels": 9593,
     "uniqueChannelsIsLowerBound": false,
@@ -6969,12 +6913,6 @@
         "attributes": [],
         "customEventOverflow": 0,
         "attributeOverflow": 0
-      },
-      "sendRejected": {
-        "problem": false,
-        "total": 0,
-        "criticalTotal": 0,
-        "reasons": []
       }
     },
     "text": "This audit connected to project \"Demo Retail EU\" using EARLIEST — manual stop (RTDS start=EARLIEST) with 5 RTDS event type(s) on the connect request: ATTRIBUTE_OPERATION, CUSTOM, SCREEN_VIEWED, SUBSCRIPTION_LIST, TAG_CHANGE. Device types on the request: all platforms (no device_types filter). The RTDS download was stopped manually after 0s; the NDJSON file was then analyzed.\n\nThe analyzed file contains 10,000 event(s) across 3 device type(s) in the sample (timezone for dates below: Europe/Paris). Device types observed: IOS (5,447, 54%); ANDROID (4,207, 42%); WEB (346, 3%). Occurred timestamps span 28 Jul 2026, 07:59 → 28 Jul 2026, 09:59 (~2 h). Processed timestamps in the download: 28 Jul 2026, 08:00 → 28 Jul 2026, 09:59 (1h 59m 59s between earliest and latest). With EARLIEST + manual stop, sample depth depends on how long the stream ran before Stop (historical backlog first).\n\n9,593 unique channel(s) and 407 named user(s) contributed data.\n\nStrongest platform: IOS (5,447 events, 54%).\n\nScreen views: 2,907 across 8 screen name(s), top \"home\" (843).\n\nCustom events (excl. email feedback): SDK 4,790 hit(s), top \"product_viewed\".\n\nAttributes (excl. ua_*): 9 distinct key(s) in ATTRIBUTE_OPERATION events.\n\nTags (excl. ua_*): 591 added, 105 removed across 1 group(s) (1 with multiple tag values)."

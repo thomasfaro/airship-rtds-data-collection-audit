@@ -206,20 +206,6 @@ export function collectAuditWarnings(report, sdkWarnings = []) {
 
   warnings.push(...buildScreenPlatformWarnings(report.screenViewed));
 
-  const openGap = report.openEvents?.platformGapWarning;
-  if (openGap?.message) {
-    warnings.push({
-      severity: "warning",
-      category: "open_triggering_push_platform_gap",
-      message: openGap.message,
-      gapPct: openGap.gapPct,
-      kpiIds: [
-        report.openEvents?.sampleKpiIds?.triggeringPush,
-        report.openEvents?.sampleKpiIds?.lastDelivered,
-      ].filter(Boolean),
-    });
-  }
-
   warnings.push(...buildSdkCrossPlatformMajorWarnings(report.sdkCrossPlatform));
 
   for (const row of report.sdkVersions ?? []) {

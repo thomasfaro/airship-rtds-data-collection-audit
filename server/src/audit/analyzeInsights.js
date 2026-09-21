@@ -4,17 +4,8 @@ import { trackedValueCountForRow } from "./attributeValues.js";
 import { attributeJsonPropertyStatsForRow } from "./attributeJsonSchema.js";
 import { propertyValueStatsForBucket } from "./customEventPropertyValues.js";
 import { kpiId as sampleKpiId } from "./eventSamples.js";
-import { kpiId } from "./eventSamples.js";
-import { enrichSendRejectedReasonRow } from "./sendRejectedReasons.js";
 import { AUDIT_REPORT_TOP_LIST_LIMIT } from "./reportTopLimits.js";
 import { sortVersionRowsByCountDesc, sortVersionRowsBySemverDesc } from "./sdkReleaseDates.js";
-
-export const OPEN_PUSH_FIELD_HELP = {
-  triggering_push:
-    "Push notification that directly caused the app open (attribution). Contains push_id, campaign categories, and delivery time.",
-  last_delivered:
-    "Most recent push delivered to the device before this event. Used for session context and last-touch messaging attribution.",
-};
 
 const IOS_DEVICE_TYPES = new Set(["IOS", "IPHONE", "IPAD", "TVOS"]);
 const ANDROID_DEVICE_TYPES = new Set(["ANDROID", "AMAZON"]);
@@ -131,12 +122,7 @@ export function isActionablePlatformGap(presentOn, missingOn) {
   return present.length > 0;
 }
 
-/** Minimum OPEN events per platform before comparing triggering_push rates. */
-export const OPEN_PLATFORM_COMPARE_MIN = 20;
-/** Absolute percentage-point gap that triggers a platform mismatch warning. */
-export const OPEN_TRIGGERING_PUSH_GAP_PP = 15;
-
-export function openPlatformLabel(deviceType) {
+function openPlatformLabel(deviceType) {
   const dt = String(deviceType ?? "").toUpperCase();
   if (IOS_DEVICE_TYPES.has(dt)) return "iOS";
   if (ANDROID_DEVICE_TYPES.has(dt)) return "Android";
@@ -144,15 +130,7 @@ export function openPlatformLabel(deviceType) {
 }
 
 /** Canonical platform label for audit breakdown rows (iOS / Android / Web / raw device_type). */
-export function platformLabelForEventBreakdown(deviceType) {
-  return (
-    gapPlatformLabelFromDeviceType(deviceType) ??
-    openPlatformLabel(deviceType) ??
-    (String(deviceType ?? "").toUpperCase() || "UNKNOWN")
-  );
-}
-
-export function attachSampleKpisToPlatformRows(byPlatform, byDeviceBreakdown) {
+function attachSampleKpisToPlatformRows(byPlatform, byDeviceBreakdown) {
   return (byPlatform ?? []).map((p) => {
     const matching = (byDeviceBreakdown ?? []).filter(
       (d) => platformLabelForEventBreakdown(d.deviceType) === p.platform,
@@ -166,78 +144,12 @@ export function attachSampleKpisToPlatformRows(byPlatform, byDeviceBreakdown) {
   });
 }
 
-export function buildOpenEventsReport(openAcc) {
-  const openTotal = openAcc.total ?? 0;
-  const byPlatformMap = {};
-
-  for (const [deviceType, stats] of Object.entries(openAcc.byDevice ?? {})) {
-    const label = openPlatformLabel(deviceType) ?? deviceType;
-    if (!byPlatformMap[label]) {
-      byPlatformMap[label] = {
-        platform: label,
-        total: 0,
-        withTriggeringPush: 0,
-        withLastDelivered: 0,
-      };
-    }
-    const row = byPlatformMap[label];
-    row.total += stats.total ?? 0;
-    row.withTriggeringPush += stats.triggeringPush ?? 0;
-    row.withLastDelivered += stats.lastDelivered ?? 0;
-  }
-
-  const byPlatform = Object.values(byPlatformMap)
-    .map((row) => ({
-      ...row,
-      pctTriggeringPush: row.total
-        ? Math.round((row.withTriggeringPush / row.total) * 1000) / 10
-        : 0,
-      pctLastDelivered: row.total
-        ? Math.round((row.withLastDelivered / row.total) * 1000) / 10
-        : 0,
-    }))
-    .sort((a, b) => b.total - a.total);
-
-  const ios = byPlatform.find((p) => p.platform === "iOS");
-  const android = byPlatform.find((p) => p.platform === "Android");
-  let platformGapWarning = null;
-
-  if (
-    ios &&
-    android &&
-    ios.total >= OPEN_PLATFORM_COMPARE_MIN &&
-    android.total >= OPEN_PLATFORM_COMPARE_MIN
-  ) {
-    const gapPct = Math.abs(ios.pctTriggeringPush - android.pctTriggeringPush);
-    if (gapPct >= OPEN_TRIGGERING_PUSH_GAP_PP) {
-      platformGapWarning = {
-        field: "triggering_push",
-        gapPct: Math.round(gapPct * 10) / 10,
-        ios: { total: ios.total, pct: ios.pctTriggeringPush, withField: ios.withTriggeringPush },
-        android: {
-          total: android.total,
-          pct: android.pctTriggeringPush,
-          withField: android.withTriggeringPush,
-        },
-        message: `OPEN triggering_push rate differs by ${gapPct.toFixed(1)} pp: iOS ${ios.pctTriggeringPush}% (${ios.withTriggeringPush.toLocaleString()}/${ios.total.toLocaleString()}) vs Android ${android.pctTriggeringPush}% (${android.withTriggeringPush.toLocaleString()}/${android.total.toLocaleString()}).`,
-      };
-    }
-  }
-
-  return {
-    total: openTotal,
-    withTriggeringPush: openAcc.triggeringPush ?? 0,
-    withLastDelivered: openAcc.lastDelivered ?? 0,
-    pctTriggeringPush: openTotal
-      ? Math.round((openAcc.triggeringPush / openTotal) * 1000) / 10
-      : 0,
-    pctLastDelivered: openTotal
-      ? Math.round((openAcc.lastDelivered / openTotal) * 1000) / 10
-      : 0,
-    fieldHelp: OPEN_PUSH_FIELD_HELP,
-    byPlatform,
-    platformGapWarning,
-  };
+export function platformLabelForEventBreakdown(deviceType) {
+  return (
+    gapPlatformLabelFromDeviceType(deviceType) ??
+    openPlatformLabel(deviceType) ??
+    (String(deviceType ?? "").toUpperCase() || "UNKNOWN")
+  );
 }
 
 export function normalizeAttrKey(key) {
@@ -678,15 +590,6 @@ export function buildAppVersionReport(appByDevice, byDeviceType) {
   });
 }
 
-/** OPEN events per app version (and SDK), using OPEN counts as the device denominator. */
-export function buildOpenAppVersionReport(openAcc) {
-  const openTotalsByDevice = {};
-  for (const [deviceType, stats] of Object.entries(openAcc?.byDevice ?? {})) {
-    openTotalsByDevice[deviceType] = stats.total ?? 0;
-  }
-  return buildAppVersionReport(openAcc?.appByDevice ?? {}, openTotalsByDevice);
-}
-
 export function enrichAttributeRow(row, expectedDeviceTypes = []) {
   const existingMap = new Map((row.byDeviceBreakdown ?? []).map((d) => [d.deviceType, d]));
   const rawExpected =
@@ -852,32 +755,6 @@ export function buildCustomEventInsights(
 
       return baseRow;
     });
-}
-
-export function buildMessagingFailures(sendAborted, sendRejected) {
-  const mapReasons = (bucket) =>
-    Object.entries(bucket.byReason ?? {})
-      .sort((a, b) => b[1] - a[1])
-      .map(([reason, count]) => ({ reason, count }));
-
-  return {
-    sendAborted: {
-      total: sendAborted.total ?? 0,
-      byReason: mapReasons(sendAborted).map((row) => ({
-        ...row,
-        sampleKpiId: kpiId("messaging", "send_aborted", row.reason),
-      })),
-    },
-    sendRejected: {
-      total: sendRejected.total ?? 0,
-      byReason: mapReasons(sendRejected).map((row) =>
-        enrichSendRejectedReasonRow({
-          ...row,
-          sampleKpiId: kpiId("messaging", "send_rejected", row.reason),
-        }),
-      ),
-    },
-  };
 }
 
 export function buildSourceBreakdown(sources) {

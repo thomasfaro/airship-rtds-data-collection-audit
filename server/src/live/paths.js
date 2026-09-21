@@ -10,10 +10,6 @@ const live = createTmpPaths({
   logTag: "live-stream",
 });
 
-export const LIVE_TMP_DIR = live.TMP_DIR;
-
-export const ensureLiveTmpDir = live.ensureTmpDir;
-
 export function createLiveRawFilePath(profileName, streamId) {
   return live.createRawFilePath(profileName, { streamId });
 }

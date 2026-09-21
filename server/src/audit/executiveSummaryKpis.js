@@ -1,6 +1,5 @@
-import { adjustDeviceTypeRowsForExecutiveSummary, filterSendRejectedReasonsForExecutiveSummary, isCriticalExecutiveSummarySendRejectedReason } from "./executiveSummaryFilters.js";
+import { adjustDeviceTypeRowsForExecutiveSummary } from "./executiveSummaryFilters.js";
 import { compareSemver, normalizeTag, sdkPlatformForDeviceType } from "./sdkReleaseDates.js";
-import { enrichSendRejectedReasonRow } from "./sendRejectedReasons.js";
 
 function isUnknownScreenName(name) {
   const n = String(name ?? "")
@@ -59,29 +58,6 @@ function latestSdkByPlatform(sdkVersions) {
   return [...byPlatform.values()].sort((a, b) => a.platformLabel.localeCompare(b.platformLabel));
 }
 
-export function buildExecutiveSummarySendRejectedKpi(report) {
-  const sendRejectedRows = filterSendRejectedReasonsForExecutiveSummary(
-    report?.messagingFailures?.sendRejected?.byReason,
-  ).map((row) => {
-    const enriched = row.guide ? row : enrichSendRejectedReasonRow(row);
-    return {
-      ...enriched,
-      critical: isCriticalExecutiveSummarySendRejectedReason(row.reason),
-    };
-  });
-  const total = sendRejectedRows.reduce((sum, row) => sum + (row.count ?? 0), 0);
-  const criticalTotal = sendRejectedRows
-    .filter((row) => row.critical)
-    .reduce((sum, row) => sum + (row.count ?? 0), 0);
-
-  return {
-    problem: total > 0,
-    total,
-    criticalTotal,
-    reasons: sendRejectedRows,
-  };
-}
-
 /**
  * Structured KPIs for the audit executive summary (rendered prominently in the UI).
  */
@@ -118,8 +94,6 @@ export function buildExecutiveSummaryKpis(report) {
     .filter((row) => row.platformMismatch && isIosOnlyPlatformGap(row))
     .map((row) => ({ key: row.key, count: row.count }));
 
-  const sendRejected = buildExecutiveSummarySendRejectedKpi(report);
-
   return {
     deviceTypes,
     customEventSources,
@@ -136,6 +110,5 @@ export function buildExecutiveSummaryKpis(report) {
       customEventOverflow: Math.max(0, iosOnlyCustomEvents.length - 12),
       attributeOverflow: Math.max(0, iosOnlyAttributes.length - 12),
     },
-    sendRejected,
   };
 }

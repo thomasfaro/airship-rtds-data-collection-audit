@@ -1,13 +1,9 @@
 import { AUDIT_STREAM_MODES, buildProcessedRange } from "./auditWindow.js";
 import { AUDIT_LATENCY_MS } from "./streamRtdsEvents.js";
 import {
-  OPEN_PUSH_FIELD_HELP,
-  buildOpenEventsReport,
-  buildOpenAppVersionReport,
   addToSetMap,
   buildAttributeInsights,
   buildCustomEventInsights,
-  buildMessagingFailures,
   buildScreenViewedInsights,
   attributeExpectedDeviceTypes,
   auditDeviceType,
@@ -30,11 +26,8 @@ import {
   collectAuditWarnings,
 } from "./auditWarnings.js";
 import { buildAudienceTagsReport, extractTagChanges, MAX_TAG_KEYS_IN_REPORT } from "./audienceTags.js";
-import { buildExecutiveSummaryKpis, buildExecutiveSummarySendRejectedKpi } from "./executiveSummaryKpis.js";
-import {
-  adjustDeviceTypeRowsForExecutiveSummary,
-  filterContactChangeTypesForExecutiveSummary,
-} from "./executiveSummaryFilters.js";
+import { adjustDeviceTypeRowsForExecutiveSummary } from "./executiveSummaryFilters.js";
+import { buildExecutiveSummaryKpis } from "./executiveSummaryKpis.js";
 import {
   enrichAppVersionsReport,
   enrichSdkVersionsReport,
@@ -51,16 +44,6 @@ import {
   isAirshipAutoAttributeKey,
   processAirshipAttributeOp,
 } from "./airshipAutoAttributes.js";
-import {
-  buildContactChangeReport,
-  createContactChangeAccumulator,
-  processContactChangeEvent,
-} from "./contactChange.js";
-import {
-  buildComplianceReport,
-  createComplianceAccumulator,
-  processComplianceEvent,
-} from "./compliance.js";
 import { persistAttributeValuesSidecar, trackAttributeValue } from "./attributeValues.js";
 import { trackAttributeJsonProperties } from "./attributeJsonSchema.js";
 import {
@@ -290,7 +273,6 @@ function createAccumulator({ analysisScope = null } = {}) {
     maxOccurred: null,
     minProcessed: null,
     maxProcessed: null,
-    open: { total: 0, triggeringPush: 0, lastDelivered: 0, byDevice: {}, appByDevice: {} },
     screenByName: {},
     screenNamesCapped: false,
     sdkByDevice: {},
@@ -299,10 +281,6 @@ function createAccumulator({ analysisScope = null } = {}) {
     subscriptionLists: createSubscriptionListsAccumulator(),
     samples: createEventSampleCollector(),
     sources: { customEvents: {}, attributes: {}, tags: {} },
-    sendAborted: { total: 0, byReason: {} },
-    sendRejected: { total: 0, byReason: {} },
-    contactChange: createContactChangeAccumulator(),
-    compliance: createComplianceAccumulator(),
     airshipTags: createAirshipTagsAccumulator(),
     airshipAttributes: createAirshipAttributesAccumulator(),
   };
@@ -336,21 +314,6 @@ function trackAppSdkPair(acc, dt, event) {
   if (!appVer || !sdkVer || dt === "EMAIL") return;
   if (!acc.appByDevice[dt]) acc.appByDevice[dt] = { versions: {}, sdkByAppVersion: {} };
   const bucket = acc.appByDevice[dt];
-  if (!bucket.sdkByAppVersion) bucket.sdkByAppVersion = {};
-  const appKey = String(appVer);
-  if (!bucket.sdkByAppVersion[appKey]) bucket.sdkByAppVersion[appKey] = {};
-  inc(bucket.sdkByAppVersion[appKey], String(sdkVer));
-}
-
-/** Track app + SDK version on OPEN events only (for tagging-plan OPEN breakdown). */
-function trackOpenAppVersion(openAcc, dt, event) {
-  const appVer = event.device?.attributes?.app_version;
-  if (!appVer || dt === "EMAIL") return;
-  if (!openAcc.appByDevice[dt]) openAcc.appByDevice[dt] = { versions: {}, sdkByAppVersion: {} };
-  const bucket = openAcc.appByDevice[dt];
-  inc(bucket.versions, String(appVer));
-  const sdkVer = event.device?.attributes?.ua_sdk_version;
-  if (!sdkVer) return;
   if (!bucket.sdkByAppVersion) bucket.sdkByAppVersion = {};
   const appKey = String(appVer);
   if (!bucket.sdkByAppVersion[appKey]) bucket.sdkByAppVersion[appKey] = {};
@@ -492,38 +455,6 @@ function processAuditEvent(acc, event, timezone) {
     event,
   );
   trackAppSdkPair(acc, dt, event);
-
-  if (type === "OPEN") {
-    acc.open.total += 1;
-    if (!acc.open.byDevice[dt]) {
-      acc.open.byDevice[dt] = { total: 0, triggeringPush: 0, lastDelivered: 0 };
-    }
-    const openDevice = acc.open.byDevice[dt];
-    openDevice.total += 1;
-    const hasTrigger = body.triggering_push != null;
-    const hasLast = body.last_delivered != null;
-    if (hasTrigger) {
-      acc.open.triggeringPush += 1;
-      openDevice.triggeringPush += 1;
-      samples.add(
-        sampleKpiId("open", "triggering_push"),
-        "OPEN with triggering_push",
-        event,
-        { description: OPEN_PUSH_FIELD_HELP.triggering_push, deviceType: dt, illustrative: true },
-      );
-    }
-    if (hasLast) {
-      acc.open.lastDelivered += 1;
-      openDevice.lastDelivered += 1;
-      samples.add(
-        sampleKpiId("open", "last_delivered"),
-        "OPEN with last_delivered",
-        event,
-        { description: OPEN_PUSH_FIELD_HELP.last_delivered, deviceType: dt, illustrative: true },
-      );
-    }
-    trackOpenAppVersion(acc.open, dt, event);
-  }
 
   if (type === "SCREEN_VIEWED") {
     const screenName = extractScreenName(body);
@@ -689,38 +620,6 @@ function processAuditEvent(acc, event, timezone) {
     processSubscriptionListEvent(acc.subscriptionLists, event, dt, body, samples);
   }
 
-  if (type === "CONTACT_CHANGE") {
-    processContactChangeEvent(acc, event, dt, body, samples);
-  }
-
-  if (type === "COMPLIANCE") {
-    processComplianceEvent(acc, event, dt, body, samples);
-  }
-
-  if (type === "SEND_ABORTED") {
-    acc.sendAborted.total += 1;
-    const reason = String(body.reason || body.status || body.error_code || body.error || "unknown");
-    inc(acc.sendAborted.byReason, reason);
-    samples.add(
-      sampleKpiId("messaging", "send_aborted", reason),
-      `SEND_ABORTED: ${reason}`,
-      event,
-      { deviceType: dt, illustrative: true },
-    );
-  }
-
-  if (type === "SEND_REJECTED") {
-    acc.sendRejected.total += 1;
-    const reason = String(body.reason || body.status || body.error_code || body.error || "unknown");
-    inc(acc.sendRejected.byReason, reason);
-    samples.add(
-      sampleKpiId("messaging", "send_rejected", reason),
-      `SEND_REJECTED: ${reason}`,
-      event,
-      { deviceType: dt, illustrative: true },
-    );
-  }
-
   if (event.occurred) {
     const t = new Date(event.occurred).getTime();
     if (!Number.isNaN(t)) {
@@ -824,8 +723,6 @@ function finalizeReport(acc, options = {}) {
     namesCapped: acc.customNamesCapped,
     expectedPlatforms: customEventPlatforms,
   });
-  const contactChange = buildContactChangeReport(acc.contactChange);
-  const compliance = buildComplianceReport(acc.compliance);
   const screenViewed = buildScreenViewedInsights(acc.screenByName, {
     namesCapped: acc.screenNamesCapped,
   });
@@ -833,7 +730,6 @@ function finalizeReport(acc, options = {}) {
   const attributeInsights = buildAttributeInsights(acc.attributeKeys, {
     expectedDeviceTypes: attributeDeviceTypesInSample,
   });
-  const messagingFailures = buildMessagingFailures(acc.sendAborted, acc.sendRejected);
   const sourceBreakdown = buildSourceBreakdown(acc.sources);
   const attachVersionSamples = (rows, kpiCategory) =>
     rows.map((row) => ({
@@ -854,15 +750,6 @@ function finalizeReport(acc, options = {}) {
       sampleKpiId: sampleKpiId("app", row.deviceType, v.version),
     })),
   }));
-
-  const openInsights = {
-    ...buildOpenEventsReport(acc.open),
-    byAppVersion: buildOpenAppVersionReport(acc.open),
-    sampleKpiIds: {
-      lastDelivered: sampleKpiId("open", "last_delivered"),
-      triggeringPush: sampleKpiId("open", "triggering_push"),
-    },
-  };
 
   const channelsInfo = acc.channels.toJSON();
   const namedUsersInfo = acc.namedUsers.toJSON();
@@ -919,10 +806,7 @@ function finalizeReport(acc, options = {}) {
       deviceTypesTotal: platformBreakdown.deviceTypesTotal,
       deviceTypesCapped: platformBreakdown.deviceTypesCapped,
     },
-    openEvents: openInsights,
     screenViewed,
-    contactChange,
-    compliance,
     sdkVersions,
     appVersions,
     dataSources: sourceBreakdown,
@@ -936,7 +820,6 @@ function finalizeReport(acc, options = {}) {
     },
     tags: audienceTags,
     subscriptionLists,
-    messagingFailures,
     audience: {
       uniqueChannels: channelsInfo.count,
       uniqueChannelsIsLowerBound: channelsInfo.isLowerBound,
@@ -962,12 +845,7 @@ function finalizeReport(acc, options = {}) {
       parseErrors: acc.parseErrors,
       processErrors: acc.processErrors,
       lineErrorSamples: acc.lineErrorSamples,
-      open: openInsights,
       screenViewed,
-      contactChange,
-      compliance,
-      sendAborted: messagingFailures.sendAborted.total,
-      sendRejected: messagingFailures.sendRejected.total,
     },
   };
 
@@ -1354,35 +1232,10 @@ function buildExecutiveSummaryFindings(ctx) {
       `Strongest platform: ${topPlatform.deviceType} (${topPlatform.count.toLocaleString()} events, ${Math.round((topPlatform.count / platformTotal) * 100)}%).`,
     );
   }
-  if (ctx.open?.total) {
-    findings.push(
-      `App opens: ${ctx.open.total.toLocaleString()} — ${ctx.open.withLastDelivered.toLocaleString()} with last_delivered (${ctx.open.pctLastDelivered}%), ${ctx.open.withTriggeringPush.toLocaleString()} with triggering_push (${ctx.open.pctTriggeringPush}%).`,
-    );
-  }
   if (ctx.screenViewed?.total) {
     const topScreen = ctx.screenViewed.top?.[0];
     findings.push(
       `Screen views: ${ctx.screenViewed.total.toLocaleString()} across ${ctx.screenViewed.uniqueScreens} screen name(s)${topScreen ? `, top "${topScreen.name}" (${topScreen.count.toLocaleString()})` : ""}.`,
-    );
-  }
-  if (ctx.contactChange?.total) {
-    const visibleChangeTypes = filterContactChangeTypesForExecutiveSummary(
-      ctx.contactChange.byChangeType,
-    );
-    const visibleContactTotal = visibleChangeTypes.reduce((sum, row) => sum + (row.count ?? 0), 0);
-    if (visibleContactTotal > 0) {
-      const topType = visibleChangeTypes[0];
-      const topDevice = ctx.contactChange.byDeviceType?.[0];
-      findings.push(
-        `Contact changes: ${visibleContactTotal.toLocaleString()} event(s)${topType ? `, top change_type ${topType.changeType} (${topType.count.toLocaleString()})` : ""}${topDevice ? `, top device_type ${topDevice.deviceType} (${topDevice.count.toLocaleString()})` : ""}.`,
-      );
-    }
-  }
-  if (ctx.compliance?.total) {
-    const topType = ctx.compliance.byEventType?.[0];
-    const topDevice = ctx.compliance.byDeviceType?.[0];
-    findings.push(
-      `Compliance events: ${ctx.compliance.total.toLocaleString()} event(s)${topType ? `, top event_type ${topType.eventType} (${topType.count.toLocaleString()})` : ""}${topDevice ? `, top device_type ${topDevice.deviceType} (${topDevice.count.toLocaleString()})` : ""}.`,
     );
   }
   if (ctx.customEvents?.total) {
@@ -1414,11 +1267,6 @@ function buildExecutiveSummaryFindings(ctx) {
       `Tags (excl. ua_*): ${tagReport.totalAdded.toLocaleString()} added, ${tagReport.totalRemoved.toLocaleString()} removed across ${tagReport.uniqueGroups} group(s)${tagReport.recurringGroupCount ? ` (${tagReport.recurringGroupCount} with multiple tag values)` : ""}.`,
     );
   }
-  if (ctx.sendAborted || ctx.sendRejected) {
-    findings.push(
-      `Messaging failures: ${ctx.sendAborted.toLocaleString()} SEND_ABORTED, ${ctx.sendRejected.toLocaleString()} SEND_REJECTED.`,
-    );
-  }
   return findings;
 }
 
@@ -1443,17 +1291,12 @@ function reportToSummaryCtx(report) {
     channelsIsLowerBound: report.audience?.uniqueChannelsIsLowerBound ?? false,
     namedUsers: report.audience?.uniqueNamedUsers ?? 0,
     namedUsersIsLowerBound: report.audience?.uniqueNamedUsersIsLowerBound ?? false,
-    open: report.openEvents,
     screenViewed: report.screenViewed,
-    contactChange: report.contactChange,
-    compliance: report.compliance,
     customEvents: report.customEvents,
     customNamesCapped: report.customEvents?.namesCapped ?? false,
     attributeKeys: {},
     attributeUniqueKeys: report.attributes?.uniqueKeys ?? 0,
     tagsReport: report.tags,
-    sendAborted: report.messagingFailures?.sendAborted?.total ?? 0,
-    sendRejected: buildExecutiveSummarySendRejectedKpi(report).total,
     auditWarnings: report.auditWarnings ?? [],
   };
 }
