@@ -202,28 +202,6 @@ export function collectAuditWarnings(report, sdkWarnings = []) {
 
   warnings.push(...buildCustomEventPlatformWarnings(report.customEvents));
 
-  for (const row of report.emailFeedback?.rows ?? []) {
-    if (!row.propertyDiffs?.length) continue;
-    for (const diff of row.propertyDiffs) {
-      warnings.push({
-        severity: "warning",
-        category: "email_property_mismatch",
-        message: `Email feedback "${row.label ?? row.name}": property mismatch — ${diff.deviceA} only: ${diff.onlyOnA?.join(", ") || "—"}; ${diff.deviceB} only: ${diff.onlyOnB?.join(", ") || "—"}.`,
-        name: row.name,
-        label: row.label,
-        deviceA: diff.deviceA,
-        deviceB: diff.deviceB,
-        onlyOnA: diff.onlyOnA,
-        onlyOnB: diff.onlyOnB,
-        kpiIds: [
-          row.sampleKpiId,
-          ...(diff.onlyOnA ?? []).map((prop) => `email_custom.prop.${row.name}.${diff.deviceA}.${prop}`),
-          ...(diff.onlyOnB ?? []).map((prop) => `email_custom.prop.${row.name}.${diff.deviceB}.${prop}`),
-        ].filter(Boolean),
-      });
-    }
-  }
-
   pushAttributeWarnings(warnings, report.attributes, { audienceLabel: "Attributes" });
 
   warnings.push(...buildScreenPlatformWarnings(report.screenViewed));

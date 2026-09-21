@@ -61,16 +61,12 @@ import {
   createComplianceAccumulator,
   processComplianceEvent,
 } from "./compliance.js";
-import {
-  buildEmailFeedbackReport,
-  createEmailFeedbackAccumulator,
-  isEmailFeedbackCustomEvent,
-  normalizeEmailCustomName,
-  processEmailFeedbackCustomEvent,
-} from "./emailCustomEvents.js";
 import { persistAttributeValuesSidecar, trackAttributeValue } from "./attributeValues.js";
 import { trackAttributeJsonProperties } from "./attributeJsonSchema.js";
-import { isMessagingInteractionCustomEvent } from "./customEventFilters.js";
+import {
+  isEmailFeedbackCustomEvent,
+  isMessagingInteractionCustomEvent,
+} from "./customEventFilters.js";
 import { persistEventSamplesSidecar } from "./eventSamplesSidecar.js";
 import { eventPassesAnalysisScope } from "./analysisScope.js";
 import { excludedDeviceTypesFromFilter } from "./auditDeviceTypePredicates.js";
@@ -305,7 +301,6 @@ function createAccumulator({ analysisScope = null } = {}) {
     sources: { customEvents: {}, attributes: {}, tags: {} },
     sendAborted: { total: 0, byReason: {} },
     sendRejected: { total: 0, byReason: {} },
-    emailFeedback: createEmailFeedbackAccumulator(),
     contactChange: createContactChangeAccumulator(),
     compliance: createComplianceAccumulator(),
     airshipTags: createAirshipTagsAccumulator(),
@@ -557,22 +552,7 @@ function processAuditEvent(acc, event, timezone) {
     const name = body.name || "(unnamed)";
 
     if (isEmailFeedbackCustomEvent(event)) {
-      const emailName = normalizeEmailCustomName(name);
-      processEmailFeedbackCustomEvent(acc.emailFeedback, event, dt);
-      samples.add(
-        sampleKpiId("email_custom", emailName, dt),
-        `Email feedback: ${emailName} on ${dt}`,
-        event,
-        { description: `CUSTOM on EMAIL channel — ${emailName}`, deviceType: dt, illustrative: true },
-      );
-      for (const prop of extractCustomPropertyKeys(body)) {
-        samples.add(
-          sampleKpiId("email_custom", "prop", emailName, dt, prop),
-          `Email ${emailName}: property "${prop}" on ${dt}`,
-          event,
-          { deviceType: dt, countTowardDeviceQuota: false },
-        );
-      }
+      // Airship's own email send feedback, not client instrumentation.
     } else if (isMessagingInteractionCustomEvent(name)) {
       // In-app message button taps — not product custom events.
     } else {
@@ -844,7 +824,6 @@ function finalizeReport(acc, options = {}) {
     namesCapped: acc.customNamesCapped,
     expectedPlatforms: customEventPlatforms,
   });
-  const emailFeedback = buildEmailFeedbackReport(acc.emailFeedback);
   const contactChange = buildContactChangeReport(acc.contactChange);
   const compliance = buildComplianceReport(acc.compliance);
   const screenViewed = buildScreenViewedInsights(acc.screenByName, {
@@ -942,7 +921,6 @@ function finalizeReport(acc, options = {}) {
     },
     openEvents: openInsights,
     screenViewed,
-    emailFeedback,
     contactChange,
     compliance,
     sdkVersions,
@@ -986,7 +964,6 @@ function finalizeReport(acc, options = {}) {
       lineErrorSamples: acc.lineErrorSamples,
       open: openInsights,
       screenViewed,
-      emailFeedback,
       contactChange,
       compliance,
       sendAborted: messagingFailures.sendAborted.total,
@@ -1388,9 +1365,6 @@ function buildExecutiveSummaryFindings(ctx) {
       `Screen views: ${ctx.screenViewed.total.toLocaleString()} across ${ctx.screenViewed.uniqueScreens} screen name(s)${topScreen ? `, top "${topScreen.name}" (${topScreen.count.toLocaleString()})` : ""}.`,
     );
   }
-  if (ctx.emailFeedback?.total) {
-    findings.push(ctx.emailFeedback.summaryLines.join(" "));
-  }
   if (ctx.contactChange?.total) {
     const visibleChangeTypes = filterContactChangeTypesForExecutiveSummary(
       ctx.contactChange.byChangeType,
@@ -1471,7 +1445,6 @@ function reportToSummaryCtx(report) {
     namedUsersIsLowerBound: report.audience?.uniqueNamedUsersIsLowerBound ?? false,
     open: report.openEvents,
     screenViewed: report.screenViewed,
-    emailFeedback: report.emailFeedback,
     contactChange: report.contactChange,
     compliance: report.compliance,
     customEvents: report.customEvents,
