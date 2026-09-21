@@ -14,7 +14,7 @@ import {
   createCoveragePlateauStopper,
   distinctKeyBreakdown,
 } from "../audit/coveragePlateau.js";
-import { buildAuditRtdsBody, streamAuditEventsToFile } from "../audit/fetchEvents.js";
+import { buildAuditRtdsBody, streamAuditEvents } from "../audit/streamRtdsEvents.js";
 import { createAuditRawFilePath, removeAuditRawFile } from "../audit/paths.js";
 import { persistStoredAuditReport } from "../audit/storedAuditReport.js";
 import { auditRtdsTypes, auditTypeCoverage } from "../audit/registry.js";
@@ -221,7 +221,7 @@ export async function* runDataCollectionCapture(
     const downloadStarted = Date.now();
 
     try {
-      const downloadGen = streamAuditEventsToFile(profile, storagePath, {
+      const downloadGen = streamAuditEvents(profile, {
         signal: downloadSignal,
         latencyMs,
         timezone,

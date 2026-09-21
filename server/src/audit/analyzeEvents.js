@@ -1,6 +1,5 @@
-import fs from "node:fs";
 import { AUDIT_STREAM_MODES, buildProcessedRange } from "./auditWindow.js";
-import { AUDIT_LATENCY_MS } from "./fetchEvents.js";
+import { AUDIT_LATENCY_MS } from "./streamRtdsEvents.js";
 import {
   OPEN_PUSH_FIELD_HELP,
   buildOpenEventsReport,
@@ -88,7 +87,6 @@ import {
 } from "./subscriptionLists.js";
 import { trackAppVersionCoverage } from "./appVersionCoverage.js";
 import { annotateReportObsolescence } from "./obsolescence.js";
-import { iterateNdjsonLines } from "./ndjsonLineIterator.js";
 import { backfillWarningEventSamplesWithProgress } from "./warningSampleMatch.js";
 import { buildLineErrorPreview, formatLineErrorSampleHint } from "./lineErrorPreview.js";
 import { AUDIT_EXCLUDED_GROUPS, registryMeta } from "./registry.js";
@@ -100,8 +98,6 @@ const MAX_SCREEN_NAMES = 5_000;
 const MAX_LINE_ERROR_SAMPLES = 8;
 const MAX_TAG_KEYS = MAX_TAG_KEYS_IN_REPORT;
 const MAX_ATTRIBUTE_KEYS = 20_000;
-const ANALYZE_PROGRESS_INTERVAL = 10_000;
-const ANALYZE_PROGRESS_MS = 2_000;
 const CUSTOM_EVENT_SOURCES = ["SDK", "API", "UNKNOWN"];
 
 function createCustomBySource() {
@@ -1207,90 +1203,6 @@ export async function* finalizeAuditAccumulatorWithProgress(
     totalLines: scannedTotal,
     scopeId: auditContext?.scopeId ?? null,
     skipBackfill,
-  });
-  while (true) {
-    const step = await enrichGen.next();
-    if (step.done) {
-      return step.value;
-    }
-    yield step.value;
-    await yieldToEventLoop();
-  }
-}
-
-/**
- * Single-pass streaming analysis from NDJSON file on disk.
- * Yields progress; return value is the finalized report.
- */
-export async function* analyzeAuditEventsFromFile(
-  filePath,
-  {
-    profileName,
-    timezone = "Europe/Paris",
-    windowMs,
-    windowLabel,
-    storageMeta,
-    signal,
-    auditContext,
-  } = {},
-) {
-  if (!filePath || !fs.existsSync(filePath)) {
-    throw new Error(
-      "Downloaded capture file is missing on disk. Stop the audit and try again, or check Stored files.",
-    );
-  }
-
-  const acc = createAccumulator({
-    analysisScope: auditContext?.analysisScope ?? null,
-  });
-  let lastProgress = 0;
-  let lastProgressMs = Date.now();
-  const analyzeStarted = Date.now();
-  const totalLines = storageMeta?.rawFileLines ?? null;
-
-  yield { phase: "analyze", linesProcessed: 0, totalLines };
-
-  for await (const trimmed of iterateNdjsonLines(filePath, { signal })) {
-    ingestAuditLine(acc, trimmed, timezone);
-
-    const now = Date.now();
-    if (
-      acc.total - lastProgress >= ANALYZE_PROGRESS_INTERVAL ||
-      now - lastProgressMs >= ANALYZE_PROGRESS_MS
-    ) {
-      lastProgress = acc.total;
-      lastProgressMs = now;
-      yield { phase: "analyze", linesProcessed: acc.total, totalLines: totalLines ?? acc.total };
-      await yieldToEventLoop();
-    }
-  }
-
-  const scannedTotal = totalLines ?? acc.total;
-  yield {
-    phase: "analyze",
-    linesProcessed: acc.total,
-    totalLines: scannedTotal,
-    done: true,
-    analyzeMs: Date.now() - analyzeStarted,
-  };
-
-  yield { phase: "finalize" };
-  await yieldToEventLoop();
-
-  const report = finalizeReport(acc, {
-    profileName,
-    timezone,
-    windowMs,
-    windowLabel,
-    storageMeta,
-    auditContext,
-  });
-  report.meta.analyzeMs = Date.now() - analyzeStarted;
-
-  const enrichGen = enrichAuditReportWithProgress(report, {
-    filePath,
-    totalLines: scannedTotal,
-    scopeId: auditContext?.scopeId ?? null,
   });
   while (true) {
     const step = await enrichGen.next();

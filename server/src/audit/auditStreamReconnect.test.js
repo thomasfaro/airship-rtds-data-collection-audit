@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildAuditConnectBody, extractEventOffset } from "./auditStreamReconnect.js";
+import { buildAuditConnectBody } from "./auditStreamReconnect.js";
 
 test("buildAuditConnectBody uses start on first connect", () => {
   const body = buildAuditConnectBody(["OPEN"], null, "EARLIEST", null);
@@ -20,9 +20,4 @@ test("buildAuditConnectBody resumes with offset", () => {
   const body = buildAuditConnectBody(["OPEN"], null, "EARLIEST", "offset-99");
   assert.equal(body.start, undefined);
   assert.equal(body.resume_offset, "offset-99");
-});
-
-test("extractEventOffset reads offset field", () => {
-  const line = JSON.stringify({ type: "OPEN", offset: "abc-123", occurred: "2024-01-01T00:00:00Z" });
-  assert.equal(extractEventOffset(line), "abc-123");
 });

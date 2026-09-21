@@ -4,9 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {
-  analyzeAuditEventsFromFile,
   createAuditAccumulator,
-  finalizeAuditAccumulatorWithProgress,
   ingestAuditLine,
 } from "./analyzeEvents.js";
 import {
@@ -15,13 +13,6 @@ import {
   readAttributeValuesPage,
   trackAttributeValue,
 } from "./attributeValues.js";
-
-async function drainToReturn(gen) {
-  while (true) {
-    const step = await gen.next();
-    if (step.done) return step.value;
-  }
-}
 
 function sampleEvents() {
   const device = {
@@ -65,39 +56,6 @@ function sampleEvents() {
     },
   ];
 }
-
-test("analysis-only accumulator yields the same core aggregates as the file analyzer", async () => {
-  const events = sampleEvents();
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "audit-eq-"));
-  const filePath = path.join(dir, "audit-test.ndjson");
-  fs.writeFileSync(filePath, `${events.map((e) => JSON.stringify(e)).join("\n")}\n`);
-
-  const baseOpts = {
-    profileName: "test",
-    timezone: "UTC",
-    windowMs: null,
-    windowLabel: "no latency",
-    storageMeta: { rawFileLines: events.length, rawFileBytes: 0, rawFileKept: false },
-    auditContext: { streamMode: "earliest_manual" },
-  };
-
-  try {
-    const fileReport = await drainToReturn(analyzeAuditEventsFromFile(filePath, { ...baseOpts }));
-
-    const acc = createAuditAccumulator();
-    for (const event of events) ingestAuditLine(acc, JSON.stringify(event), "UTC");
-    const accReport = await drainToReturn(
-      finalizeAuditAccumulatorWithProgress(acc, { ...baseOpts, filePath: null, skipBackfill: true }),
-    );
-
-    assert.equal(accReport.meta.totalEvents, fileReport.meta.totalEvents);
-    assert.equal(accReport.customEvents.total, fileReport.customEvents.total);
-    assert.deepEqual(accReport.customEvents, fileReport.customEvents);
-    assert.deepEqual(accReport.byDeviceType, fileReport.byDeviceType);
-  } finally {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
-});
 
 test("ingestAuditLine returns the event offset from a single parse", () => {
   const acc = createAuditAccumulator();
