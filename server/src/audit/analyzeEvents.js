@@ -87,7 +87,6 @@ import {
 } from "./subscriptionLists.js";
 import { trackAppVersionCoverage } from "./appVersionCoverage.js";
 import { annotateReportObsolescence } from "./obsolescence.js";
-import { backfillWarningEventSamplesWithProgress } from "./warningSampleMatch.js";
 import { buildLineErrorPreview, formatLineErrorSampleHint } from "./lineErrorPreview.js";
 import { AUDIT_EXCLUDED_GROUPS, registryMeta } from "./registry.js";
 import { CappedUniqueCounter } from "./uniqueCounter.js";
@@ -1009,13 +1008,11 @@ function yieldToEventLoop() {
  */
 export async function* enrichAuditReportWithProgress(
   report,
-  { releaseMaps: releaseMapsInput, filePath, totalLines = null, scopeId = null, skipBackfill = false } = {},
+  { releaseMaps: releaseMapsInput, filePath, scopeId = null } = {},
 ) {
   const ctx = report._finalizeContext;
   delete report._finalizeContext;
   const timezone = report.meta?.timezone ?? ctx?.timezone;
-  const eventTotal =
-    totalLines ?? report.meta?.storage?.rawFileLines ?? report.meta?.totalEvents ?? null;
 
   yield { phase: "enrich", step: "releases" };
   await yieldToEventLoop();
@@ -1037,31 +1034,6 @@ export async function* enrichAuditReportWithProgress(
   report.auditWarnings = collectAuditWarnings(report, sdkWarnings);
 
   if (filePath) {
-    if (!scopeId && !skipBackfill) {
-      yield { phase: "enrich", step: "backfill", linesProcessed: 0, totalLines: eventTotal };
-      await yieldToEventLoop();
-      const backfillStarted = Date.now();
-      const backfillGen = backfillWarningEventSamplesWithProgress(filePath, report, {
-        existingSamples: report.eventSamples,
-        totalLines: eventTotal,
-      });
-      while (true) {
-        const step = await backfillGen.next();
-        if (step.done) {
-          report.eventSamples = step.value;
-          break;
-        }
-        yield {
-          phase: "enrich",
-          step: "backfill",
-          linesProcessed: step.value.linesProcessed,
-          totalLines: step.value.totalLines ?? eventTotal,
-        };
-        await yieldToEventLoop();
-      }
-      report.meta.backfillMs = Date.now() - backfillStarted;
-    }
-
     yield { phase: "enrich", step: "sidecars" };
     await yieldToEventLoop();
     const attributeKeys = ctx?.attributeKeys;
@@ -1182,7 +1154,6 @@ export async function* finalizeAuditAccumulatorWithProgress(
     storageMeta,
     auditContext,
     filePath = null,
-    skipBackfill = true,
   } = {},
 ) {
   yield { phase: "finalize" };
@@ -1197,12 +1168,9 @@ export async function* finalizeAuditAccumulatorWithProgress(
     auditContext,
   });
 
-  const scannedTotal = storageMeta?.rawFileLines ?? acc.total;
   const enrichGen = enrichAuditReportWithProgress(report, {
     filePath,
-    totalLines: scannedTotal,
     scopeId: auditContext?.scopeId ?? null,
-    skipBackfill,
   });
   while (true) {
     const step = await enrichGen.next();

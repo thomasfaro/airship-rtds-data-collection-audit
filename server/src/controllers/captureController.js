@@ -349,7 +349,6 @@ export async function* runDataCollectionCapture(
         excludedDeviceTypes,
       },
       filePath: storagePath,
-      skipBackfill: true,
     });
 
     let report;
