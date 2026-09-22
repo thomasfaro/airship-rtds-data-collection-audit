@@ -118,6 +118,26 @@ export const smsComplianceRegistry = {
   uninstall: { type: "SMS_UNINSTALL", label: "SMS Uninstall", color: "#dc2626" },
 };
 
+/**
+ * Label and colour for a display type. Most are RTDS types found in `eventRegistry`;
+ * the rest are the email and SMS types this UI derives from a CUSTOM or COMPLIANCE
+ * payload, which are keyed by `body.name` rather than by the type they display as.
+ */
+export function metadataForType(type) {
+  if (eventRegistry[type]) return eventRegistry[type];
+  const customEmailMetadata = Object.values(customEmailRegistry).find((metadata) => metadata.type === type);
+  if (customEmailMetadata) return { group: "Email", label: customEmailMetadata.label, color: customEmailMetadata.color };
+  const emailComplianceMetadata = Object.values(emailComplianceRegistry).find((metadata) => metadata.type === type);
+  if (emailComplianceMetadata) return { group: "Email", label: emailComplianceMetadata.label, color: emailComplianceMetadata.color };
+  const customSmsMetadata = Object.values(customSmsRegistry).find((metadata) => metadata.type === type);
+  if (customSmsMetadata) return { group: "SMS", label: customSmsMetadata.label, color: customSmsMetadata.color };
+  const smsComplianceMetadata = Object.values(smsComplianceRegistry).find((metadata) => metadata.type === type);
+  if (smsComplianceMetadata) return { group: "SMS", label: smsComplianceMetadata.label, color: smsComplianceMetadata.color };
+  if (type === "EMAIL_COMPLIANCE_UNSUBSCRIBE") return { group: "Email", label: "Email Compliance Unsubscribe", color: "#f43f5e" };
+  if (type === "SMS_REGISTRATION_UPDATE") return { group: "SMS", label: "SMS Registration Update", color: "#14b8a6" };
+  return { group: "Other", label: type || "Unknown", color: "#e5e7eb" };
+}
+
 export const EVENT_GROUPS = [
   "",
   "App",
