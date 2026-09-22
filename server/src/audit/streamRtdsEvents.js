@@ -18,6 +18,12 @@ export { buildAuditRtdsBody } from "./auditRtdsBody.js";
 
 export const AUDIT_LATENCY_MS = DEFAULT_AUDIT_WINDOW_HOURS * 60 * 60 * 1000;
 const PROGRESS_LINE_INTERVAL = 10_000;
+/**
+ * A tick is also due after this long, however few events arrived. On a busy project
+ * the line interval fires many times a second; on a quiet one it may take an hour,
+ * and a capture that shows "0 events" for an hour reads as broken rather than slow.
+ */
+const PROGRESS_MAX_SILENCE_MS = 2_000;
 // Max contiguous time (ms) the ingest may hold the Node event loop before yielding.
 // Keeps the single-threaded server responsive (SPA + other API/SSE requests) while a
 // capture is being analysed line by line.
@@ -25,6 +31,19 @@ const INGEST_YIELD_MS = 12;
 
 function yieldToEventLoop() {
   return new Promise((resolve) => setImmediate(resolve));
+}
+
+/** What the silence timer resolves with, so it cannot be mistaken for a read result. */
+const SILENT = Symbol("progress tick");
+
+function afterSilence(ms = PROGRESS_MAX_SILENCE_MS) {
+  let timer = null;
+  const promise = new Promise((resolve) => {
+    timer = setTimeout(() => resolve(SILENT), ms);
+    // A pending tick must not hold the process open once the capture is over.
+    timer.unref?.();
+  });
+  return { promise, cancel: () => clearTimeout(timer) };
 }
 
 /**
@@ -218,6 +237,11 @@ async function* streamUntilStopped(
       progressTracker.snapshotVolume({ linesWritten: state.linesWritten }),
     );
 
+  // A quiet project spends its time waiting on the socket, so the tick that tells
+  // the UI the capture is alive cannot wait for a chunk. The pending read is kept
+  // across iterations: losing the race must never start a second read.
+  let pendingRead = null;
+
   while (true) {
     if (signal?.aborted) {
       await reader.cancel().catch(() => {});
@@ -225,11 +249,21 @@ async function* streamUntilStopped(
     }
 
     const readStart = profiler ? performance.now() : 0;
-    const { done, value } = await readWithAbortSignal(reader, signal);
+    if (!pendingRead) pendingRead = readWithAbortSignal(reader, signal);
+    const silence = afterSilence();
+    const result = await Promise.race([pendingRead, silence.promise]);
+    silence.cancel();
     if (profiler) {
       profiler.readWaitMs += performance.now() - readStart;
-      profiler.reads += 1;
     }
+    if (result === SILENT) {
+      yield emitProgress();
+      continue;
+    }
+    pendingRead = null;
+    if (profiler) profiler.reads += 1;
+
+    const { done, value } = result;
     if (done) break;
 
     const chunk = toChunk(value);
