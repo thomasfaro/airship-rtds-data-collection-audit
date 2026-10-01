@@ -250,8 +250,8 @@
               "value": 2
             },
             {
-              "label": "Platform mismatches",
-              "value": 11
+              "label": "Mismatches",
+              "value": 13
             }
           ]
         },
@@ -568,7 +568,7 @@
       },
       {
         "name": "Mismatches",
-        "note": "Cross-platform inconsistencies already flagged by the audit: presence gaps between platforms and value/property differences (event properties, attribute value shapes, casing, email properties). SDK version issues are reported separately.",
+        "note": "Inconsistencies already flagged by the audit: presence gaps between platforms, value/property differences (event properties, attribute value shapes, casing, email properties), and custom-event properties whose JSON type is not what a trigger expects — a boolean sent as the text \"true\", or a property typed differently between builds or between events. SDK version issues are reported separately.",
         "columns": [
           {
             "key": "dataType",
@@ -744,6 +744,31 @@
             "missing": "iOS, Web",
             "details": "",
             "message": "Custom event \"android_widget_tapped\" (SDK): present on Android only — not on iOS, Web (83 hits).",
+            "__mismatch": true
+          },
+          {
+            "__section": "Property value types"
+          },
+          {
+            "dataType": "Custom events",
+            "issue": "Custom event · boolean as text",
+            "name": "promo_applied",
+            "source": "SDK",
+            "present": "",
+            "missing": "",
+            "details": "first_order: text \"true\"/\"false\" ×272 (ANDROID, IOS, WEB)",
+            "message": "Custom event \"promo_applied\" (SDK): property \"first_order\" is sent as the text \"true\"/\"false\", not a boolean — 272 of 272 value(s), on ANDROID, IOS, WEB. A trigger or audience condition on the boolean true will not match it.",
+            "__mismatch": true
+          },
+          {
+            "dataType": "Custom events",
+            "issue": "Custom event · type differs by event",
+            "name": "first_order",
+            "source": "",
+            "present": "",
+            "missing": "",
+            "details": "text \"true\"/\"false\": promo_applied; boolean: purchase",
+            "message": "Property \"first_order\" does not have the same JSON type in every custom event — text \"true\"/\"false\" in \"promo_applied\"; boolean in \"purchase\". A trigger or segment copied from one event to another will not match.",
             "__mismatch": true
           }
         ],
@@ -999,8 +1024,8 @@
             "plat_Android": 129,
             "plat_Web": 12,
             "eventValues": "",
-            "properties": "code, discount",
-            "propSamples": "code: code-value-1, code-value-3, code-value-2\ndiscount: discount-value-3, discount-value-2, discount-value-1",
+            "properties": "code, discount, first_order",
+            "propSamples": "code: code-value-1, code-value-3, code-value-2\ndiscount: discount-value-3, discount-value-2, discount-value-1\nfirst_order: first_order-value-3, first_order-value-1, first_order-value-2",
             "present": "iOS, Android, Web",
             "missing": "",
             "mismatch": "No",
@@ -1026,8 +1051,8 @@
             "plat_Android": 91,
             "plat_Web": 7,
             "eventValues": "value-value-1, value-value-2, value-value-3",
-            "properties": "currency, items, order_id, payment",
-            "propSamples": "currency: currency-value-3, currency-value-2, currency-value-1\nitems: items-value-2, items-value-3, items-value-1\norder_id: order_id-value-1, order_id-value-3, order_id-value-2\npayment: payment-value-2, payment-value-1, payment-value-3",
+            "properties": "currency, first_order, items, order_id, payment",
+            "propSamples": "currency: currency-value-3, currency-value-2, currency-value-1\nfirst_order: first_order-value-1, first_order-value-3, first_order-value-2\nitems: items-value-2, items-value-3, items-value-1\norder_id: order_id-value-1, order_id-value-3, order_id-value-2\npayment: payment-value-2, payment-value-1, payment-value-3",
             "present": "iOS, Android, Web",
             "missing": "",
             "mismatch": "No",
@@ -2606,6 +2631,15 @@
         "capped": ""
       },
       {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "first_order",
+        "value": "first_order-value-1",
+        "count": 462,
+        "deviceTypes": "IOS: 2, ANDROID: 12",
+        "capped": ""
+      },
+      {
         "event": "promo_applied",
         "source": "SDK",
         "property": "discount",
@@ -2678,6 +2712,15 @@
         "capped": ""
       },
       {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "first_order",
+        "value": "first_order-value-3",
+        "count": 424,
+        "deviceTypes": "IOS: 2, ANDROID: 12",
+        "capped": ""
+      },
+      {
         "event": "store_locator_used",
         "source": "SDK",
         "property": "city",
@@ -2687,12 +2730,30 @@
         "capped": ""
       },
       {
+        "event": "promo_applied",
+        "source": "SDK",
+        "property": "first_order",
+        "value": "first_order-value-3",
+        "count": 423,
+        "deviceTypes": "IOS: 36, ANDROID: 16",
+        "capped": ""
+      },
+      {
         "event": "add_to_cart",
         "source": "SDK",
         "property": "currency",
         "value": "currency-value-2",
         "count": 416,
         "deviceTypes": "IOS: 37, ANDROID: 17",
+        "capped": ""
+      },
+      {
+        "event": "promo_applied",
+        "source": "SDK",
+        "property": "first_order",
+        "value": "first_order-value-1",
+        "count": 416,
+        "deviceTypes": "IOS: 36, ANDROID: 16",
         "capped": ""
       },
       {
@@ -2801,6 +2862,24 @@
         "value": "currency-value-3",
         "count": 376,
         "deviceTypes": "IOS: 17, ANDROID: 22",
+        "capped": ""
+      },
+      {
+        "event": "purchase",
+        "source": "SDK",
+        "property": "first_order",
+        "value": "first_order-value-2",
+        "count": 372,
+        "deviceTypes": "IOS: 2, ANDROID: 12",
+        "capped": ""
+      },
+      {
+        "event": "promo_applied",
+        "source": "SDK",
+        "property": "first_order",
+        "value": "first_order-value-2",
+        "count": 366,
+        "deviceTypes": "IOS: 36, ANDROID: 16",
         "capped": ""
       },
       {

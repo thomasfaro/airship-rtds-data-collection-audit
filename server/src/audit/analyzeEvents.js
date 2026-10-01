@@ -58,6 +58,7 @@ import {
   persistCustomPropertyValuesSidecar,
   trackCustomPropertyValue,
 } from "./customEventPropertyValues.js";
+import { mergeCustomPropertyTypes, trackCustomPropertyType } from "./customPropertyTypes.js";
 import { createEventSampleCollector, kpiId as sampleKpiId } from "./eventSamples.js";
 import {
   buildSubscriptionListsReport,
@@ -104,6 +105,7 @@ function getCustomEventBucket(acc, source, name) {
       byDevice: {},
       propertiesByDevice: {},
       propertyValueCounts: {},
+      propertyTypes: {},
       sampleValues: new Set(),
     };
   }
@@ -125,6 +127,7 @@ function mergeCustomEventRow(target, source) {
     if (target.sampleValues.size < 5) target.sampleValues.add(value);
   }
   mergeCustomEventPropertyValueCounts(target, source);
+  mergeCustomPropertyTypes(target, source);
 }
 
 /** Move API named-user CUSTOM rows mistakenly stored under UNKNOWN source (legacy analyses). */
@@ -142,6 +145,7 @@ function mergeApiNamedUserCustomEventsFromUnknown(customBySource) {
         byDevice: {},
         propertiesByDevice: {},
         propertyValueCounts: {},
+        propertyTypes: {},
         sampleValues: new Set(),
       };
     }
@@ -523,6 +527,7 @@ function processAuditEvent(acc, event, timezone) {
           }
           if (customProps && typeof customProps === "object" && !Array.isArray(customProps)) {
             trackCustomPropertyValue(bucket, prop, customProps[prop], dt);
+            trackCustomPropertyType(bucket, prop, customProps[prop], dt);
           }
         }
 

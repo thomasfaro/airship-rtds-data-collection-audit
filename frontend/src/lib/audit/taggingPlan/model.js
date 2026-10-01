@@ -257,7 +257,7 @@ function planContentsRows(contents) {
   // These two name the sheet that holds the detail. The label column is as wide
   // as the table's first column, so a longer sentence is simply cut off.
   rows.push({ label: "Absent from latest version", value: dataRows(contents.absentFromLatest) });
-  rows.push({ label: "Platform mismatches", value: dataRows(contents.mismatches) });
+  rows.push({ label: "Mismatches", value: dataRows(contents.mismatches) });
   return rows;
 }
 
@@ -713,15 +713,24 @@ function buildAbsentFromLatestSheet(report) {
   };
 }
 
-/** Families of cross-platform mismatch surfaced here (SDK version issues excluded). */
-const MISMATCH_SHEET_KEYS = ["platform_coverage", "cross_platform_inconsistency"];
+/** Families of mismatch surfaced here (SDK version issues excluded). */
+const MISMATCH_SHEET_KEYS = ["platform_coverage", "cross_platform_inconsistency", "value_types"];
 
-/** Human-readable "only on A / only on B" diff for property/value mismatches. */
+/** Human-readable diff: "only on A / only on B", or the JSON types a property arrived as. */
 function mismatchDetails(w) {
   const parts = [];
   if (w.deviceA && (w.onlyOnA?.length || w.onlyOnB?.length)) {
     parts.push(`${w.deviceA} only: ${w.onlyOnA?.length ? w.onlyOnA.join(", ") : "—"}`);
     parts.push(`${w.deviceB} only: ${w.onlyOnB?.length ? w.onlyOnB.join(", ") : "—"}`);
+  }
+  if (w.types?.length) {
+    const types = w.types
+      .map((t) => `${t.label} ×${(t.count ?? 0).toLocaleString("en-US")} (${(t.deviceTypes ?? []).join(", ")})`)
+      .join("; ");
+    parts.push(`${w.key}: ${types}`);
+  }
+  for (const group of w.byEvent ?? []) {
+    parts.push(`${group.type}: ${(group.events ?? []).join(", ")}`);
   }
   return parts.join("; ");
 }
@@ -746,7 +755,7 @@ function buildMismatchSheet(report) {
   if (flat.length === 0) {
     return {
       name: "Mismatches",
-      note: "No cross-platform coverage or value/property mismatches were detected in this capture window. Detection improves with captures that include comparable mobile platforms (iOS and Android).",
+      note: "No cross-platform coverage, value/property or property value type mismatches were detected in this capture window. Detection improves with captures that include comparable mobile platforms (iOS and Android).",
       columns,
       rows: [],
       flagRows: false,
@@ -775,7 +784,7 @@ function buildMismatchSheet(report) {
 
   return {
     name: "Mismatches",
-    note: "Cross-platform inconsistencies already flagged by the audit: presence gaps between platforms and value/property differences (event properties, attribute value shapes, casing, email properties). SDK version issues are reported separately.",
+    note: "Inconsistencies already flagged by the audit: presence gaps between platforms, value/property differences (event properties, attribute value shapes, casing, email properties), and custom-event properties whose JSON type is not what a trigger expects — a boolean sent as the text \"true\", or a property typed differently between builds or between events. SDK version issues are reported separately.",
     columns,
     rows,
     flagRows: false,

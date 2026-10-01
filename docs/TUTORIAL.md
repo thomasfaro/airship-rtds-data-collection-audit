@@ -109,6 +109,14 @@ findings hide:
 | **missing on …** | Tracked on some platforms but never seen on another. Either an implementation gap or something deliberate, but always worth asking about |
 | The version scope | The app versions it appeared on. Anything not on the latest build is a candidate for cleanup |
 
+The **Warnings** card under the summary gathers what deserves a question, and the workbook's
+**Mismatches** sheet lists the same findings. One group needs a word: **Property value types**.
+Airship compares an event property with the type it was sent as, so `"true"` in quotes is text, and
+an In-App Automation trigger or a segment on the boolean `true` will never match it. The tool flags
+a property sent as the text `"true"`/`"false"`, a property that arrives as a number on one platform
+and as text on another, and a property name typed differently by two events. That last case is
+typical when a new event replaces an old one and the triggers are copied across unchanged.
+
 Every capture is saved locally. **History** reopens any of them and regenerates both exports, so you
 never need to recapture to produce the file again.
 

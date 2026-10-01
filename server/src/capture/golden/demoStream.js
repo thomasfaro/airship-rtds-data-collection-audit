@@ -13,8 +13,10 @@ const CUSTOM_EVENTS = [
   { name: "search_performed", weight: 11, props: { term: "running shoes", results: 42 } },
   { name: "wishlist_added", weight: 7, props: { sku: "SKU-1190", list: "summer" } },
   { name: "checkout_started", weight: 6, props: { cart_value: 149.8, items: 2, currency: "EUR" } },
-  { name: "purchase", weight: 5, props: { order_id: "ORD-77120", value: 149.8, currency: "EUR", items: 2, payment: "card" } },
-  { name: "promo_applied", weight: 4, props: { code: "SUMMER20", discount: 20 } },
+  { name: "purchase", weight: 5, props: { order_id: "ORD-77120", value: 149.8, currency: "EUR", items: 2, payment: "card", first_order: true } },
+  // first_order in quotes, on purpose: shows up as a boolean sent as text, and as a
+  // property typed differently from purchase's.
+  { name: "promo_applied", weight: 4, props: { code: "SUMMER20", discount: 20, first_order: "true" } },
   { name: "store_locator_used", weight: 3, props: { city: "Lyon", results: 6 } },
   { name: "review_submitted", weight: 2, props: { sku: "SKU-8842", rating: 4 } },
   { name: "loyalty_card_scanned", weight: 2, props: { store_id: "FR-0142" } },

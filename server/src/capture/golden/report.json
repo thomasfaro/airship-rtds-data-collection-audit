@@ -18,7 +18,7 @@
     ],
     "processingMode": "stream-file",
     "eventSampleStats": {
-      "bucketCount": 279,
+      "bucketCount": 285,
       "bucketsCapped": false,
       "maxBuckets": 500
     },
@@ -41,7 +41,7 @@
       "attributeValuesFile": "golden-capture.attr-values.json",
       "customPropertyValuesFile": "golden-capture.custom-prop-values.json",
       "eventSamplesFile": "golden-capture.event-samples.json",
-      "eventSamplesBucketCount": 279,
+      "eventSamplesBucketCount": 285,
       "sourceFileName": "golden-capture.ndjson",
       "sourceFileMtimeMs": null,
       "sourceFileBytes": null,
@@ -1334,6 +1334,76 @@
               "valuesCapped": false
             }
           ],
+          "propertyTypes": [
+            {
+              "property": "category",
+              "kinds": {
+                "string": 1304
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 555
+                },
+                "IOS": {
+                  "string": 707
+                },
+                "WEB": {
+                  "string": 42
+                }
+              }
+            },
+            {
+              "property": "currency",
+              "kinds": {
+                "string": 1304
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 555
+                },
+                "IOS": {
+                  "string": 707
+                },
+                "WEB": {
+                  "string": 42
+                }
+              }
+            },
+            {
+              "property": "price",
+              "kinds": {
+                "number": 1304
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "number": 555
+                },
+                "IOS": {
+                  "number": 707
+                },
+                "WEB": {
+                  "number": 42
+                }
+              }
+            },
+            {
+              "property": "sku",
+              "kinds": {
+                "string": 1304
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 555
+                },
+                "IOS": {
+                  "string": 707
+                },
+                "WEB": {
+                  "string": 42
+                }
+              }
+            }
+          ],
           "byPlatform": [
             {
               "platform": "iOS",
@@ -1472,6 +1542,76 @@
               "valuesCapped": false
             }
           ],
+          "propertyTypes": [
+            {
+              "property": "currency",
+              "kinds": {
+                "string": 803
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 314
+                },
+                "IOS": {
+                  "string": 466
+                },
+                "WEB": {
+                  "string": 23
+                }
+              }
+            },
+            {
+              "property": "price",
+              "kinds": {
+                "number": 803
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "number": 314
+                },
+                "IOS": {
+                  "number": 466
+                },
+                "WEB": {
+                  "number": 23
+                }
+              }
+            },
+            {
+              "property": "quantity",
+              "kinds": {
+                "number": 803
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "number": 314
+                },
+                "IOS": {
+                  "number": 466
+                },
+                "WEB": {
+                  "number": 23
+                }
+              }
+            },
+            {
+              "property": "sku",
+              "kinds": {
+                "string": 803
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 314
+                },
+                "IOS": {
+                  "string": 466
+                },
+                "WEB": {
+                  "string": 23
+                }
+              }
+            }
+          ],
           "byPlatform": [
             {
               "platform": "iOS",
@@ -1590,6 +1730,42 @@
               "property": "term",
               "trackedValueCount": 1,
               "valuesCapped": false
+            }
+          ],
+          "propertyTypes": [
+            {
+              "property": "results",
+              "kinds": {
+                "number": 691
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "number": 290
+                },
+                "IOS": {
+                  "number": 373
+                },
+                "WEB": {
+                  "number": 28
+                }
+              }
+            },
+            {
+              "property": "term",
+              "kinds": {
+                "string": 691
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 290
+                },
+                "IOS": {
+                  "string": 373
+                },
+                "WEB": {
+                  "string": 28
+                }
+              }
             }
           ],
           "byPlatform": [
@@ -1721,6 +1897,59 @@
               "valuesCapped": false
             }
           ],
+          "propertyTypes": [
+            {
+              "property": "cart_value",
+              "kinds": {
+                "number": 383
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "number": 165
+                },
+                "IOS": {
+                  "number": 206
+                },
+                "WEB": {
+                  "number": 12
+                }
+              }
+            },
+            {
+              "property": "currency",
+              "kinds": {
+                "string": 383
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 165
+                },
+                "IOS": {
+                  "string": 206
+                },
+                "WEB": {
+                  "string": 12
+                }
+              }
+            },
+            {
+              "property": "items",
+              "kinds": {
+                "number": 383
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "number": 165
+                },
+                "IOS": {
+                  "number": 206
+                },
+                "WEB": {
+                  "number": 12
+                }
+              }
+            }
+          ],
           "byPlatform": [
             {
               "platform": "iOS",
@@ -1829,6 +2058,36 @@
               "valuesCapped": false
             }
           ],
+          "propertyTypes": [
+            {
+              "property": "list",
+              "kinds": {
+                "string": 331
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 128
+                },
+                "IOS": {
+                  "string": 203
+                }
+              }
+            },
+            {
+              "property": "sku",
+              "kinds": {
+                "string": 331
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 128
+                },
+                "IOS": {
+                  "string": 203
+                }
+              }
+            }
+          ],
           "byPlatform": [
             {
               "platform": "iOS",
@@ -1904,20 +2163,24 @@
           ],
           "properties": [
             "code",
-            "discount"
+            "discount",
+            "first_order"
           ],
           "propertiesByDevice": {
             "ANDROID": [
               "code",
-              "discount"
+              "discount",
+              "first_order"
             ],
             "IOS": [
               "code",
-              "discount"
+              "discount",
+              "first_order"
             ],
             "WEB": [
               "code",
-              "discount"
+              "discount",
+              "first_order"
             ]
           },
           "propertyDiffs": [],
@@ -1939,6 +2202,64 @@
               "property": "discount",
               "trackedValueCount": 1,
               "valuesCapped": false
+            },
+            {
+              "property": "first_order",
+              "trackedValueCount": 1,
+              "valuesCapped": false
+            }
+          ],
+          "propertyTypes": [
+            {
+              "property": "code",
+              "kinds": {
+                "string": 272
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 129
+                },
+                "IOS": {
+                  "string": 131
+                },
+                "WEB": {
+                  "string": 12
+                }
+              }
+            },
+            {
+              "property": "discount",
+              "kinds": {
+                "number": 272
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "number": 129
+                },
+                "IOS": {
+                  "number": 131
+                },
+                "WEB": {
+                  "number": 12
+                }
+              }
+            },
+            {
+              "property": "first_order",
+              "kinds": {
+                "text-boolean": 272
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "text-boolean": 129
+                },
+                "IOS": {
+                  "text-boolean": 131
+                },
+                "WEB": {
+                  "text-boolean": 12
+                }
+              }
             }
           ],
           "byPlatform": [
@@ -2024,6 +2345,7 @@
           ],
           "properties": [
             "currency",
+            "first_order",
             "items",
             "order_id",
             "payment",
@@ -2032,6 +2354,7 @@
           "propertiesByDevice": {
             "ANDROID": [
               "currency",
+              "first_order",
               "items",
               "order_id",
               "payment",
@@ -2039,6 +2362,7 @@
             ],
             "IOS": [
               "currency",
+              "first_order",
               "items",
               "order_id",
               "payment",
@@ -2046,6 +2370,7 @@
             ],
             "WEB": [
               "currency",
+              "first_order",
               "items",
               "order_id",
               "payment",
@@ -2068,6 +2393,11 @@
               "valuesCapped": false
             },
             {
+              "property": "first_order",
+              "trackedValueCount": 1,
+              "valuesCapped": false
+            },
+            {
               "property": "items",
               "trackedValueCount": 1,
               "valuesCapped": false
@@ -2086,6 +2416,110 @@
               "property": "value",
               "trackedValueCount": 1,
               "valuesCapped": false
+            }
+          ],
+          "propertyTypes": [
+            {
+              "property": "currency",
+              "kinds": {
+                "string": 227
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 91
+                },
+                "IOS": {
+                  "string": 129
+                },
+                "WEB": {
+                  "string": 7
+                }
+              }
+            },
+            {
+              "property": "first_order",
+              "kinds": {
+                "boolean": 227
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "boolean": 91
+                },
+                "IOS": {
+                  "boolean": 129
+                },
+                "WEB": {
+                  "boolean": 7
+                }
+              }
+            },
+            {
+              "property": "items",
+              "kinds": {
+                "number": 227
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "number": 91
+                },
+                "IOS": {
+                  "number": 129
+                },
+                "WEB": {
+                  "number": 7
+                }
+              }
+            },
+            {
+              "property": "order_id",
+              "kinds": {
+                "string": 227
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 91
+                },
+                "IOS": {
+                  "string": 129
+                },
+                "WEB": {
+                  "string": 7
+                }
+              }
+            },
+            {
+              "property": "payment",
+              "kinds": {
+                "string": 227
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 91
+                },
+                "IOS": {
+                  "string": 129
+                },
+                "WEB": {
+                  "string": 7
+                }
+              }
+            },
+            {
+              "property": "value",
+              "kinds": {
+                "number": 227
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "number": 91
+                },
+                "IOS": {
+                  "number": 129
+                },
+                "WEB": {
+                  "number": 7
+                }
+              }
             }
           ],
           "byPlatform": [
@@ -2208,6 +2642,42 @@
               "valuesCapped": false
             }
           ],
+          "propertyTypes": [
+            {
+              "property": "city",
+              "kinds": {
+                "string": 173
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 73
+                },
+                "IOS": {
+                  "string": 96
+                },
+                "WEB": {
+                  "string": 4
+                }
+              }
+            },
+            {
+              "property": "results",
+              "kinds": {
+                "number": 173
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "number": 73
+                },
+                "IOS": {
+                  "number": 96
+                },
+                "WEB": {
+                  "number": 4
+                }
+              }
+            }
+          ],
           "byPlatform": [
             {
               "platform": "iOS",
@@ -2319,6 +2789,25 @@
               "valuesCapped": false
             }
           ],
+          "propertyTypes": [
+            {
+              "property": "store_id",
+              "kinds": {
+                "string": 136
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 57
+                },
+                "IOS": {
+                  "string": 75
+                },
+                "WEB": {
+                  "string": 4
+                }
+              }
+            }
+          ],
           "byPlatform": [
             {
               "platform": "iOS",
@@ -2425,6 +2914,36 @@
               "property": "order_id",
               "trackedValueCount": 1,
               "valuesCapped": false
+            }
+          ],
+          "propertyTypes": [
+            {
+              "property": "carrier",
+              "kinds": {
+                "string": 132
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 67
+                },
+                "IOS": {
+                  "string": 65
+                }
+              }
+            },
+            {
+              "property": "order_id",
+              "kinds": {
+                "string": 132
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 67
+                },
+                "IOS": {
+                  "string": 65
+                }
+              }
             }
           ],
           "byPlatform": [
@@ -2539,6 +3058,42 @@
               "valuesCapped": false
             }
           ],
+          "propertyTypes": [
+            {
+              "property": "rating",
+              "kinds": {
+                "number": 121
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "number": 53
+                },
+                "IOS": {
+                  "number": 60
+                },
+                "WEB": {
+                  "number": 8
+                }
+              }
+            },
+            {
+              "property": "sku",
+              "kinds": {
+                "string": 121
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 53
+                },
+                "IOS": {
+                  "string": 60
+                },
+                "WEB": {
+                  "string": 8
+                }
+              }
+            }
+          ],
           "byPlatform": [
             {
               "platform": "iOS",
@@ -2628,6 +3183,19 @@
               "valuesCapped": false
             }
           ],
+          "propertyTypes": [
+            {
+              "property": "widget",
+              "kinds": {
+                "string": 83
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 83
+                }
+              }
+            }
+          ],
           "byPlatform": [
             {
               "platform": "Android",
@@ -2709,6 +3277,22 @@
               "property": "category",
               "trackedValueCount": 1,
               "valuesCapped": false
+            }
+          ],
+          "propertyTypes": [
+            {
+              "property": "category",
+              "kinds": {
+                "string": 72
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 34
+                },
+                "IOS": {
+                  "string": 38
+                }
+              }
             }
           ],
           "byPlatform": [
@@ -2801,6 +3385,22 @@
               "property": "source",
               "trackedValueCount": 1,
               "valuesCapped": false
+            }
+          ],
+          "propertyTypes": [
+            {
+              "property": "source",
+              "kinds": {
+                "string": 62
+              },
+              "byDevice": {
+                "ANDROID": {
+                  "string": 25
+                },
+                "IOS": {
+                  "string": 37
+                }
+              }
             }
           ],
           "byPlatform": [
@@ -4471,21 +5071,21 @@
       "title": "app_version 3.1.0 on ANDROID",
       "description": "Device attributes.app_version=3.1.0",
       "eventCount": 10,
-      "eventsDigest": "7e8c75c69e2c7d32"
+      "eventsDigest": "3750f2b6c272feb1"
     },
     {
       "kpiId": "app.IOS.3.1.0",
       "title": "app_version 3.1.0 on IOS",
       "description": "Device attributes.app_version=3.1.0",
       "eventCount": 10,
-      "eventsDigest": "6d18bae6b12e170a"
+      "eventsDigest": "786ac7dfe216fc4c"
     },
     {
       "kpiId": "app.WEB.3.1.0",
       "title": "app_version 3.1.0 on WEB",
       "description": "Device attributes.app_version=3.1.0",
       "eventCount": 10,
-      "eventsDigest": "c0c26ea46d66d40a"
+      "eventsDigest": "d6d55ce8164c5db4"
     },
     {
       "kpiId": "app.ANDROID.3.2.0",
@@ -4513,7 +5113,7 @@
       "title": "app_version 3.2.1 on ANDROID",
       "description": "Device attributes.app_version=3.2.1",
       "eventCount": 10,
-      "eventsDigest": "b106f868c5008d0b"
+      "eventsDigest": "75cc1993005f0f6d"
     },
     {
       "kpiId": "app.IOS.3.2.1",
@@ -5052,42 +5652,42 @@
       "title": "CUSTOM (SDK): promo_applied on ANDROID",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "3103b91ec8351014"
+      "eventsDigest": "fca55ec65f498dc1"
     },
     {
       "kpiId": "custom.SDK.promo_applied.IOS",
       "title": "CUSTOM (SDK): promo_applied on IOS",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "71bb3a9e14a086ff"
+      "eventsDigest": "a0c6a1a6724cfc22"
     },
     {
       "kpiId": "custom.SDK.promo_applied.WEB",
       "title": "CUSTOM (SDK): promo_applied on WEB",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "fa2bda473ab1bab4"
+      "eventsDigest": "0a4b67e6f6549d74"
     },
     {
       "kpiId": "custom.SDK.purchase.ANDROID",
       "title": "CUSTOM (SDK): purchase on ANDROID",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "c9acf69baa858ba4"
+      "eventsDigest": "70f7435304b3f516"
     },
     {
       "kpiId": "custom.SDK.purchase.IOS",
       "title": "CUSTOM (SDK): purchase on IOS",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "d4d3a6ff7d72c1f3"
+      "eventsDigest": "2ad9147654673986"
     },
     {
       "kpiId": "custom.SDK.purchase.WEB",
       "title": "CUSTOM (SDK): purchase on WEB",
       "description": null,
       "eventCount": 7,
-      "eventsDigest": "6fb90be4dbe570ab"
+      "eventsDigest": "099e3bfdbf6fbdde"
     },
     {
       "kpiId": "custom.SDK.review_submitted.ANDROID",
@@ -5486,147 +6086,189 @@
       "title": "CUSTOM promo_applied (SDK): property \"code\" on ANDROID",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "785b371139d36286"
+      "eventsDigest": "403b8ee28bf667d7"
     },
     {
       "kpiId": "custom.prop.SDK.promo_applied.IOS.code",
       "title": "CUSTOM promo_applied (SDK): property \"code\" on IOS",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "18d032528f0447df"
+      "eventsDigest": "5156a9c3b694007d"
     },
     {
       "kpiId": "custom.prop.SDK.promo_applied.WEB.code",
       "title": "CUSTOM promo_applied (SDK): property \"code\" on WEB",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "d8f8992da4b0645f"
+      "eventsDigest": "05e54d41a8f344d9"
     },
     {
       "kpiId": "custom.prop.SDK.promo_applied.ANDROID.discount",
       "title": "CUSTOM promo_applied (SDK): property \"discount\" on ANDROID",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "785b371139d36286"
+      "eventsDigest": "403b8ee28bf667d7"
     },
     {
       "kpiId": "custom.prop.SDK.promo_applied.IOS.discount",
       "title": "CUSTOM promo_applied (SDK): property \"discount\" on IOS",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "18d032528f0447df"
+      "eventsDigest": "5156a9c3b694007d"
     },
     {
       "kpiId": "custom.prop.SDK.promo_applied.WEB.discount",
       "title": "CUSTOM promo_applied (SDK): property \"discount\" on WEB",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "d8f8992da4b0645f"
+      "eventsDigest": "05e54d41a8f344d9"
+    },
+    {
+      "kpiId": "custom.prop.SDK.promo_applied.ANDROID.first_order",
+      "title": "CUSTOM promo_applied (SDK): property \"first_order\" on ANDROID",
+      "description": null,
+      "eventCount": 10,
+      "eventsDigest": "403b8ee28bf667d7"
+    },
+    {
+      "kpiId": "custom.prop.SDK.promo_applied.IOS.first_order",
+      "title": "CUSTOM promo_applied (SDK): property \"first_order\" on IOS",
+      "description": null,
+      "eventCount": 10,
+      "eventsDigest": "5156a9c3b694007d"
+    },
+    {
+      "kpiId": "custom.prop.SDK.promo_applied.WEB.first_order",
+      "title": "CUSTOM promo_applied (SDK): property \"first_order\" on WEB",
+      "description": null,
+      "eventCount": 10,
+      "eventsDigest": "05e54d41a8f344d9"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.ANDROID.currency",
       "title": "CUSTOM purchase (SDK): property \"currency\" on ANDROID",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "57486d6bfc801978"
+      "eventsDigest": "756c190feb48bdb0"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.IOS.currency",
       "title": "CUSTOM purchase (SDK): property \"currency\" on IOS",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "dc31e080e7b2dbf8"
+      "eventsDigest": "ac658764b5663b27"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.WEB.currency",
       "title": "CUSTOM purchase (SDK): property \"currency\" on WEB",
       "description": null,
       "eventCount": 7,
-      "eventsDigest": "d5e01b311bb1cf17"
+      "eventsDigest": "459ba073b4def275"
+    },
+    {
+      "kpiId": "custom.prop.SDK.purchase.ANDROID.first_order",
+      "title": "CUSTOM purchase (SDK): property \"first_order\" on ANDROID",
+      "description": null,
+      "eventCount": 10,
+      "eventsDigest": "756c190feb48bdb0"
+    },
+    {
+      "kpiId": "custom.prop.SDK.purchase.IOS.first_order",
+      "title": "CUSTOM purchase (SDK): property \"first_order\" on IOS",
+      "description": null,
+      "eventCount": 10,
+      "eventsDigest": "ac658764b5663b27"
+    },
+    {
+      "kpiId": "custom.prop.SDK.purchase.WEB.first_order",
+      "title": "CUSTOM purchase (SDK): property \"first_order\" on WEB",
+      "description": null,
+      "eventCount": 7,
+      "eventsDigest": "459ba073b4def275"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.ANDROID.items",
       "title": "CUSTOM purchase (SDK): property \"items\" on ANDROID",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "57486d6bfc801978"
+      "eventsDigest": "756c190feb48bdb0"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.IOS.items",
       "title": "CUSTOM purchase (SDK): property \"items\" on IOS",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "dc31e080e7b2dbf8"
+      "eventsDigest": "ac658764b5663b27"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.WEB.items",
       "title": "CUSTOM purchase (SDK): property \"items\" on WEB",
       "description": null,
       "eventCount": 7,
-      "eventsDigest": "d5e01b311bb1cf17"
+      "eventsDigest": "459ba073b4def275"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.ANDROID.order_id",
       "title": "CUSTOM purchase (SDK): property \"order_id\" on ANDROID",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "57486d6bfc801978"
+      "eventsDigest": "756c190feb48bdb0"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.IOS.order_id",
       "title": "CUSTOM purchase (SDK): property \"order_id\" on IOS",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "dc31e080e7b2dbf8"
+      "eventsDigest": "ac658764b5663b27"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.WEB.order_id",
       "title": "CUSTOM purchase (SDK): property \"order_id\" on WEB",
       "description": null,
       "eventCount": 7,
-      "eventsDigest": "d5e01b311bb1cf17"
+      "eventsDigest": "459ba073b4def275"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.ANDROID.payment",
       "title": "CUSTOM purchase (SDK): property \"payment\" on ANDROID",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "57486d6bfc801978"
+      "eventsDigest": "756c190feb48bdb0"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.IOS.payment",
       "title": "CUSTOM purchase (SDK): property \"payment\" on IOS",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "dc31e080e7b2dbf8"
+      "eventsDigest": "ac658764b5663b27"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.WEB.payment",
       "title": "CUSTOM purchase (SDK): property \"payment\" on WEB",
       "description": null,
       "eventCount": 7,
-      "eventsDigest": "d5e01b311bb1cf17"
+      "eventsDigest": "459ba073b4def275"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.ANDROID.value",
       "title": "CUSTOM purchase (SDK): property \"value\" on ANDROID",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "57486d6bfc801978"
+      "eventsDigest": "756c190feb48bdb0"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.IOS.value",
       "title": "CUSTOM purchase (SDK): property \"value\" on IOS",
       "description": null,
       "eventCount": 10,
-      "eventsDigest": "dc31e080e7b2dbf8"
+      "eventsDigest": "ac658764b5663b27"
     },
     {
       "kpiId": "custom.prop.SDK.purchase.WEB.value",
       "title": "CUSTOM purchase (SDK): property \"value\" on WEB",
       "description": null,
       "eventCount": 7,
-      "eventsDigest": "d5e01b311bb1cf17"
+      "eventsDigest": "459ba073b4def275"
     },
     {
       "kpiId": "custom.prop.SDK.review_submitted.ANDROID.rating",
@@ -5801,7 +6443,7 @@
       "title": "Events on device_type ANDROID",
       "description": "Sample CUSTOM event for platform ANDROID",
       "eventCount": 10,
-      "eventsDigest": "011ad512133e793c"
+      "eventsDigest": "2ee4cb7a0c042b58"
     },
     {
       "kpiId": "by_device.IOS",
@@ -6519,6 +7161,47 @@
     },
     {
       "severity": "warning",
+      "name": "promo_applied",
+      "key": "first_order",
+      "source": "SDK",
+      "types": [
+        {
+          "kind": "text-boolean",
+          "label": "text \"true\"/\"false\"",
+          "count": 272,
+          "deviceTypes": [
+            "ANDROID",
+            "IOS",
+            "WEB"
+          ]
+        }
+      ],
+      "category": "custom_property_text_boolean",
+      "message": "Custom event \"promo_applied\" (SDK): property \"first_order\" is sent as the text \"true\"/\"false\", not a boolean — 272 of 272 value(s), on ANDROID, IOS, WEB. A trigger or audience condition on the boolean true will not match it."
+    },
+    {
+      "severity": "warning",
+      "category": "custom_property_type_conflict",
+      "name": "first_order",
+      "key": "first_order",
+      "byEvent": [
+        {
+          "type": "text \"true\"/\"false\"",
+          "events": [
+            "promo_applied"
+          ]
+        },
+        {
+          "type": "boolean",
+          "events": [
+            "purchase"
+          ]
+        }
+      ],
+      "message": "Property \"first_order\" does not have the same JSON type in every custom event — text \"true\"/\"false\" in \"promo_applied\"; boolean in \"purchase\". A trigger or segment copied from one event to another will not match."
+    },
+    {
+      "severity": "warning",
       "category": "attribute_device_gap",
       "message": "Attributes: \"last_order_value\" has operations on IOS, ANDROID only — not on WEB (125 ops).",
       "key": "last_order_value",
@@ -6757,6 +7440,47 @@
           "custom.SDK.legacy_wallet_opened.IOS",
           "custom.SDK.legacy_wallet_opened.ANDROID"
         ]
+      },
+      {
+        "severity": "warning",
+        "name": "promo_applied",
+        "key": "first_order",
+        "source": "SDK",
+        "types": [
+          {
+            "kind": "text-boolean",
+            "label": "text \"true\"/\"false\"",
+            "count": 272,
+            "deviceTypes": [
+              "ANDROID",
+              "IOS",
+              "WEB"
+            ]
+          }
+        ],
+        "category": "custom_property_text_boolean",
+        "message": "Custom event \"promo_applied\" (SDK): property \"first_order\" is sent as the text \"true\"/\"false\", not a boolean — 272 of 272 value(s), on ANDROID, IOS, WEB. A trigger or audience condition on the boolean true will not match it."
+      },
+      {
+        "severity": "warning",
+        "category": "custom_property_type_conflict",
+        "name": "first_order",
+        "key": "first_order",
+        "byEvent": [
+          {
+            "type": "text \"true\"/\"false\"",
+            "events": [
+              "promo_applied"
+            ]
+          },
+          {
+            "type": "boolean",
+            "events": [
+              "purchase"
+            ]
+          }
+        ],
+        "message": "Property \"first_order\" does not have the same JSON type in every custom event — text \"true\"/\"false\" in \"promo_applied\"; boolean in \"purchase\". A trigger or segment copied from one event to another will not match."
       },
       {
         "severity": "warning",

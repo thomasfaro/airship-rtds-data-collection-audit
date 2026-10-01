@@ -5,6 +5,7 @@ import { formatPlatformCoverageLabel, getPlatformCoverageKey } from "../platform
 const MISMATCH_ORDER = [
   "platform_coverage",
   "cross_platform_inconsistency",
+  "value_types",
   "sdk_versions",
   "other",
 ];
@@ -12,6 +13,7 @@ const MISMATCH_ORDER = [
 export const MISMATCH_LABELS = {
   platform_coverage: "Missing on platform",
   cross_platform_inconsistency: "Cross-platform inconsistency",
+  value_types: "Property value types",
   sdk_versions: "SDK version issues",
   other: "Other",
 };
@@ -32,6 +34,14 @@ export const MISMATCH_VISUAL = {
     text: "text-amber-950",
     muted: "text-amber-900/75",
     bar: "#F59E0B",
+  },
+  value_types: {
+    accent: "bg-orange-500",
+    surface: "bg-orange-50/80",
+    border: "border-orange-200",
+    text: "text-orange-950",
+    muted: "text-orange-900/75",
+    bar: "#F97316",
   },
   sdk_versions: {
     accent: "bg-sky-500",
@@ -54,6 +64,9 @@ export const MISMATCH_VISUAL = {
 export const WARNING_CATEGORY_LABELS = {
   custom_event_platform_mismatch: "Custom event · platform",
   custom_property_mismatch: "Custom event · properties",
+  custom_property_text_boolean: "Custom event · boolean as text",
+  custom_property_type_mix: "Custom event · mixed types",
+  custom_property_type_conflict: "Custom event · type differs by event",
   attribute_case_mismatch: "Attribute · casing",
   attribute_device_gap: "Attribute · platform gap",
   attribute_value_mismatch: "Attribute · value shape",
@@ -98,6 +111,9 @@ const CATEGORY_TO_MISMATCH = {
   email_property_mismatch: "cross_platform_inconsistency",
   open_triggering_push_platform_gap: "cross_platform_inconsistency",
   sdk_major_cross_platform: "cross_platform_inconsistency",
+  custom_property_text_boolean: "value_types",
+  custom_property_type_mix: "value_types",
+  custom_property_type_conflict: "value_types",
   sdk_version_split: "sdk_versions",
   sdk_stale: "sdk_versions",
   sdk_release_unknown: "sdk_versions",
@@ -106,6 +122,9 @@ const CATEGORY_TO_MISMATCH = {
 const CATEGORY_TO_DATA_TYPE = {
   custom_event_platform_mismatch: "custom_events",
   custom_property_mismatch: "custom_events",
+  custom_property_text_boolean: "custom_events",
+  custom_property_type_mix: "custom_events",
+  custom_property_type_conflict: "custom_events",
   attribute_case_mismatch: "attributes",
   attribute_device_gap: "attributes",
   attribute_value_mismatch: "attributes",

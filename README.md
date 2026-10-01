@@ -20,7 +20,8 @@ never leaves it.
 - **The same plan as `.json`** — for anything downstream. The `airship-engagement-review` skill reads
   this file to ground a client engagement review in the client's real taxonomy.
 - **The findings that come for free** — an event tracked on iOS but never seen on Android, an
-  attribute written by both the SDK and a CRM, a screen name that only exists on an old build.
+  attribute written by both the SDK and a CRM, a screen name that only exists on an old build, a
+  boolean sent as the text `"true"` that no trigger on `true` will ever match.
 - **A live stream monitor** — for the other question: did that tap just send what it should have?
   [See below](#watch-a-stream-live).
 

@@ -3,6 +3,7 @@
 import { trackedValueCountForRow } from "./attributeValues.js";
 import { attributeJsonPropertyStatsForRow } from "./attributeJsonSchema.js";
 import { propertyValueStatsForBucket } from "./customEventPropertyValues.js";
+import { summarizePropertyTypes } from "./customPropertyTypes.js";
 import { kpiId as sampleKpiId } from "./eventSamples.js";
 import { AUDIT_REPORT_TOP_LIST_LIMIT } from "./reportTopLimits.js";
 import { sortVersionRowsByCountDesc, sortVersionRowsBySemverDesc } from "./sdkReleaseDates.js";
@@ -742,6 +743,7 @@ export function buildCustomEventInsights(
         sampleKpiIds,
         sampleValues: [...(data.sampleValues ?? new Set())],
         propertyValueStats: propertyValueStatsForBucket(data),
+        propertyTypes: summarizePropertyTypes(data.propertyTypes),
       };
 
       if (expectedPlatforms.length >= 2) {

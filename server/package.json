@@ -1,6 +1,6 @@
 {
   "name": "rtds-data-collection-audit-server",
-  "version": "1.6.3",
+  "version": "1.7.0",
   "private": true,
   "type": "module",
   "scripts": {

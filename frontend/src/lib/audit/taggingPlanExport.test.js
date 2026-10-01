@@ -202,7 +202,7 @@ test("buildTaggingPlanWorkbookModel derives platform columns and rows", () => {
   assert.equal(contentsRow("Attributes tracked"), 1);
   assert.equal(contentsRow("Screens tracked"), 1);
   assert.equal(contentsRow("Absent from latest version"), 1);
-  assert.equal(contentsRow("Platform mismatches"), 0);
+  assert.equal(contentsRow("Mismatches"), 0);
   // Platform rows carry their share of the traffic; the total row is left out.
   assert.equal(scope.rows.find((r) => r.platform === "iOS").share, 0.6);
   assert.equal(scope.rows.find((r) => r.__total).share, undefined);
@@ -332,6 +332,45 @@ test("Mismatches sheet groups coverage + value/property warnings and excludes SD
   // SDK version issues and capture parse noise are excluded.
   assert.ok(!sheet.rows.some((r) => r.issue === "SDK · version split"));
   assert.ok(!sheet.rows.some((r) => String(r.message).includes("skipped lines")));
+});
+
+test("Mismatches sheet lists property value type warnings with their JSON types", () => {
+  const report = sampleReport();
+  report.executiveSummary = {
+    warnings: [
+      {
+        severity: "warning",
+        category: "custom_property_text_boolean",
+        message: 'Custom event "ad_completed" (SDK): property "completed" is sent as the text "true"/"false", not a boolean.',
+        name: "ad_completed",
+        key: "completed",
+        source: "SDK",
+        types: [{ kind: "text-boolean", label: 'text "true"/"false"', count: 1200, deviceTypes: ["ANDROID", "IOS"] }],
+      },
+      {
+        severity: "warning",
+        category: "custom_property_type_conflict",
+        message: 'Property "completed" does not have the same JSON type in every custom event.',
+        name: "completed",
+        key: "completed",
+        byEvent: [
+          { type: "boolean", events: ["video_completed"] },
+          { type: 'text "true"/"false"', events: ["ad_completed"] },
+        ],
+      },
+    ],
+  };
+
+  const sheet = buildTaggingPlanWorkbookModel(report).dataSheets.find((s) => s.name === "Mismatches");
+  assert.ok(sheet.rows.some((r) => r.__section === "Property value types"));
+
+  const textRow = sheet.rows.find((r) => r.issue === "Custom event · boolean as text");
+  assert.equal(textRow.name, "ad_completed");
+  assert.equal(textRow.details, 'completed: text "true"/"false" ×1,200 (ANDROID, IOS)');
+
+  const conflictRow = sheet.rows.find((r) => r.issue === "Custom event · type differs by event");
+  assert.equal(conflictRow.name, "completed");
+  assert.equal(conflictRow.details, 'boolean: video_completed; text "true"/"false": ad_completed');
 });
 
 test("Mismatches sheet shows an empty-state note without warnings", () => {

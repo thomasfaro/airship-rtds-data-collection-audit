@@ -1,6 +1,7 @@
 import { compareSemver, normalizeTag, sdkPlatformForDeviceType } from "./sdkReleaseDates.js";
 import { isActionablePlatformGap } from "./analyzeInsights.js";
 import { maxSdkVersionInRow } from "./sdkReleaseDates.js";
+import { buildCustomPropertyTypeWarnings } from "./customPropertyTypes.js";
 export function buildCustomEventPlatformWarnings(customEvents) {
   const expected = customEvents?.platformLabelsInSample ?? [];
   if (expected.length < 2) return [];
@@ -201,6 +202,8 @@ export function collectAuditWarnings(report, sdkWarnings = []) {
   });
 
   warnings.push(...buildCustomEventPlatformWarnings(report.customEvents));
+
+  warnings.push(...buildCustomPropertyTypeWarnings(report.customEvents));
 
   pushAttributeWarnings(warnings, report.attributes, { audienceLabel: "Attributes" });
 
